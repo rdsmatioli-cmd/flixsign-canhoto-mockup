@@ -1039,12 +1039,13 @@ function viewCaso(id) {
 }
 
 /* ================= Diálogos de ação (produto 7.3) ================= */
-let modalOk = null;
+let modalOk = null, modalFrom = null;
 function openModal(title, body, okLabel, okCls, onOk) {
+  modalFrom = focoDe(document.activeElement);
   $("#modal").innerHTML = `<div class="modal-h"><h2 id="modal-t">${title}</h2><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
   modalOk = onOk; $("#overlay").classList.add("on"); const f = $("#modal input:not([type=radio]):not([type=checkbox]), #modal textarea, #modal select"); if (f) setTimeout(() => f.focus(), 30);
 }
-function closeModal() { $("#overlay").classList.remove("on"); modalOk = null; }
+function closeModal() { $("#overlay").classList.remove("on"); modalOk = null; const d = modalFrom; modalFrom = null; focar(d); }
 const pkgHTML = c => `<div class="pkg"><span>Protocolo</span><span class="mono">${c.id}</span><span>NF / série</span><span class="num">${esc(c.nf)} / ${esc(c.serie)}</span><span>Título</span><span class="num">${c.titulo ? c.titulo.id : "—"}</span><span>Cedente</span><span>${esc(cedName(c.ced))}</span><span>Sacado</span><span>${c.titulo ? esc(c.titulo.sac) : "—"}</span><span>Valor / venc.</span><span class="num">${c.titulo ? brl(c.titulo.val) + " · " + fD(c.titulo.venc) : "—"}</span><span>Remetente</span><span>${esc(mask(c.rem.id))} · ${chanHTML(c.canal)}</span><span>Confirmação</span><span>${c.conf ? `"${esc(c.conf.txt)}" em ${fDM(c.conf.em)}` : "—"}</span></div>`;
 function ensureAssigned(c) { if (c.resp !== ME) { c.resp = ME; addEv(c, "CASO_ATRIBUIDO", "OPERADOR", `Atribuído a ${ME}`); } }
 function dlgLancar(c) {
@@ -1191,7 +1192,7 @@ function waItem(m) {
   if (m.k === "qr") return `<div class="qr"><span>SIM</span><span>NÃO</span></div>`;
   if (m.k === "photo") return `<div class="msg out photo"><div class="img">${svgFor(m.c)}</div><span class="tm">${m.tm}<span class="ck"><svg viewBox="0 0 18 11" width="16" height="10" style="vertical-align:-1px" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3 3 6-7M7 8.5l1 .5 6-7"/></svg></span></span></div>`;
   const tick = m.k === "out" ? `<span class="ck"><svg viewBox="0 0 18 11" width="16" height="10" style="vertical-align:-1px" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3 3 6-7M7 8.5l1 .5 6-7"/></svg></span>` : "";
-  return `<div class="msg ${m.k}"${m.preview ? ' style="outline:1.5px dashed #0f766e;outline-offset:2px;opacity:.88"' : ""}>${m.tpl ? `<span class="tpl">${esc(m.tpl)}</span>` : ""}${esc(m.t)}<span class="tm">${m.tm}${tick}</span></div>`;
+  return `<div class="msg ${m.k}"${m.preview ? ' style="outline:1.5px dashed #0f766e;outline-offset:2px"' : ""}>${m.tpl ? `<span class="tpl">${esc(m.tpl)}</span>` : ""}${esc(m.t)}<span class="tm">${m.tm}${tick}</span></div>`;
 }
 function phone(id, items, clockTxt) {
   return `<div class="phone"><div class="screen"><div class="sbar"><span>${clockTxt}</span><span>5G ▮▮▮</span></div>
@@ -1267,7 +1268,7 @@ function viewEmail() {
       <div class="mbody">${esc(mm.body)}</div>
       <div class="attach">${ok ? `<div class="th">${svgFor(c)}</div>` : `<div class="th" style="height:60px;display:grid;place-items:center;color:#fff;background:#2b579a;font-weight:700">DOCX</div>`}<div style="min-width:0"><div class="ellipsis" style="font-weight:600;font-size:13px">${IC.clip.replace("<svg", '<svg style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"')}${esc(mm.file)}</div><div class="small muted ellipsis">${esc(c.mime.length > 20 ? "Documento Word" : c.mime)} · ${String(c.tam).replace(".", ",")} MB</div><div class="small" style="margin-top:4px">${ok ? `Caso <a href="#caso/${c.id}" class="mono">${c.id}</a> criado` : badge("Formato não suportado", "b-warn")}</div></div></div>
       ${th.length ? item(th[0], true) : ""}
-      ${th.slice(1).map((x, i) => UI.mailOpen === i ? item(x, true) : item(x, false).replace('data-act="mexp"', `data-act="mexp" data-i="${i}"`)).join("")}
+      ${th.slice(1).map((x, i) => UI.mailOpen === i ? item(x, true).replace('class="thread-item"', `class="thread-item" tabindex="-1" data-exp="${i}"`) : item(x, false).replace('data-act="mexp"', `data-act="mexp" data-i="${i}"`)).join("")}
       ${th.length > 1 ? `<div class="xs faint mind">Clique numa mensagem recolhida para expandir.</div>` : ""}
     </div>
     <div class="grid mail-side" style="gap:16px">
@@ -1341,18 +1342,32 @@ function viewConfig() {
 /* ================= Roteador e eventos ================= */
 const TITLES = { dashboard: "Visão geral", fila: "Fila de lançamento", pendencias: "Pendências", caso: "Detalhe do caso", whatsapp: "Conversa WhatsApp", email: "E-mail", config: "Configurações" };
 let lastRoute = "", fromList = "fila";
+/* Foco: descreve o elemento focado (id ou data-act + chaves) para devolvê-lo ao equivalente depois de trocar o conteúdo */
+function focoDe(el) {
+  if (!el || el === $("#view") || !$("#view").contains(el)) return null;
+  const d = el.dataset || {};
+  if (el.id) return { sel: "#" + CSS.escape(el.id), id: d.id };
+  if (!d.act) return null;
+  return { sel: `[data-act="${d.act}"]` + ["id", "k", "mot", "i"].filter(k => d[k] != null).map(k => `[data-${k}="${CSS.escape(d[k])}"]`).join(""), id: d.id, i: d.i };
+}
+function focar(d, caret) {
+  if (!d) return;
+  const alvos = [d.sel, d.i != null && `[data-exp="${CSS.escape(d.i)}"]`, d.id && `[data-act][data-id="${CSS.escape(d.id)}"]:not([disabled])`, d.id && `a[href="#caso/${CSS.escape(d.id)}"]`].filter(Boolean);
+  for (const s of alvos) { const el = $("#view " + s); if (!el) continue; el.focus({ preventScroll: true }); if (document.activeElement !== el) continue;
+    if (caret != null && /^(ff|pf)-q$/.test(el.id)) { try { el.setSelectionRange(caret, caret); } catch (e) {} } return; }
+}
 function render() {
   const h = (location.hash || "#dashboard").slice(1); const [r, arg] = h.split("/"); const route = TITLES[r] ? r : "dashboard";
   const changed = h !== lastRoute; if (changed && route === "caso") { UI.zoom = 1; UI.rot = 0; }
   if (changed && (route === "fila" || route === "pendencias")) fromList = route;
-  const ae = document.activeElement, focusId = ae && ae.id, caret = ae && ae.selectionStart;
+  const ae = document.activeElement, foco = focoDe(ae), caret = ae && ae.selectionStart;
   const html = { dashboard: viewDashboard, fila: viewFila, pendencias: viewPend, caso: () => viewCaso(arg), whatsapp: viewWA, email: viewEmail, config: viewConfig }[route]();
   $("#view").innerHTML = html; counts();
   $$("#nav a").forEach(a => a.classList.toggle("active", a.dataset.r === (route === "caso" ? fromList : route)));
   $("#crumb-page").textContent = route === "caso" ? `Caso ${arg}` : TITLES[route];
   document.title = `${route === "caso" ? "Caso " + arg : TITLES[route]} · Flixsign Canhoto (mockup)`;
   if (changed) { window.scrollTo(0, 0); lastRoute = h; }
-  if (focusId && document.getElementById(focusId) && /^(ff|pf)-q$/.test(focusId)) { const el = document.getElementById(focusId); el.focus(); try { el.setSelectionRange(caret, caret); } catch (e) {} }
+  if (!changed) focar(foco, caret);
   CASES.forEach(c => c.events.forEach(e => { if (e.fresh) setTimeout(() => { e.fresh = false; }, 50); }));
   $$(".chat").forEach(ch => { ch.scrollTop = 0; });
 }
