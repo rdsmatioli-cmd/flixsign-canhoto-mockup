@@ -9,8 +9,8 @@
 <style>
 :root{
   --bg:#f3f5f8; --surface:#ffffff; --surface-2:#f8fafc; --border:#e2e7ee; --border-strong:#cfd7e2;
-  --text:#172231; --text-2:#3a4757; --muted:#66748a; --faint:#94a1b3;
-  --sidebar:#0e1a28; --sidebar-2:#152436; --sidebar-text:#b8c4d3; --sidebar-muted:#6f8095;
+  --text:#172231; --text-2:#3a4757; --muted:#5f6c81; --faint:#64758d;
+  --sidebar:#0e1a28; --sidebar-2:#152436; --sidebar-text:#b8c4d3; --sidebar-muted:#7d8da0;
   --accent:#0f766e; --accent-hover:#0b5f58; --accent-soft:#e3f3f1; --accent-ring:rgba(15,118,110,.22);
   --ok:#147a3c; --ok-bg:#e6f4ea; --warn:#a45a06; --warn-bg:#fdf1de; --bad:#b42318; --bad-bg:#fdeceb;
   --info:#1d4fb8; --info-bg:#e8eefc; --wait:#6236c4; --wait-bg:#f0eafd; --neu:#4a5768; --neu-bg:#edf0f4;
@@ -38,7 +38,7 @@ a{color:var(--accent)}
 .brand-name{color:#fff;font-weight:700;font-size:16px;letter-spacing:.1px;line-height:1.1}
 .brand-mod{font-size:12px;color:#7fd8cc;font-weight:600;letter-spacing:.3px}
 .nav-sec{font-size:10.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--sidebar-muted);padding:12px 10px 6px;font-weight:600}
-.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:1px 0;border-radius:7px;color:var(--sidebar-text);text-decoration:none;font-size:13.3px;font-weight:500;white-space:nowrap}
+.nav a{position:relative;display:flex;align-items:center;gap:10px;padding:8px 10px;margin:1px 0;border-radius:7px;color:var(--sidebar-text);text-decoration:none;font-size:13.3px;font-weight:500;white-space:nowrap}
 .nav a:hover{background:var(--sidebar-2);color:#fff}
 .nav a.active{background:rgba(20,184,166,.14);color:#fff;box-shadow:inset 3px 0 0 #14b8a6}
 .nav a svg{width:18px;height:18px;flex:none;opacity:.9}
@@ -50,16 +50,20 @@ a{color:var(--accent)}
 .dot.off{background:#f59e0b}
 .main{display:flex;flex-direction:column;min-width:0}
 .topbar{height:58px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:20}
-.crumb{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);min-width:0;white-space:nowrap;overflow:hidden;flex:1 1 auto}
+.crumb{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);min-width:0;white-space:nowrap;overflow:hidden;flex:1 1 auto;container-type:inline-size}
+.crumb .pre{display:contents}
+#crumb-page{min-width:0;overflow:hidden;text-overflow:ellipsis}
+@container (max-width:460px){.crumb .pre{display:none}}
+@container (max-width:304px){.crumb .phase{display:none}}
 .crumb b{color:var(--text);font-weight:600}
 .crumb .sep{color:var(--faint)}
 .phase{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid #bfe3de;border-radius:20px;padding:2px 9px;white-space:nowrap}
 .top-right{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none}
 .search{position:relative}
-.search input{width:180px;height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:0 10px 0 32px;background:var(--surface-2);font-size:13px}
+.search input{width:192px;height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:0 10px 0 32px;background:var(--surface-2);font-size:13px}
 .search svg{position:absolute;left:10px;top:9px;width:16px;height:16px;color:var(--faint)}
 .tenant{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
-.tenant select{height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:0 8px;background:#fff;font-size:13px;color:var(--text);max-width:190px}
+.tenant select{height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:0 8px;background:#fff;font-size:13px;color:var(--text);width:150px}
 .sample{font-size:11.5px;font-weight:700;color:#8a4b00;background:#fff4dc;border:1px solid #f3cf86;border-radius:6px;padding:3px 8px;letter-spacing:.2px;white-space:nowrap;text-transform:uppercase}
 .user{display:flex;align-items:center;gap:9px;padding-left:12px;border-left:1px solid var(--border);white-space:nowrap}
 .avatar{width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1e40af;display:grid;place-items:center;font-weight:700;font-size:12.5px;flex:none}
@@ -74,11 +78,12 @@ a{color:var(--accent)}
 /* ---------- Cards ---------- */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
 .card-h{display:flex;align-items:center;gap:10px;padding:14px 16px 0}
-.card-h h3{margin:0;font-size:14px;font-weight:650}
+.card-h h2{margin:0;font-size:14px;font-weight:650}
 .card-h .sub{font-size:12px;color:var(--muted)}
 .card-h .r{margin-left:auto}
 .card-b{padding:14px 16px 16px}
 .grid{display:grid;gap:16px}
+.g-21{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}.g-3{grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1.2fr)}.g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
 .kpi{padding:14px 16px}
 .kpi .l{font-size:12px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:6px;min-height:34px;line-height:1.3}
@@ -141,7 +146,11 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .tbl tbody tr.done td{color:var(--muted)}
 .tbl tbody tr:last-child td{border-bottom:none}
 .tbl td.r,.tbl th.r{text-align:right}
-.tbl .proto{font-family:var(--mono);font-weight:600;color:var(--accent);font-size:12.5px}
+#tbl-fila .proto{display:block}
+@media (min-width:821px){#tbl-fila{min-width:1050px}#tbl-pend{min-width:1040px}#tbl-fila th:nth-last-child(-n+2),#tbl-fila td:not([colspan]):nth-last-child(-n+2),#tbl-pend th:last-child,#tbl-pend td:not([colspan]):last-child{position:sticky;right:0;z-index:1;background:var(--surface)}#tbl-fila th:nth-last-child(2),#tbl-fila td:not([colspan]):nth-last-child(2){right:166px}#tbl-fila th:nth-last-child(-n+2),#tbl-pend th:last-child{background:var(--surface-2)}#tbl-fila tbody tr:hover td:nth-last-child(-n+2),#tbl-pend tbody tr:hover td:last-child{background:#f6f9fb}#tbl-fila tbody tr.done td:nth-last-child(-n+2){background:#f5fbf7}.tbl-wrap.ovf #tbl-fila th:nth-last-child(2),.tbl-wrap.ovf #tbl-fila td:not([colspan]):nth-last-child(2),.tbl-wrap.ovf #tbl-pend th:last-child,.tbl-wrap.ovf #tbl-pend td:not([colspan]):last-child{box-shadow:inset 1px 0 0 var(--border),-8px 0 8px -8px rgba(16,24,40,.22)}}
+.tbl td .badge{white-space:normal;line-height:1.2;padding-top:3px;padding-bottom:3px}
+#tbl-fila th:first-child{text-overflow:clip}.selall{display:inline-flex;align-items:center;gap:10px;cursor:pointer}.selall span{display:none}
+.tbl .proto{text-decoration:none;font-family:var(--mono);font-weight:600;color:var(--accent);font-size:12.5px}
 .tbl .sub2{font-size:11.5px;color:var(--muted);margin-top:2px}
 .tbl input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
 .tbl-foot{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--border);font-size:12.5px;color:var(--muted);flex-wrap:wrap}
@@ -149,7 +158,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 /* ---------- Charts ---------- */
 .legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-.hbar{display:grid;grid-template-columns:170px 1fr 34px;gap:10px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer;border-radius:6px}
+.hbar{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) 34px;gap:10px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer;border-radius:6px}
 .hbar:hover .hb-track{background:#e6ebf1}
 .hb-track{height:10px;background:#eef1f5;border-radius:6px;overflow:hidden}
 .hb-fill{height:100%;border-radius:6px;background:var(--accent)}
@@ -170,11 +179,11 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .viewer .nomedia{color:#9fb0c4;font-size:13px;text-align:center;padding:20px}
 .viewer-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .kv{display:grid;grid-template-columns:150px 1fr;gap:7px 12px;font-size:13px}
-.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:500;min-width:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:500;min-width:0;overflow-wrap:break-word}.kv dd.num{overflow-wrap:normal}
 .ocr{width:100%;border-collapse:collapse;font-size:13px}
-.ocr td{padding:7px 0;border-bottom:1px solid #eef1f5;vertical-align:middle}
-.ocr tr:last-child td{border-bottom:none}
-.ocr td:first-child{color:var(--muted);width:140px}
+.ocr td,.ocr th{padding:7px 0;border-bottom:1px solid #eef1f5;vertical-align:middle}
+.ocr tr:last-child td,.ocr tr:last-child th{border-bottom:none}
+.ocr th{color:var(--muted);width:140px;text-align:left;font-weight:400}
 .conf{display:flex;align-items:center;gap:8px;justify-content:flex-end}
 .conf .t{width:70px;height:6px;background:#eef1f5;border-radius:4px;overflow:hidden}
 .conf .f{height:100%}
@@ -190,6 +199,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .tl li:last-child .pt::before{display:none}
 .tl li .pt i{position:absolute;left:3px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cfd7e2;background:#94a3b8}
 .tl .a-SISTEMA i{background:#64748b}.tl .a-REMETENTE i{background:#16a34a}.tl .a-OPERADOR i{background:#2563eb}.tl .a-MSG i{background:#0d9488}
+.tl li>div{min-width:0;overflow-wrap:break-word}.tl .code{white-space:normal;min-width:0;overflow-wrap:anywhere}
 .tl .ev-t{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .tl .ev-d{color:var(--text-2);font-size:12.5px;margin-top:2px}
 .tl .quote{margin-top:4px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid #0d9488;border-radius:6px;padding:6px 9px;font-size:12.5px;color:var(--text-2);white-space:pre-line}
@@ -208,7 +218,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .overlay.on{display:flex}
 .modal{background:#fff;border-radius:12px;box-shadow:var(--shadow-lg);width:560px;max-width:calc(100vw - 32px);max-height:84vh;display:flex;flex-direction:column}
 .modal-h{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.modal-h h3{margin:0;font-size:16px}
+.modal-h h2{margin:0;font-size:16px}
 .modal-h .x{margin-left:auto}
 .modal-b{padding:16px 20px;overflow:auto;display:flex;flex-direction:column;gap:12px}
 .modal-f{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:var(--surface-2);border-radius:0 0 12px 12px}
@@ -220,14 +230,15 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .pick label:hover{background:var(--surface-2)}
 .pick input{accent-color:var(--accent)}
 .toasts{position:fixed;right:20px;bottom:46px;display:flex;flex-direction:column;gap:8px;z-index:200}
-.toast{background:#0f1b2a;color:#fff;border-radius:9px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:380px;display:flex;gap:10px;align-items:flex-start;animation:tin .2s ease}
+.toast{background:#0f1b2a;color:#fff;border-radius:9px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:min(380px,calc(100vw - 40px));display:flex;gap:10px;align-items:flex-start;animation:tin .2s ease}
 .toast b{color:#5eead4}
 @keyframes tin{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
 /* ---------- WhatsApp ---------- */
 .wa-wrap{display:grid;grid-template-columns:330px 330px minmax(0,1fr);gap:22px;align-items:start}
+.wa-wrap>*{min-width:0;max-width:100%}
 .flow-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.flow-h h3{margin:0;font-size:14px}
-.phone{width:330px;height:676px;background:#101418;border-radius:40px;padding:11px;box-shadow:0 18px 40px rgba(16,24,40,.22),inset 0 0 0 2px #2a3138;position:relative}
+.flow-h h2{margin:0;font-size:14px}
+.phone{width:330px;max-width:100%;height:676px;background:#101418;border-radius:40px;padding:11px;box-shadow:0 18px 40px rgba(16,24,40,.22),inset 0 0 0 2px #2a3138;position:relative}
 .screen{width:100%;height:100%;border-radius:30px;overflow:hidden;display:flex;flex-direction:column;background:#efeae2}
 .sbar{height:26px;background:#0b5c53;color:#e6fffa;font-size:11.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 26px}
 .wa-head{background:#0b5c53;color:#fff;display:flex;align-items:center;gap:10px;padding:6px 12px 9px}
@@ -239,7 +250,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .msg{max-width:84%;padding:6px 8px 4px;border-radius:8px;font-size:12.8px;line-height:1.38;box-shadow:0 1px .5px rgba(0,0,0,.13);white-space:pre-line;position:relative;word-wrap:break-word}
 .msg.in{align-self:flex-start;background:#fff;border-top-left-radius:2px}
 .msg.out{align-self:flex-end;background:#d9fdd3;border-top-right-radius:2px}
-.msg .tm{display:block;text-align:right;font-size:10px;color:#667781;margin-top:2px;white-space:nowrap}
+.msg .tm{display:block;text-align:right;font-size:10px;color:#60707a;margin-top:2px;white-space:nowrap}
 .msg .tm .ck{color:#53bdeb;margin-left:3px;display:inline-block}
 .msg.photo{padding:3px 3px 4px;width:220px}
 .msg.photo .img{border-radius:6px;overflow:hidden;background:#333}
@@ -255,7 +266,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
 @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
 .wa-input{display:flex;align-items:center;gap:8px;padding:7px 9px 12px;background:#efeae2}
-.wa-input div{flex:1;background:#fff;border-radius:20px;height:34px;display:flex;align-items:center;padding:0 14px;color:#8696a0;font-size:13px}
+.wa-input div{flex:1;background:#fff;border-radius:20px;height:34px;display:flex;align-items:center;padding:0 14px;color:#667782;font-size:13px}
 .wa-input span{width:34px;height:34px;border-radius:50%;background:#0b5c53;display:grid;place-items:center}
 .wa-input svg{width:16px;height:16px;color:#fff}
 .steps{list-style:none;margin:0;padding:0;font-size:12.5px}
@@ -278,7 +289,8 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .mhdr .av{width:38px;height:38px;border-radius:50%;background:#ede9fe;color:#5b21b6;display:grid;place-items:center;font-weight:700;font-size:13px}
 .mhdr .av.fx{background:var(--accent-soft);color:var(--accent)}
 .mbody{margin:14px 0 0 48px;font-size:13.5px;line-height:1.55;color:var(--text-2);white-space:pre-line}
-.attach{margin:14px 0 0 48px;display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:9px;padding:8px;width:340px;background:var(--surface-2)}
+.attach{margin:14px 0 0 48px;display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:9px;padding:8px;width:340px;max-width:calc(100% - 48px);background:var(--surface-2)}
+.attach .badge{white-space:normal}
 .attach .th{width:110px;border-radius:5px;overflow:hidden;flex:none;background:#333}
 .attach .th svg{display:block;width:100%;height:auto}
 .thread-item{border-top:1px solid var(--border);margin-top:16px;padding-top:14px}
@@ -286,6 +298,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .collapsed{display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--muted);padding:8px 0 0 48px;cursor:pointer}
 .collapsed:hover{color:var(--text)}
 .auths{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0 48px}
+.mind{margin:10px 0 0 48px}
 pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2a;color:#cfe3f3;border-radius:8px;padding:10px 12px;font-size:11.5px;line-height:1.5;overflow:auto;font-family:var(--mono)}
 /* ---------- Config ---------- */
 .opt{border:1px solid var(--border);border-radius:10px;padding:13px 14px;display:grid;grid-template-columns:20px 1fr;gap:10px;background:#fff;cursor:pointer}
@@ -307,8 +320,11 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
 /* ---------- Responsive ---------- */
 @media (max-width:1280px){.search{display:none}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.wa-wrap{grid-template-columns:330px 330px}.wa-side{grid-column:1/-1}.mail-wrap{grid-template-columns:240px minmax(0,1fr)}.mail-side{grid-column:1/-1}}
 @media (max-width:1280px){.det3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.det3>.hist{grid-column:1/-1}}
-@media (max-width:1100px){.det3{grid-template-columns:1fr!important}:root{--sbw:64px}.brand-name,.brand-mod,.nav a span,.nav .count,.nav-sec,.sb-foot{display:none}.nav a{justify-content:center}.det-grid,.split,.cfg-grid{grid-template-columns:1fr}.search input{width:160px}}
-@media (max-width:820px){.phase,.tenant{display:none}.app{grid-template-columns:1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1100px){.det3{grid-template-columns:1fr!important}:root{--sbw:64px}.brand-name,.brand-mod,.nav .count,.nav-sec,.sb-foot{display:none}.nav a span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}.nav a{justify-content:center}.det-grid,.split,.cfg-grid{grid-template-columns:1fr}.search input{width:160px}}
+@media (max-width:820px){.crumb{container-type:normal}.phase,.tenant{display:none}.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis,.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-21,.g-3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){.tbl.stk,.tbl.stk tbody{display:block;width:100%}.tbl.stk colgroup,.tbl.stk thead{display:none}.tbl.stk tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-flow:row dense;gap:8px 14px;padding:12px 14px;border-bottom:1px solid #edf1f5}.tbl.stk tbody tr:last-child{border-bottom:none}.tbl.stk td{display:block;padding:0;border:0;min-width:0;text-align:left}.tbl.stk td[data-l]::before{content:attr(data-l);display:block;font-size:10.5px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}.tbl.stk td.full,.tbl.stk td[colspan]{grid-column:1/-1}.tbl.stk-fila tr{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr)}.tbl.stk-fila td.chk{grid-row:1/span 6;padding-top:1px}.tbl.stk-fila td.full{grid-column:2/-1}.tbl.stk-fila td[colspan]{grid-column:1/-1}.tbl.stk-ced tr{grid-template-columns:repeat(3,minmax(0,1fr))}.tbl.stk-kv tr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:9px 14px}.tbl.stk-kv td.r{margin-left:auto}.tbl.stk td.clamp{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.tbl.stk-fila thead{display:block}.tbl.stk-fila thead tr{display:block;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2)}.tbl.stk-fila thead th{display:none}.tbl.stk-fila thead th:first-child{display:block;padding:0;border:0;background:none;overflow:visible}.tbl.stk-fila .selall span{display:inline;font-size:12.5px;font-weight:600;color:var(--text-2);text-transform:none;letter-spacing:0}}
+@media (max-width:640px){.mhdr{grid-template-columns:38px minmax(0,1fr)}.mhdr>:last-child{grid-column:2}.mbody,.auths,.mind{margin-left:0}.attach{margin-left:0;max-width:100%}.collapsed{padding-left:0}.kv{grid-template-columns:120px minmax(0,1fr)}}
+@media (max-width:480px){.hbar{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 34px}.ocr th{width:96px}.ocr td:last-child{width:86px!important}.conf .t{width:40px}}
 </style>
 </head>
 <body>
@@ -337,7 +353,7 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
   </aside>
   <div class="main">
     <header class="topbar">
-      <div class="crumb"><b>Flixsign</b><span class="sep">/</span><b>Canhoto</b><span class="sep">/</span><span id="crumb-page">Visão geral</span><span class="phase">Fase 1 · modo assistido</span></div>
+      <div class="crumb"><span class="pre"><b>Flixsign</b><span class="sep">/</span><b>Canhoto</b><span class="sep">/</span></span><span id="crumb-page">Visão geral</span><span class="phase">Fase 1 · modo assistido</span></div>
       <div class="top-right">
         <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gsearch" placeholder="Protocolo ou NF (Enter)" aria-label="Buscar caso por protocolo ou NF"></div>
         <label class="tenant" title="Tenant (cliente)">
@@ -351,8 +367,8 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
     <footer class="footer">Mockup — dados fictícios — Fase 1 (modo assistido)</footer>
   </div>
 </div>
-<div class="overlay" id="overlay"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
-<div class="toasts" id="toasts"></div>
+<div class="overlay" id="overlay"><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-t"></div></div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 <script>
 "use strict";
 /* =====================================================================
@@ -782,14 +798,14 @@ const DAYS = [["25/09",41,14],["26/09",9,2],["27/09",4,1],["28/09",52,18],["29/0
 function barChart() {
   const W = 760, H = 186, L = 30, B = 24, T = 12, max = 80, bw = (W - L - 10) / DAYS.length;
   let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Casos recebidos por dia e canal">`;
-  for (let v = 0; v <= max; v += 20) { const y = H - B - (v / max) * (H - B - T); s += `<line x1="${L}" y1="${y}" x2="${W - 6}" y2="${y}" stroke="#eef1f5"/><text x="${L - 6}" y="${y + 3.5}" font-size="10" fill="#94a1b3" text-anchor="end">${v}</text>`; }
+  for (let v = 0; v <= max; v += 20) { const y = H - B - (v / max) * (H - B - T); s += `<line x1="${L}" y1="${y}" x2="${W - 6}" y2="${y}" stroke="#eef1f5"/><text x="${L - 6}" y="${y + 3.5}" font-size="10" fill="#64758d" text-anchor="end">${v}</text>`; }
   DAYS.forEach((d, i) => {
     const x = L + i * bw + bw * .18, w = bw * .64, hW = (d[1] / max) * (H - B - T), hE = (d[2] / max) * (H - B - T);
     const y1 = H - B - hW, y2 = y1 - hE, today = i === DAYS.length - 1;
     s += `<rect x="${x}" y="${y1}" width="${w}" height="${hW}" fill="${today ? "#0f766e" : "#14b8a6"}" rx="2"><title>${d[0]}: WhatsApp ${d[1]}</title></rect>`;
     s += `<rect x="${x}" y="${y2}" width="${w}" height="${hE}" fill="${today ? "#3949ab" : "#7986cb"}" rx="2"><title>${d[0]}: E-mail ${d[2]}</title></rect>`;
-    s += `<text x="${x + w / 2}" y="${y2 - 4}" font-size="9.5" fill="#66748a" text-anchor="middle">${d[1] + d[2]}</text>`;
-    s += `<text x="${x + w / 2}" y="${H - 9}" font-size="9.5" fill="${today ? "#172231" : "#94a1b3"}" font-weight="${today ? 700 : 400}" text-anchor="middle">${d[0]}</text>`;
+    s += `<text x="${x + w / 2}" y="${y2 - 4}" font-size="9.5" fill="#5f6c81" text-anchor="middle">${d[1] + d[2]}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - 9}" font-size="9.5" fill="${today ? "#172231" : "#64758d"}" font-weight="${today ? 700 : 400}" text-anchor="middle">${d[0]}</text>`;
   });
   return s + "</svg>";
 }
@@ -813,27 +829,27 @@ function viewDashboard() {
     <div class="card kpi"><div class="l">Tempo até pronto para lançamento (M1)</div><div class="v num">1 min 52 s</div><div class="d">p50 · p95 5 min 40 s</div></div>
     <div class="card kpi"><div class="l">Tempo até lançamento (M2, métrica norte)</div><div class="v num">2 h 14 min</div><div class="d">p50 · p95 7 h 05 min</div></div>
   </div>
-  <div class="grid" style="grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);margin-top:16px">
-    <div class="card"><div class="card-h"><h3>Casos recebidos por dia e canal</h3><span class="sub">últimos 14 dias</span><div class="r legend"><span><i style="background:#14b8a6"></i>WhatsApp</span><span><i style="background:#7986cb"></i>E-mail</span></div></div><div class="card-b" style="padding-top:6px">${barChart()}</div></div>
-    <div class="card"><div class="card-h"><h3>Pendências abertas por motivo</h3><span class="sub">clique para filtrar</span></div><div class="card-b">
-      ${mots.map(([m, n]) => `<div class="hbar" data-act="goPend" data-mot="${m}" title="${m}"><span class="ellipsis">${esc(MOT[m].l)}</span><div class="hb-track"><div class="hb-fill" style="width:${(n / mmax) * 100}%;background:${MOT[m].sla === "4h" ? "#c2410c" : "#0f766e"}"></div></div><b class="num" style="text-align:right">${n}</b></div>`).join("") || `<div class="empty">Sem pendências abertas</div>`}
+  <div class="grid g-21" style="margin-top:16px">
+    <div class="card"><div class="card-h"><h2>Casos recebidos por dia e canal</h2><span class="sub">últimos 14 dias</span><div class="r legend"><span><i style="background:#14b8a6"></i>WhatsApp</span><span><i style="background:#7986cb"></i>E-mail</span></div></div><div class="card-b" style="padding-top:6px">${barChart()}</div></div>
+    <div class="card"><div class="card-h"><h2>Pendências abertas por motivo</h2><span class="sub">clique para filtrar</span></div><div class="card-b">
+      ${mots.map(([m, n]) => `<div class="hbar" role="button" tabindex="0" data-act="goPend" data-mot="${m}" title="${m}"><span class="ellipsis">${esc(MOT[m].l)}</span><div class="hb-track"><div class="hb-fill" style="width:${(n / mmax) * 100}%;background:${MOT[m].sla === "4h" ? "#c2410c" : "#0f766e"}"></div></div><b class="num" style="text-align:right">${n}</b></div>`).join("") || `<div class="empty">Sem pendências abertas</div>`}
       <div class="legend" style="margin-top:8px"><span><i style="background:#0f766e"></i>Operacional (SLA 1 dia útil)</span><span><i style="background:#c2410c"></i>Técnica (SLA 4 h)</span></div>
     </div></div>
   </div>
-  <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1.2fr);margin-top:16px">
-    <div class="card"><div class="card-h"><h3>Funil de hoje</h3></div><div class="card-b funnel">
+  <div class="grid g-3" style="margin-top:16px">
+    <div class="card"><div class="card-h"><h2>Funil de hoje</h2></div><div class="card-b funnel">
       ${[["Recebidos", 64], ["Identificados", 58], ["Título encontrado", 52], ["Confirmados", 39], ["Lançados", 27 + lancSess]].map(([l, n]) => `<div class="fn-row"><span class="small">${l}</span><div><div class="fn-bar" style="width:${Math.max(14, n / 64 * 100)}%">${n}</div></div><span class="small muted num">${Math.round(n / 64 * 100)}%</span></div>`).join("")}
     </div></div>
-    <div class="card"><div class="card-h"><h3>Qualidade</h3><span class="sub">Fase 1</span></div><div class="card-b"><dl class="kv" style="grid-template-columns:1fr auto">
+    <div class="card"><div class="card-h"><h2>Qualidade</h2><span class="sub">Fase 1</span></div><div class="card-b"><dl class="kv" style="grid-template-columns:1fr auto">
       <dt>Identificação sem digitação (M3)</dt><dd class="num">84%</dd>
       <dt>Automação assistida (M4)</dt><dd class="num">71%</dd>
       <dt>Vínculo a título errado (M7)</dt><dd class="num" style="color:var(--ok)">0</dd>
       <dt>Completude da trilha (M8)</dt><dd class="num">100%</dd>
       <dt>Fila acima do SLA (M10)</dt><dd class="num" style="color:${vencidos ? "var(--bad)" : "inherit"}">${vencidos}</dd>
     </dl></div></div>
-    <div class="card"><div class="card-h"><h3>Por cedente</h3><span class="sub">7 dias</span></div><div class="card-b" style="padding:8px 0 4px">
-      <table class="tbl" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r">Exceções</th><th class="r">M2 p50</th></tr></thead><tbody>
-      ${cedRows.map(r => `<tr style="cursor:default"><td class="ellipsis" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num">${r[1]}</td><td class="r num">${excBy(r[0])}</td><td class="r num">${r[2]}</td></tr>`).join("")}
+    <div class="card"><div class="card-h"><h2>Por cedente</h2><span class="sub">7 dias</span></div><div class="card-b" style="padding:8px 0 4px">
+      <table class="tbl stk stk-ced" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r">Exceções</th><th class="r">M2 p50</th></tr></thead><tbody>
+      ${cedRows.map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Cedente" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num" data-l="Recebidos">${r[1]}</td><td class="r num" data-l="Exceções">${excBy(r[0])}</td><td class="r num" data-l="M2 p50">${r[2]}</td></tr>`).join("")}
       </tbody></table></div></div>
   </div>`;
 }
@@ -856,8 +872,8 @@ function viewFila() {
   const done = CASES.filter(x => x.lancadoEm).length;
   const opt = (v, l, cur) => `<option value="${v}"${v === cur ? " selected" : ""}>${esc(l)}</option>`;
   return `
-  <div class="ph"><div><h1>Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
-  <div class="grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
+  <div class="ph"><div><h1 id="t-pg">Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
+  <div class="grid g-4" style="margin-bottom:16px">
     <div class="card kpi"><div class="l" style="min-height:0">Aguardando lançamento</div><div class="v num">${all.length}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">SLA vencido</div><div class="v num" style="color:${venc ? "var(--bad)" : "inherit"}">${venc}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">Vence em até 1 h</div><div class="v num" style="color:${av ? "var(--warn)" : "inherit"}">${av}</div></div>
@@ -872,24 +888,24 @@ function viewFila() {
       <div class="field grow"><label for="ff-q">Busca</label><input class="input" id="ff-q" data-f="fila.q" value="${esc(f.q)}" placeholder="Protocolo, NF, sacado, cedente ou remetente"></div>
       <button class="btn ghost" data-act="clearFila">Limpar</button>
     </div>
-    <div class="tbl-wrap"><table class="tbl" id="tbl-fila">
-      <colgroup><col style="width:34px"><col style="width:96px"><col style="width:84px"><col><col><col style="width:104px"><col style="width:90px"><col style="width:74px"><col style="width:92px"><col style="width:142px"><col style="width:156px"></colgroup>
-      <thead><tr><th><input type="checkbox" data-act="selAll" aria-label="Selecionar todos"${rows.length && rows.every(r => f.sel.has(r.id)) ? " checked" : ""}></th><th>Protocolo</th><th>NF / série</th><th>Cedente</th><th>Sacado</th><th class="r">Valor</th><th>Vencimento</th><th>Canal</th><th>Recebido</th><th>SLA</th><th>Ação</th></tr></thead>
+    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk stk-fila" id="tbl-fila">
+      <colgroup><col style="width:34px"><col style="width:96px"><col style="width:84px"><col><col><col style="width:104px"><col style="width:98px"><col style="width:74px"><col style="width:92px"><col style="width:164px"><col style="width:166px"></colgroup>
+      <thead><tr><th><label class="selall"><input type="checkbox" data-act="selAll" aria-label="Selecionar todos"${rows.length && rows.every(r => f.sel.has(r.id)) ? " checked" : ""}><span>Selecionar todos</span></label></th><th>Protocolo</th><th>NF / série</th><th>Cedente</th><th>Sacado</th><th class="r">Valor</th><th>Vencimento</th><th>Canal</th><th>Recebido</th><th>SLA</th><th>Ação</th></tr></thead>
       <tbody>${rows.map(x => {
         const doneRow = x.estado !== "PENDENTE";
         const act = x.lancadoEm ? `<div>${badge(x.estado === "DESFEITO" ? "Desfeito" : "Lançado " + fHM(x.lancadoEm), x.estado === "DESFEITO" ? "b-bad" : "b-ok")}</div><div class="sub2">por ${esc(x.lancadoPor)}</div>` : x.estado === "DESCARTADO" ? badge("Descartado", "b-neu") : `<button class="btn primary sm" data-act="lancar" data-id="${x.id}">Marcar como lançado</button>`;
         return `<tr data-open="${x.id}" class="${doneRow ? "done" : ""}">
-        <td><input type="checkbox" data-act="sel" data-id="${x.id}" aria-label="Selecionar ${x.id}"${f.sel.has(x.id) ? " checked" : ""}${doneRow ? " disabled" : ""}></td>
-        <td><div class="proto">${x.id}</div><div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td>
-        <td class="num"><div>${esc(x.nf)}</div><div class="sub2">série ${esc(x.serie)}</div></td>
-        <td class="ellipsis" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
-        <td class="ellipsis" title="${esc(x.titulo.sac)}">${esc(x.titulo.sac)}</td>
-        <td class="r num">${brl(x.titulo.val)}</td>
-        <td class="num">${fD(x.titulo.venc)}</td>
-        <td>${chanShort(x.canal)}</td>
-        <td class="num nowrap">${fDM(x.rec)}</td>
-        <td>${slaHTML(x)}</td>
-        <td>${act}</td></tr>`; }).join("") || `<tr><td colspan="11"><div class="empty">Nenhum caso com esses filtros.</div></td></tr>`}
+        <td class="chk"><input type="checkbox" data-act="sel" data-id="${x.id}" aria-label="Selecionar ${x.id}"${f.sel.has(x.id) ? " checked" : ""}${doneRow ? " disabled" : ""}></td>
+        <td data-l="Protocolo"><a class="proto" href="#caso/${x.id}">${x.id}</a><div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td>
+        <td class="num" data-l="NF / série"><div>${esc(x.nf)}</div><div class="sub2">série ${esc(x.serie)}</div></td>
+        <td class="ellipsis" data-l="Cedente" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
+        <td class="ellipsis" data-l="Sacado" title="${esc(x.titulo.sac)}">${esc(x.titulo.sac)}</td>
+        <td class="r num" data-l="Valor">${brl(x.titulo.val)}</td>
+        <td class="num" data-l="Vencimento">${fD(x.titulo.venc)}</td>
+        <td data-l="Canal">${chanShort(x.canal)}</td>
+        <td class="num nowrap" data-l="Recebido">${fDM(x.rec)}</td>
+        <td class="full" data-l="SLA">${slaHTML(x)}</td>
+        <td class="full" data-l="Ação">${act}</td></tr>`; }).join("") || `<tr><td colspan="11"><div class="empty">Nenhum caso com esses filtros.</div></td></tr>`}
       </tbody></table></div>
     <div class="tbl-foot"><span>${f.sel.size} selecionado(s)</span><button class="btn sm" data-act="assumirLote"${f.sel.size ? "" : " disabled"}>Assumir selecionados</button><button class="btn sm" disabled title="Desejável, fora do MVP">Marcar como lançado (lote)</button><span style="margin-left:auto">Exibindo ${rows.length} caso(s) · clique na linha para abrir o detalhe</span></div>
   </div>`;
@@ -916,11 +932,11 @@ function viewPend() {
   const dupN = CASES.filter(x => MOT[x.mot].dup).length;
   const opt = (v, l, cur, dis) => `<option value="${v}"${v === cur ? " selected" : ""}${dis ? " disabled" : ""}>${esc(l)}</option>`;
   return `
-  <div class="ph"><div><h1>Pendências</h1><p>Fila de exceções por motivo e SLA (catálogo da spec 11.1). Casos prontos para lançamento ficam na Fila de lançamento e não contam como exceção.</p></div></div>
+  <div class="ph"><div><h1 id="t-pg">Pendências</h1><p>Fila de exceções por motivo e SLA (catálogo da spec 11.1). Casos prontos para lançamento ficam na Fila de lançamento e não contam como exceção.</p></div></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-    <button class="btn sm${!p.mot ? " primary" : ""}" data-act="chipMot" data-mot="">Todos os motivos · ${CASES.filter(isOpenExc).length} abertas</button>
-    ${EXC_MOTS.filter(m => cnt(m)).map(m => `<button class="btn sm${p.mot === m ? " primary" : ""}" data-act="chipMot" data-mot="${m}">${esc(MOT[m].l)} · ${cnt(m)}</button>`).join("")}
-    <button class="btn sm${p.mot === "DUPLICIDADE" ? " primary" : ""}" data-act="chipMot" data-mot="DUPLICIDADE">Duplicidade · ${dupN}</button>
+    <button class="btn sm${!p.mot ? " primary" : ""}" aria-pressed="${!p.mot}" data-act="chipMot" data-mot="">Todos os motivos · ${CASES.filter(isOpenExc).length} abertas</button>
+    ${EXC_MOTS.filter(m => cnt(m)).map(m => `<button class="btn sm${p.mot === m ? " primary" : ""}" aria-pressed="${p.mot === m}" data-act="chipMot" data-mot="${m}">${esc(MOT[m].l)} · ${cnt(m)}</button>`).join("")}
+    <button class="btn sm${p.mot === "DUPLICIDADE" ? " primary" : ""}" aria-pressed="${p.mot === "DUPLICIDADE"}" data-act="chipMot" data-mot="DUPLICIDADE">Duplicidade · ${dupN}</button>
   </div>
   <div class="card">
     <div class="filters">
@@ -933,16 +949,16 @@ function viewPend() {
       <div class="field grow"><label for="pf-q">Busca</label><input class="input" id="pf-q" data-f="pend.q" value="${esc(p.q)}" placeholder="Protocolo, NF, cedente, remetente ou detalhe"></div>
       <button class="btn ghost" data-act="clearPend">Limpar</button>
     </div>
-    <div class="tbl-wrap"><table class="tbl">
-      <colgroup><col style="width:96px"><col style="width:80px"><col style="width:74px"><col style="width:14%"><col style="width:82px"><col><col style="width:166px"><col style="width:82px"><col style="width:150px"></colgroup>
+    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk" id="tbl-pend">
+      <colgroup><col style="width:92px"><col style="width:80px"><col style="width:74px"><col style="width:12%"><col style="width:80px"><col><col style="width:176px"><col style="width:72px"><col style="width:170px"></colgroup>
       <thead><tr><th>Protocolo</th><th>Recebido</th><th>Canal</th><th>Cedente</th><th>NF</th><th>Motivo e detalhe</th><th>Status · resp.</th><th>Idade</th><th>SLA</th></tr></thead>
       <tbody>${rows.map(x => { const st = PSTAT[x.pst] || ["—", "b-neu"]; const age = x.aberta ? dur(clock() - x.aberta) : "—";
         return `<tr data-open="${x.id}">
-        <td><span class="proto">${x.id}</span></td><td class="num small">${fD(x.rec).slice(0,5)}<div class="sub2">${fHM(x.rec)}</div></td><td>${chanShort(x.canal)}</td>
-        <td class="ellipsis" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
-        <td class="num">${x.nf ? esc(x.nf) : '<span class="muted" title="Não identificado">?</span>'}</td>
-        <td><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(x.detalhe)}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(x.detalhe)}</div></td>
-        <td>${badge(st[0], st[1])}<div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td><td class="num nowrap small">${age}</td><td>${slaHTML(x)}</td></tr>`; }).join("") || `<tr><td colspan="9"><div class="empty">Nenhuma pendência com esses filtros.</div></td></tr>`}
+        <td data-l="Protocolo"><a class="proto" href="#caso/${x.id}">${x.id}</a></td><td class="num small" data-l="Recebido">${fD(x.rec).slice(0,5)}<div class="sub2">${fHM(x.rec)}</div></td><td data-l="Canal">${chanShort(x.canal)}</td>
+        <td class="ellipsis" data-l="Cedente" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
+        <td class="num" data-l="NF">${x.nf ? esc(x.nf) : '<span class="muted" title="Não identificado">?</span>'}</td>
+        <td class="full" data-l="Motivo e detalhe"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(x.detalhe)}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(x.detalhe)}</div></td>
+        <td class="full" data-l="Status · resp.">${badge(st[0], st[1])}<div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td><td class="num nowrap small" data-l="Idade">${age}</td><td class="full" data-l="SLA">${slaHTML(x)}</td></tr>`; }).join("") || `<tr><td colspan="9"><div class="empty">Nenhuma pendência com esses filtros.</div></td></tr>`}
       </tbody></table></div>
     <div class="tbl-foot"><span>Exibindo ${rows.length} caso(s)</span><span>· Duplicidades não abrem pendência: o caso é encerrado como <span class="code">JA_REGISTRADO</span> e aparece aqui só para conferência.</span></div>
   </div>`;
@@ -950,7 +966,7 @@ function viewPend() {
 /* ================= Detalhe do caso ================= */
 const ATOR = { SISTEMA: "Sistema", REMETENTE: "Remetente", OPERADOR: "Operador", MSG: "Mensagem enviada" };
 const confColor = v => v >= .85 ? "#16a34a" : v >= .6 ? "#d97706" : "#dc2626";
-const confHTML = v => v == null ? `<span class="faint small">—</span>` : `<div class="conf"><div class="t"><div class="f" style="width:${v * 100}%;background:${confColor(v)}"></div></div><span class="n num" style="color:${confColor(v)}">${v.toFixed(2).replace(".", ",")}</span></div>`;
+const confHTML = v => v == null ? `<span class="faint small">—</span>` : `<div class="conf"><div class="t"><div class="f" style="width:${v * 100}%;background:${confColor(v)}"></div></div><span class="n num" style="color:${v >= .85 ? "var(--ok)" : v >= .6 ? "var(--warn)" : "var(--bad)"}">${v.toFixed(2).replace(".", ",")}</span></div>`;
 function avail(c) {
   const P = c.estado === "PENDENTE", open = P && !["RESOLVIDA", "ENCERRADA_SEM_REGISTRO", "AUTO"].includes(c.pst);
   return {
@@ -1003,38 +1019,39 @@ function viewCaso(id) {
   </div>
   <div class="det3" style="display:grid;grid-template-columns:minmax(0,470px) minmax(0,1fr) minmax(0,360px);gap:16px;align-items:start">
     <div class="grid" style="gap:16px">
-      <div class="card"><div class="card-h"><h3>Imagem do canhoto</h3><span class="sub r">${c.img ? "Original · URL assinada" : ""}</span></div><div class="card-b" style="padding-bottom:12px">
+      <div class="card"><div class="card-h"><h2>Imagem do canhoto</h2><span class="sub r">${c.img ? "Original · URL assinada" : ""}</span></div><div class="card-b" style="padding-bottom:12px">
         <div class="viewer" style="height:220px">${c.img ? `<div class="stage" id="stage" style="transform:scale(${UI.zoom}) rotate(${UI.rot}deg)">${svgFor(c)}</div>` : `<div class="nomedia">Mídia não disponível<br><span class="small">${esc(c.detalhe)}</span></div>`}</div>
         <div class="viewer-tools">${c.img ? `<button class="btn sm" data-act="zin" title="Ampliar" aria-label="Ampliar">${IC.zin}</button><button class="btn sm" data-act="zout" title="Reduzir" aria-label="Reduzir">${IC.zout}</button><button class="btn sm" data-act="rot" title="Girar 90°">${IC.rot}Girar</button><button class="btn sm" data-act="baixar" data-id="${c.id}">${IC.dl}Baixar</button>` : ""}<span class="xs muted" style="margin-left:auto;text-align:right">SHA-256 <span class="mono" style="font-size:11px" title="${c.hash}">${c.hash.slice(0, 8)}…${c.hash.slice(-6)}</span><br>${esc(c.mime.length > 20 ? "application/vnd…docx" : c.mime)} · ${String(c.tam).replace(".", ",")} MB</span></div>
       </div></div>
-      <div class="card"><div class="card-h"><h3>Dados extraídos (OCR)</h3><span class="sub r">Confiança</span></div><div class="card-b" style="padding-top:4px">
-        ${c.img ? `<table class="ocr">${ocrRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td style="width:112px">${confHTML(r[2])}</td></tr>`).join("")}</table>
+      <div class="card"><div class="card-h"><h2>Dados extraídos (OCR)</h2><span class="sub r">Confiança</span></div><div class="card-b" style="padding-top:4px">
+        ${c.img ? `<table class="ocr">${ocrRows.map(r => `<tr><th scope="row">${r[0]}</th><td>${r[1]}</td><td style="width:112px">${confHTML(r[2])}</td></tr>`).join("")}</table>
         <div class="small muted" style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap"><span>Origem: <b style="color:var(--text)">${esc(c.origem)}</b></span><span>Tentativas: <b style="color:var(--text)">${c.tent}</b></span><span>Limiar: 0,85 [A DEFINIR na Fase 0]</span></div>` : `<div class="empty" style="padding:18px">Sem dados extraídos: a mídia não foi processada.</div>`}
       </div></div>
     </div>
     <div class="grid" style="gap:16px">
-      <div class="card"><div class="card-h"><h3>Título encontrado</h3>${c.titulo ? `<span class="r">${badge("1 título", "b-ok")}</span>` : ""}</div><div class="card-b">${tituloBlock}</div></div>
-      <div class="card"><div class="card-h"><h3>Remetente</h3></div><div class="card-b"><dl class="kv" style="grid-template-columns:96px 1fr;font-size:12.5px">
+      <div class="card"><div class="card-h"><h2>Título encontrado</h2>${c.titulo ? `<span class="r">${badge("1 título", "b-ok")}</span>` : ""}</div><div class="card-b">${tituloBlock}</div></div>
+      <div class="card"><div class="card-h"><h2>Remetente</h2></div><div class="card-b"><dl class="kv" style="grid-template-columns:96px 1fr;font-size:12.5px">
         <dt>Identificador</dt><dd class="ellipsis" title="Mascarado para perfis sem necessidade">${esc(mask(c.rem.id))}</dd><dt>Nome</dt><dd>${esc(c.rem.nome)}</dd>
         <dt>Allowlist</dt><dd>${c.rem.aut ? badge("Autorizado", "b-ok") : badge("Não cadastrado", "b-bad")}</dd>
         <dt>Confirmação</dt><dd>${c.conf ? `"${esc(c.conf.txt)}" em <span class="num">${fDM(c.conf.em)}</span>` : "—"}</dd>
         ${c.lancadoEm ? `<dt>Lançamento</dt><dd>${esc(c.lancadoPor)} · <span class="num">${fDM(c.lancadoEm)}</span> · imagem no NetFactor: ${c.imgNF ? "sim" : "não"}</dd>` : ""}
       </dl></div></div>
     </div>
-    <div class="card hist"><div class="card-h"><h3>Histórico</h3><span class="sub">auditoria, somente inclusão</span></div>
-      <div style="display:flex;gap:6px;padding:10px 16px 0">${[["", "Tudo"], ["ev", "Eventos"], ["msg", "Mensagens"]].map(([k, l]) => `<button class="btn sm${(UI.histF || "") === k ? " primary" : ""}" data-act="histF" data-k="${k}">${l}</button>`).join("")}</div>
-      <div class="card-b" style="max-height:calc(100vh - 330px);min-height:320px;overflow:auto"><ul class="tl">${evs.map(e => `<li class="a-${e.ator}${e.fresh ? " new" : ""}" style="grid-template-columns:74px 18px 1fr"><span class="time">${fDM(e.t)}</span><span class="pt"><i></i></span><div><div class="ev-t"><span class="code">${e.tipo}</span><span class="xs muted">${ATOR[e.ator]}</span></div>${e.est ? `<div class="xs muted" style="margin-top:2px">${e.est[0]} → <b style="color:var(--text-2)">${e.est[1]}</b></div>` : ""}<div class="ev-d">${esc(e.d)}</div>${e.q ? `<div class="quote">${esc(e.q)}</div>` : ""}</div></li>`).join("")}</ul></div>
+    <div class="card hist"><div class="card-h"><h2 id="t-hist">Histórico</h2><span class="sub">auditoria, somente inclusão</span></div>
+      <div style="display:flex;gap:6px;padding:10px 16px 0">${[["", "Tudo"], ["ev", "Eventos"], ["msg", "Mensagens"]].map(([k, l]) => `<button class="btn sm${(UI.histF || "") === k ? " primary" : ""}" aria-pressed="${(UI.histF || "") === k}" data-act="histF" data-k="${k}">${l}</button>`).join("")}</div>
+      <div class="card-b" tabindex="0" role="region" aria-labelledby="t-hist" style="max-height:calc(100vh - 330px);min-height:320px;overflow:auto"><ul class="tl">${evs.map(e => `<li class="a-${e.ator}${e.fresh ? " new" : ""}" style="grid-template-columns:74px 18px 1fr"><span class="time">${fDM(e.t)}</span><span class="pt"><i></i></span><div><div class="ev-t"><span class="code">${e.tipo}</span><span class="xs muted">${ATOR[e.ator]}</span></div>${e.est ? `<div class="xs muted" style="margin-top:2px">${e.est[0]} → <b style="color:var(--text-2)">${e.est[1]}</b></div>` : ""}<div class="ev-d">${esc(e.d)}</div>${e.q ? `<div class="quote">${esc(e.q)}</div>` : ""}</div></li>`).join("")}</ul></div>
     </div>
   </div>`;
 }
 
 /* ================= Diálogos de ação (produto 7.3) ================= */
-let modalOk = null;
+let modalOk = null, modalFrom = null;
 function openModal(title, body, okLabel, okCls, onOk) {
-  $("#modal").innerHTML = `<div class="modal-h"><h3>${title}</h3><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
+  modalFrom = focoDe(document.activeElement);
+  $("#modal").innerHTML = `<div class="modal-h"><h2 id="modal-t">${title}</h2><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
   modalOk = onOk; $("#overlay").classList.add("on"); const f = $("#modal input:not([type=radio]):not([type=checkbox]), #modal textarea, #modal select"); if (f) setTimeout(() => f.focus(), 30);
 }
-function closeModal() { $("#overlay").classList.remove("on"); modalOk = null; }
+function closeModal() { $("#overlay").classList.remove("on"); modalOk = null; const d = modalFrom; modalFrom = null; focar(d); }
 const pkgHTML = c => `<div class="pkg"><span>Protocolo</span><span class="mono">${c.id}</span><span>NF / série</span><span class="num">${esc(c.nf)} / ${esc(c.serie)}</span><span>Título</span><span class="num">${c.titulo ? c.titulo.id : "—"}</span><span>Cedente</span><span>${esc(cedName(c.ced))}</span><span>Sacado</span><span>${c.titulo ? esc(c.titulo.sac) : "—"}</span><span>Valor / venc.</span><span class="num">${c.titulo ? brl(c.titulo.val) + " · " + fD(c.titulo.venc) : "—"}</span><span>Remetente</span><span>${esc(mask(c.rem.id))} · ${chanHTML(c.canal)}</span><span>Confirmação</span><span>${c.conf ? `"${esc(c.conf.txt)}" em ${fDM(c.conf.em)}` : "—"}</span></div>`;
 function ensureAssigned(c) { if (c.resp !== ME) { c.resp = ME; addEv(c, "CASO_ATRIBUIDO", "OPERADOR", `Atribuído a ${ME}`); } }
 function dlgLancar(c) {
@@ -1181,12 +1198,12 @@ function waItem(m) {
   if (m.k === "qr") return `<div class="qr"><span>SIM</span><span>NÃO</span></div>`;
   if (m.k === "photo") return `<div class="msg out photo"><div class="img">${svgFor(m.c)}</div><span class="tm">${m.tm}<span class="ck"><svg viewBox="0 0 18 11" width="16" height="10" style="vertical-align:-1px" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3 3 6-7M7 8.5l1 .5 6-7"/></svg></span></span></div>`;
   const tick = m.k === "out" ? `<span class="ck"><svg viewBox="0 0 18 11" width="16" height="10" style="vertical-align:-1px" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3 3 6-7M7 8.5l1 .5 6-7"/></svg></span>` : "";
-  return `<div class="msg ${m.k}"${m.preview ? ' style="outline:1.5px dashed #0f766e;outline-offset:2px;opacity:.88"' : ""}>${m.tpl ? `<span class="tpl">${esc(m.tpl)}</span>` : ""}${esc(m.t)}<span class="tm">${m.tm}${tick}</span></div>`;
+  return `<div class="msg ${m.k}"${m.preview ? ' style="outline:1.5px dashed #0f766e;outline-offset:2px"' : ""}>${m.tpl ? `<span class="tpl">${esc(m.tpl)}</span>` : ""}${esc(m.t)}<span class="tm">${m.tm}${tick}</span></div>`;
 }
 function phone(id, items, clockTxt) {
   return `<div class="phone"><div class="screen"><div class="sbar"><span>${clockTxt}</span><span>5G ▮▮▮</span></div>
     <div class="wa-head"><div class="av">F</div><div><div class="t">Flixsign Canhotos</div><div class="s">conta comercial</div></div></div>
-    <div class="chat" id="chat-${id}">${items.map(waItem).join("")}</div>
+    <div class="chat" id="chat-${id}" tabindex="0" role="region" aria-labelledby="t-flow-${id}">${items.map(waItem).join("")}</div>
     <div class="wa-input"><div>Mensagem</div><span>${IC.send}</span></div></div></div>`;
 }
 function viewWA() {
@@ -1195,14 +1212,14 @@ function viewWA() {
   return `
   <div class="ph"><div><h1>Conversa WhatsApp</h1><p>Simulação do canal visto pelo remetente, com os modelos de mensagem da spec 6.6 e o template "Confirmado, em registro" da Fase 1. Botões SIM/NÃO quando o provedor permitir; texto livre sempre aceito.</p></div></div>
   <div class="wa-wrap">
-    <div><div class="flow-h"><h3>Fluxo feliz</h3>${badge("K7Q2-91", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="A">${IC.play}Reproduzir</button></div>${phone("A", A, "14:05")}</div>
-    <div><div class="flow-h"><h3>OCR falhou</h3>${badge("K7Q2-89", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="B">${IC.play}Reproduzir</button></div>${phone("B", B, "13:55")}</div>
+    <div><div class="flow-h"><h2 id="t-flow-A">Fluxo feliz</h2>${badge("K7Q2-91", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="A">${IC.play}Reproduzir</button></div>${phone("A", A, "14:05")}</div>
+    <div><div class="flow-h"><h2 id="t-flow-B">OCR falhou</h2>${badge("K7Q2-89", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="B">${IC.play}Reproduzir</button></div>${phone("B", B, "13:55")}</div>
     <div class="grid wa-side" style="gap:16px">
-      <div class="card"><div class="card-h"><h3>Estados percorridos · fluxo feliz</h3></div><div class="card-b">${steps([
+      <div class="card"><div class="card-h"><h2>Estados percorridos · fluxo feliz</h2></div><div class="card-b">${steps([
         ["RECEBIDO", "Foto guardada com SHA-256; protocolo enviado"], ["EM_LEITURA → IDENTIFICADO", "OCR leu NF 458731, série 1 (0,97)"], ["BUSCANDO_TITULO → AGUARDANDO_CONFIRMACAO", "1 título no índice; remetente autorizado"],
         ["CONFIRMADO", 'Resposta "SIM" às 14:05'], ["PENDENTE · PRONTO_LANCAMENTO_MANUAL", "Entra na fila de lançamento"], ["REGISTRADO → CONCLUIDO", a.lancadoEm ? `Lançado por ${esc(a.lancadoPor)} às ${fHM(a.lancadoEm)}; aviso enviado` : "Após o operador marcar como lançado; aviso de sucesso"]])}
         <div style="margin-top:10px"><a href="#caso/K7Q2-91" class="btn sm">Abrir caso K7Q2-91</a></div></div></div>
-      <div class="card"><div class="card-h"><h3>Estados percorridos · OCR falhou</h3></div><div class="card-b">${steps([
+      <div class="card"><div class="card-h"><h2>Estados percorridos · OCR falhou</h2></div><div class="card-b">${steps([
         ["EM_LEITURA → AGUARDANDO_DIGITACAO", "Confiança 0,52 abaixo do limiar; pedido de digitação (até 3 tentativas)"], ["IDENTIFICADO", "NF digitada 458744 (origem DIGITADO)"],
         ["AGUARDANDO_CONFIRMACAO → CONFIRMADO", 'Confirmação com sacado e valor; resposta "Sim"'], ["PENDENTE · PRONTO_LANCAMENTO_MANUAL", "Segue para a fila de lançamento"]])}
         <div class="note neu" style="margin-top:8px">${IC.info}<span>Sem resposta: lembrete após 2 h e pendência <span class="code">SEM_RESPOSTA_DIGITACAO</span> após 24 h.</span></div></div></div>
@@ -1242,13 +1259,13 @@ function mailThread(c, mm) {
 function viewEmail() {
   const mm = MAILS.find(m => m.id === UI.mail); const c = byId(mm.id); const th = mailThread(c, mm);
   const ok = c.mot !== "FORMATO_NAO_SUPORTADO";
-  const item = (x, open) => open ? `<div class="thread-item"><div class="mhdr"><div class="av fx">F</div><div><div style="font-weight:650">Flixsign Canhotos <span class="auto">Resposta automática</span></div><div class="small muted">para ${esc(mask(c.rem.id))} · ${esc(x.subj)}</div></div><div class="small muted num">${fDT(x.t)}</div></div><div class="mbody">${esc(x.body)}</div><div class="small faint" style="margin:10px 0 0 48px">Template ${esc(x.tpl)} · resposta na mesma thread (In-Reply-To / References)</div></div>`
-    : `<div class="collapsed" data-act="mexp"><span class="avatar" style="width:24px;height:24px;font-size:10px;${x.auto ? "background:var(--accent-soft);color:var(--accent)" : "background:#ede9fe;color:#5b21b6"}">${x.auto ? "F" : esc(c.rem.nome[0])}</span><b style="color:var(--text-2)">${x.auto ? "Flixsign Canhotos" : esc(c.rem.nome)}</b><span class="ellipsis" style="flex:1">${esc(x.body.split("\n")[0])}</span><span class="num">${fDM(x.t)}</span></div>`;
+  const item = (x, open) => open ? `<div class="thread-item"><div class="mhdr"><div class="av fx">F</div><div><div style="font-weight:650">Flixsign Canhotos <span class="auto">Resposta automática</span></div><div class="small muted">para ${esc(mask(c.rem.id))} · ${esc(x.subj)}</div></div><div class="small muted num">${fDT(x.t)}</div></div><div class="mbody">${esc(x.body)}</div><div class="small faint mind">Template ${esc(x.tpl)} · resposta na mesma thread (In-Reply-To / References)</div></div>`
+    : `<div class="collapsed" role="button" tabindex="0" data-act="mexp"><span class="avatar" style="width:24px;height:24px;font-size:10px;${x.auto ? "background:var(--accent-soft);color:var(--accent)" : "background:#ede9fe;color:#5b21b6"}">${x.auto ? "F" : esc(c.rem.nome[0])}</span><b style="color:var(--text-2)">${x.auto ? "Flixsign Canhotos" : esc(c.rem.nome)}</b><span class="ellipsis" style="flex:1">${esc(x.body.split("\n")[0])}</span><span class="num">${fDM(x.t)}</span></div>`;
   return `
   <div class="ph"><div><h1>E-mail</h1><p>Caixa dedicada do canal (endereço ilustrativo). Cada imagem anexada gera um caso; a resposta automática segue na mesma thread, com SIM ou NÃO na primeira linha.</p></div></div>
   <div class="mail-wrap">
-    <div class="card mlist"><div class="card-h" style="padding-bottom:10px;display:block"><h3>Caixa de entrada</h3><div class="xs muted ellipsis" style="margin-top:2px">canhotos+modeloalfa@flixsign.com.br</div></div>
-      ${MAILS.map(m => { const cc = byId(m.id); return `<div class="mi${m.id === UI.mail ? " on" : ""}" data-act="mail" data-id="${m.id}"><div class="f"><span class="ellipsis">${esc(m.from)}</span><span class="muted num" style="font-weight:400">${fDM(cc.rec)}</span></div><div class="s ellipsis">${esc(m.subj)}</div><div class="p" style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px">${cc.id}</span>${estadoBadge(cc)}</div></div>`; }).join("")}
+    <div class="card mlist"><div class="card-h" style="padding-bottom:10px;display:block"><h2>Caixa de entrada</h2><div class="xs muted ellipsis" style="margin-top:2px">canhotos+modeloalfa@flixsign.com.br</div></div>
+      ${MAILS.map(m => { const cc = byId(m.id); return `<div class="mi${m.id === UI.mail ? " on" : ""}" role="button" tabindex="0" aria-pressed="${m.id === UI.mail}" data-act="mail" data-id="${m.id}"><div class="f"><span class="ellipsis">${esc(m.from)}</span><span class="muted num" style="font-weight:400">${fDM(cc.rec)}</span></div><div class="s ellipsis">${esc(m.subj)}</div><div class="p" style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px">${cc.id}</span>${estadoBadge(cc)}</div></div>`; }).join("")}
     </div>
     <div class="card mail">
       <h2>${esc(mm.subj)}</h2>
@@ -1257,14 +1274,14 @@ function viewEmail() {
       <div class="mbody">${esc(mm.body)}</div>
       <div class="attach">${ok ? `<div class="th">${svgFor(c)}</div>` : `<div class="th" style="height:60px;display:grid;place-items:center;color:#fff;background:#2b579a;font-weight:700">DOCX</div>`}<div style="min-width:0"><div class="ellipsis" style="font-weight:600;font-size:13px">${IC.clip.replace("<svg", '<svg style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"')}${esc(mm.file)}</div><div class="small muted ellipsis">${esc(c.mime.length > 20 ? "Documento Word" : c.mime)} · ${String(c.tam).replace(".", ",")} MB</div><div class="small" style="margin-top:4px">${ok ? `Caso <a href="#caso/${c.id}" class="mono">${c.id}</a> criado` : badge("Formato não suportado", "b-warn")}</div></div></div>
       ${th.length ? item(th[0], true) : ""}
-      ${th.slice(1).map((x, i) => UI.mailOpen === i ? item(x, true) : item(x, false).replace('data-act="mexp"', `data-act="mexp" data-i="${i}"`)).join("")}
-      ${th.length > 1 ? `<div class="xs faint" style="margin:10px 0 0 48px">Clique numa mensagem recolhida para expandir.</div>` : ""}
+      ${th.slice(1).map((x, i) => UI.mailOpen === i ? item(x, true).replace('class="thread-item"', `class="thread-item" tabindex="-1" data-exp="${i}"`) : item(x, false).replace('data-act="mexp"', `data-act="mexp" data-i="${i}"`)).join("")}
+      ${th.length > 1 ? `<div class="xs faint mind">Clique numa mensagem recolhida para expandir.</div>` : ""}
     </div>
     <div class="grid mail-side" style="gap:16px">
-      <div class="card"><div class="card-h"><h3>Processamento</h3></div><div class="card-b"><dl class="kv" style="grid-template-columns:108px 1fr;font-size:12.5px">
+      <div class="card"><div class="card-h"><h2>Processamento</h2></div><div class="card-b"><dl class="kv" style="grid-template-columns:108px 1fr;font-size:12.5px">
         <dt>Autenticação</dt><dd>SPF, DKIM e DMARC ok</dd><dt>Antimalware</dt><dd>Sem ameaças</dd><dt>Idempotência</dt><dd>Message-ID</dd>
         <dt>Imagens inline</dt><dd>1 descartada (logotipo, 6 KB)</dd><dt>Casos criados</dt><dd>${ok ? `<a href="#caso/${c.id}" class="mono">${c.id}</a>` : "Nenhum"}</dd><dt>Estado atual</dt><dd>${estadoBadge(c)}</dd></dl></div></div>
-      <div class="card"><div class="card-h"><h3>Payload normalizado</h3><span class="sub">spec 6.3</span></div><div class="card-b"><pre class="payload">canal: email
+      <div class="card"><div class="card-h"><h2>Payload normalizado</h2><span class="sub">spec 6.3</span></div><div class="card-b"><pre class="payload">canal: email
 message_id: &lt;${c.hash.slice(0, 12)}@mail.exemplo&gt;
 remetente_email: ${esc(mask(c.rem.id))}
 assunto: "${esc(mm.subj.slice(0, 26))}${mm.subj.length > 26 ? "…" : ""}"
@@ -1285,64 +1302,81 @@ function viewConfig() {
   let body = "";
   if (t === "geral") body = `
     <div class="cfg-grid">
-      <div class="card"><div class="card-h"><h3>Fonte do índice de títulos</h3><span class="sub">ResolvedorTitulo · IndiceLocal</span></div><div class="card-b grid" style="gap:10px">
+      <div class="card"><div class="card-h"><h2>Fonte do índice de títulos</h2><span class="sub">ResolvedorTitulo · IndiceLocal</span></div><div class="card-b grid" style="gap:10px">
         <label class="opt on"><input type="radio" name="fonte" checked><div><div class="ot">Importação de planilha ${badge("Ativa", "b-ok")}</div><div class="od">Planilha exportada do NetFactor ou de outro sistema do cliente. Último lote: ${fDT(SYNC)} · 1.284 linhas lidas, 1.271 inseridas ou atualizadas, <a href="#config" data-act="toastErr">13 rejeitadas</a>.</div>
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><div class="drop" data-act="upload" style="flex:1;min-width:180px">Arraste a planilha (.xlsx ou .csv) ou clique para importar</div><button class="btn sm" data-act="modelo" type="button">${IC.dl}Modelo de colunas</button></div></div></label>
         <label class="opt dis" title="Indisponível até a liberação da API pela OrderBy"><input type="radio" name="fonte" disabled><div><div class="ot">Sincronização NetFactor ${badge("Aguardando API OrderBy", "b-warn")}</div><div class="od">Listagem de títulos por cedente e período via credencial de serviço (h); busca direta por NF (a) ainda não disponível. Ativação por cedente quando houver credencial.</div></div></label>
       </div></div>
-      <div class="card"><div class="card-h"><h3>Adaptador de registro</h3><span class="sub">RegistroCanhoto · por tenant</span></div><div class="card-b grid" style="gap:10px">
+      <div class="card"><div class="card-h"><h2>Adaptador de registro</h2><span class="sub">RegistroCanhoto · por tenant</span></div><div class="card-b grid" style="gap:10px">
         <label class="opt on"><input type="radio" name="adapt" checked><div><div class="ot">Manual assistido ${badge("Ativo", "b-ok")}</div><div class="od">Gera o pacote de lançamento e abre <span class="code">PRONTO_LANCAMENTO_MANUAL</span>. O operador lança no NetFactor e marca como lançado.</div></div></label>
         <label class="opt dis" title="Indisponível: depende das capacidades (c) e (d)"><input type="radio" name="adapt" disabled><div><div class="ot">API NetFactor ${badge("Indisponível", "b-bad")}</div><div class="od">Depende de (c) anexar imagem a título existente e (d) marcar canhoto recebido, com respostas claras (e) e acesso de serviço (h). Pendente de resposta da OrderBy.</div></div></label>
         <label class="opt dis"><input type="radio" name="adapt" disabled><div><div class="ot">Simulado ${badge("Só homologação", "b-neu")}</div><div class="od">Simula sucesso, falha técnica, rejeição e registro parcial para testes de contrato.</div></div></label>
         <div class="xs faint">Troca de adaptador: somente admin Flixsign. Alteração gera evento CONFIGURACAO_ALTERADA.</div>
       </div></div>
-      <div class="card"><div class="card-h"><h3>Cliente (tenant)</h3></div><div class="card-b"><dl class="kv">
+      <div class="card"><div class="card-h"><h2>Cliente (tenant)</h2></div><div class="card-b"><dl class="kv">
         <dt>Nome</dt><dd>${TENANT.nome}</dd><dt>CNPJ</dt><dd class="num">${TENANT.cnpj}</dd><dt>Tipo</dt><dd>FIDC</dd><dt>Status</dt><dd>${badge("Piloto", "b-info")}</dd>
-        <dt>Quem opera a fila</dt><dd style="display:flex;gap:8px;align-items:center"><select class="input" style="width:150px;height:30px"><option>Flixsign</option><option>Cliente</option><option>Ambos</option></select>${badge("A definir (D7)", "b-warn plain")}</dd>
+        <dt id="l-opera">Quem opera a fila</dt><dd style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select class="input" aria-labelledby="l-opera" style="width:150px;height:30px"><option>Flixsign</option><option>Cliente</option><option>Ambos</option></select>${badge("A definir (D7)", "b-warn plain")}</dd>
         <dt>WhatsApp</dt><dd>Número dedicado · provedor oficial ${badge("A definir", "b-warn plain")}</dd><dt>E-mail</dt><dd>canhotos+modeloalfa@flixsign.com.br <span class="xs faint">(ilustrativo)</span></dd>
       </dl><div class="note neu" style="margin-top:12px">${IC.info}<span>Isolamento por tenant: nenhuma consulta, fila, imagem ou métrica atravessa clientes.</span></div></div></div>
-      <div class="card"><div class="card-h"><h3>Integração NetFactor</h3></div><div class="card-b"><dl class="kv">
+      <div class="card"><div class="card-h"><h2>Integração NetFactor</h2></div><div class="card-b"><dl class="kv">
         <dt>Ambiente</dt><dd>Homologação</dd><dt>Credencial</dt><dd>${badge("Pendente", "b-warn")}</dd><dt>Escopos</dt><dd>Leitura (Fase 1) · escrita na Fase 2</dd><dt>Última validação</dt><dd>—</dd><dt>Última rotação</dt><dd>—</dd>
       </dl><div class="note warn" style="margin-top:12px">${IC.warn}<span>Acesso de serviço sem usuário logado (h) a confirmar com a OrderBy. O segredo fica em cofre e nunca é exibido depois do cadastro.</span></div>
       <button class="btn sm" style="margin-top:10px" data-act="cred">Cadastrar credencial</button></div></div>
     </div>`;
-  if (t === "cedentes") body = `<div class="card"><div class="tbl-wrap"><table class="tbl"><colgroup><col style="width:170px"><col><col style="width:110px"><col style="width:150px"><col style="width:150px"><col style="width:100px"><col style="width:70px"></colgroup><thead><tr><th>CNPJ</th><th>Razão social</th><th>ID NetFactor</th><th>Fonte do índice</th><th>Última sincronização</th><th class="r">Remetentes</th><th>Ativo</th></tr></thead><tbody>
-    ${Object.values(CED).map(x => `<tr style="cursor:default"><td class="num">${x.cnpj}</td><td>${esc(x.razao)}</td><td class="mono">${x.idnf}</td><td>${badge("Planilha", "b-acc plain")}</td><td class="num">${fDT(SYNC)}</td><td class="r num">${x.rem}</td><td><label class="switch"><input type="checkbox" checked><span></span></label></td></tr>`).join("")}</tbody></table></div></div>`;
-  if (t === "remetentes") body = `<div class="card"><div class="tbl-wrap"><table class="tbl"><colgroup><col style="width:30%"><col style="width:20%"><col><col style="width:130px"><col style="width:70px"></colgroup><thead><tr><th>Telefone ou e-mail</th><th>Nome</th><th>Cedentes vinculados</th><th>Vigência</th><th>Ativo</th></tr></thead><tbody>
-    ${Object.values(REM).filter(r => r.aut).map(r => `<tr style="cursor:default"><td class="ellipsis">${esc(r.id)}</td><td>${esc(r.nome)}</td><td class="ellipsis">${r.ceds.map(cedName).join(", ")}</td><td class="num">01/09/2026 —</td><td><label class="switch"><input type="checkbox" checked><span></span></label></td></tr>`).join("")}</tbody></table></div>
+  if (t === "cedentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:170px"><col><col style="width:110px"><col style="width:150px"><col style="width:150px"><col style="width:100px"><col style="width:70px"></colgroup><thead><tr><th>CNPJ</th><th>Razão social</th><th>ID NetFactor</th><th>Fonte do índice</th><th>Última sincronização</th><th class="r">Remetentes</th><th>Ativo</th></tr></thead><tbody>
+    ${Object.values(CED).map(x => `<tr style="cursor:default"><td class="num" data-l="CNPJ">${x.cnpj}</td><td data-l="Razão social">${esc(x.razao)}</td><td class="mono" data-l="ID NetFactor">${x.idnf}</td><td data-l="Fonte do índice">${badge("Planilha", "b-acc plain")}</td><td class="num" data-l="Última sincronização">${fDT(SYNC)}</td><td class="r num" data-l="Remetentes">${x.rem}</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(x.razao)}"><span></span></label></td></tr>`).join("")}</tbody></table></div></div>`;
+  if (t === "remetentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:30%"><col style="width:20%"><col><col style="width:130px"><col style="width:70px"></colgroup><thead><tr><th>Telefone ou e-mail</th><th>Nome</th><th>Cedentes vinculados</th><th>Vigência</th><th>Ativo</th></tr></thead><tbody>
+    ${Object.values(REM).filter(r => r.aut).map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Telefone ou e-mail">${esc(r.id)}</td><td data-l="Nome">${esc(r.nome)}</td><td class="ellipsis full" data-l="Cedentes vinculados">${r.ceds.map(cedName).join(", ")}</td><td class="num" data-l="Vigência">01/09/2026 —</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(r.nome)}"><span></span></label></td></tr>`).join("")}</tbody></table></div>
     <div class="tbl-foot">Remetente desconhecido: política "seguir com revisão" (pendência REMETENTE_NAO_AUTORIZADO) · ver caso <a href="#caso/K7Q2-71" class="mono">K7Q2-71</a></div></div>`;
-  if (t === "operadores") body = `<div class="card"><table class="tbl"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th></tr></thead><tbody>
-    ${[["Ana Ribeiro", "ana.ribeiro@flixsign.exemplo", "Supervisora"], ["Bruno Teles", "bruno.teles@flixsign.exemplo", "Operador"], ["Camila Duarte", "camila.duarte@fidcmodeloalfa.exemplo", "Auditor (somente leitura)"], ["Rafael Moreira", "rafael.moreira@fidcmodeloalfa.exemplo", "Admin do cliente"], ["Equipe de implantação", "implantacao@flixsign.exemplo", "Admin Flixsign"]].map(o => `<tr style="cursor:default"><td>${o[0]}</td><td class="muted">${o[1]}</td><td>${badge(o[2], "b-neu plain")}</td><td><label class="switch"><input type="checkbox" checked><span></span></label></td></tr>`).join("")}</tbody></table><div class="tbl-foot">Login via SSO com MFA.</div></div>`;
-  if (t === "parametros") body = `<div class="cfg-grid"><div class="card"><div class="card-h"><h3>Leitura e conversa</h3></div><div class="card-b grid" style="grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field"><label>Limiar de confiança do OCR</label><input class="input" value="0,85"><span class="xs faint">[A DEFINIR na Fase 0]</span></div><div class="field"><label>Tentativas de digitação / nova foto</label><input class="input" value="3 / 2"></div>
-      <div class="field"><label>Lembrete (horas)</label><input class="input" value="2"></div><div class="field"><label>Timeout para pendência (horas)</label><input class="input" value="24"></div>
-      <div class="field"><label>Remetente desconhecido</label><select class="input"><option>Seguir com revisão</option><option>Rejeitar</option></select></div><div class="field"><label>E-mail não autenticado</label><select class="input"><option>Abrir pendência</option><option>Descartar</option></select></div>
+  if (t === "operadores") body = `<div class="card"><table class="tbl stk"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th></tr></thead><tbody>
+    ${[["Ana Ribeiro", "ana.ribeiro@flixsign.exemplo", "Supervisora"], ["Bruno Teles", "bruno.teles@flixsign.exemplo", "Operador"], ["Camila Duarte", "camila.duarte@fidcmodeloalfa.exemplo", "Auditor (somente leitura)"], ["Rafael Moreira", "rafael.moreira@fidcmodeloalfa.exemplo", "Admin do cliente"], ["Equipe de implantação", "implantacao@flixsign.exemplo", "Admin Flixsign"]].map(o => `<tr style="cursor:default"><td data-l="Nome">${o[0]}</td><td class="muted full" data-l="E-mail">${o[1]}</td><td data-l="Perfil">${badge(o[2], "b-neu plain")}</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${o[0]}"><span></span></label></td></tr>`).join("")}</tbody></table><div class="tbl-foot">Login via SSO com MFA.</div></div>`;
+  if (t === "parametros") body = `<div class="cfg-grid"><div class="card"><div class="card-h"><h2>Leitura e conversa</h2></div><div class="card-b grid" style="grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label for="p-limiar">Limiar de confiança do OCR</label><input class="input" id="p-limiar" value="0,85"><span class="xs faint">[A DEFINIR na Fase 0]</span></div><div class="field"><label for="p-tent">Tentativas de digitação / nova foto</label><input class="input" id="p-tent" value="3 / 2"></div>
+      <div class="field"><label for="p-lembrete">Lembrete (horas)</label><input class="input" id="p-lembrete" value="2"></div><div class="field"><label for="p-timeout">Timeout para pendência (horas)</label><input class="input" id="p-timeout" value="24"></div>
+      <div class="field"><label for="p-remdesc">Remetente desconhecido</label><select class="input" id="p-remdesc"><option>Seguir com revisão</option><option>Rejeitar</option></select></div><div class="field"><label for="p-emailna">E-mail não autenticado</label><select class="input" id="p-emailna"><option>Abrir pendência</option><option>Descartar</option></select></div>
       <div style="grid-column:1/-1"><button class="btn primary sm" data-act="salvarParam">Salvar parâmetros</button></div></div></div>
-    <div class="card"><div class="card-h"><h3>SLA por motivo</h3><span class="sub">spec 11.1 como padrão</span></div><div class="card-b" style="padding:6px 0"><table class="tbl"><tbody>
+    <div class="card"><div class="card-h"><h2>SLA por motivo</h2><span class="sub">spec 11.1 como padrão</span></div><div class="card-b" style="padding:6px 0"><table class="tbl stk stk-kv"><tbody>
       ${Object.entries(MOT).filter(([k, v]) => !v.dup && !v.fase2).map(([k, v]) => `<tr style="cursor:default"><td><span class="code">${k}</span></td><td class="r">${{ "4h": "4 h", "1du": "1 dia útil", mesmo: "Mesmo dia útil", imediato: "Imediato (automático)" }[v.sla]}</td></tr>`).join("")}</tbody></table></div></div></div>`;
   if (t === "templates") { const ex = { p: "K7Q2-91", nf: "458731", sac: "Comercial Ponte Alta Ltda", val: 18430, venc: DN(11, 6), dh: "08/10/2026 17:05", mot: "imagem ilegível", dr: "08/10/2026 14:05" };
     const rows = [["RECEBIMENTO", "Não se aplica"], ["PEDIDO_DIGITACAO", "Não se aplica"], ["NOVA_FOTO", "Não se aplica"], ["CONFIRMACAO", "Não se aplica"], ["NAO_ENCONTRADA", "Não se aplica"], ["CONFIRMADO_EM_REGISTRO", "Não se aplica"], ["SUCESSO", "Aprovado"], ["PENDENCIA", "Aprovado"], ["INDISPONIVEL", "Pendente"], ["NEGADO", "Não se aplica"], ["DUPLICIDADE", "Não se aplica"]];
-    body = `<div class="card"><div class="tbl-wrap"><table class="tbl"><colgroup><col style="width:210px"><col style="width:70px"><col style="width:150px"><col></colgroup><thead><tr><th>Tipo</th><th>Versão</th><th>Aprovação WhatsApp</th><th>Texto (com exemplo)</th></tr></thead><tbody>
-    ${rows.map(([k, a]) => `<tr style="cursor:default"><td><span class="code">${k}</span></td><td class="num">v1</td><td>${badge(a, a === "Aprovado" ? "b-ok" : a === "Pendente" ? "b-warn" : "b-neu")}</td><td class="ellipsis small" title="${esc(TPL[k](ex))}">${esc(TPL[k](ex).replace(/\n/g, " · "))}</td></tr>`).join("")}</tbody></table></div><div class="tbl-foot">Mensagens fora da janela de 24 h do WhatsApp usam template aprovado (ex.: aviso de sucesso após lançamento manual).</div></div>`; }
-  return `<div class="ph"><div><h1>Configurações</h1><p>Administração do tenant ${TENANT.nome}: cadastros, fonte do índice de títulos, adaptador de registro e parâmetros.</p></div></div>
-    <div class="tabs">${tabs.map(([k, l]) => `<button class="${k === t ? "on" : ""}" data-act="cfgTab" data-k="${k}">${l}</button>`).join("")}</div>${body}`;
+    body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:210px"><col style="width:70px"><col style="width:150px"><col></colgroup><thead><tr><th>Tipo</th><th>Versão</th><th>Aprovação WhatsApp</th><th>Texto (com exemplo)</th></tr></thead><tbody>
+    ${rows.map(([k, a]) => `<tr style="cursor:default"><td class="full" data-l="Tipo"><span class="code">${k}</span></td><td class="num" data-l="Versão">v1</td><td data-l="Aprovação WhatsApp">${badge(a, a === "Aprovado" ? "b-ok" : a === "Pendente" ? "b-warn" : "b-neu")}</td><td class="ellipsis small full clamp" data-l="Texto (com exemplo)" title="${esc(TPL[k](ex))}">${esc(TPL[k](ex).replace(/\n/g, " · "))}</td></tr>`).join("")}</tbody></table></div><div class="tbl-foot">Mensagens fora da janela de 24 h do WhatsApp usam template aprovado (ex.: aviso de sucesso após lançamento manual).</div></div>`; }
+  return `<div class="ph"><div><h1 id="t-pg">Configurações</h1><p>Administração do tenant ${TENANT.nome}: cadastros, fonte do índice de títulos, adaptador de registro e parâmetros.</p></div></div>
+    <div class="tabs">${tabs.map(([k, l]) => `<button class="${k === t ? "on" : ""}" aria-pressed="${k === t}" data-act="cfgTab" data-k="${k}">${l}</button>`).join("")}</div>${body}`;
 }
 
 /* ================= Roteador e eventos ================= */
 const TITLES = { dashboard: "Visão geral", fila: "Fila de lançamento", pendencias: "Pendências", caso: "Detalhe do caso", whatsapp: "Conversa WhatsApp", email: "E-mail", config: "Configurações" };
 let lastRoute = "", fromList = "fila";
+/* Foco: descreve o elemento focado (id ou data-act + chaves) para devolvê-lo ao equivalente depois de trocar o conteúdo */
+function focoDe(el) {
+  if (!el || el === $("#view") || !$("#view").contains(el)) return null;
+  const d = el.dataset || {};
+  if (el.id) return { sel: "#" + CSS.escape(el.id), id: d.id };
+  if (!d.act) return null;
+  return { sel: `[data-act="${d.act}"]` + ["id", "k", "mot", "i"].filter(k => d[k] != null).map(k => `[data-${k}="${CSS.escape(d[k])}"]`).join(""), id: d.id, i: d.i };
+}
+function focar(d, caret) {
+  if (!d) return;
+  const alvos = [d.sel, d.i != null && `[data-exp="${CSS.escape(d.i)}"]`, d.id && `[data-act][data-id="${CSS.escape(d.id)}"]:not([disabled])`, d.id && `a[href="#caso/${CSS.escape(d.id)}"]`].filter(Boolean);
+  for (const s of alvos) { const el = $("#view " + s); if (!el) continue; el.focus({ preventScroll: true }); if (document.activeElement !== el) continue;
+    if (caret != null && /^(ff|pf)-q$/.test(el.id)) { try { el.setSelectionRange(caret, caret); } catch (e) {} } return; }
+}
+/* Tabelas que rolam dentro do cartão ganham a sombra das colunas fixas */
+function marcaRolagem() { $$(".tbl-wrap").forEach(w => w.classList.toggle("ovf", w.scrollWidth > w.clientWidth + 1)); }
 function render() {
   const h = (location.hash || "#dashboard").slice(1); const [r, arg] = h.split("/"); const route = TITLES[r] ? r : "dashboard";
   const changed = h !== lastRoute; if (changed && route === "caso") { UI.zoom = 1; UI.rot = 0; }
   if (changed && (route === "fila" || route === "pendencias")) fromList = route;
-  const ae = document.activeElement, focusId = ae && ae.id, caret = ae && ae.selectionStart;
+  const ae = document.activeElement, foco = focoDe(ae), caret = ae && ae.selectionStart;
   const html = { dashboard: viewDashboard, fila: viewFila, pendencias: viewPend, caso: () => viewCaso(arg), whatsapp: viewWA, email: viewEmail, config: viewConfig }[route]();
   $("#view").innerHTML = html; counts();
   $$("#nav a").forEach(a => a.classList.toggle("active", a.dataset.r === (route === "caso" ? fromList : route)));
   $("#crumb-page").textContent = route === "caso" ? `Caso ${arg}` : TITLES[route];
   document.title = `${route === "caso" ? "Caso " + arg : TITLES[route]} · Flixsign Canhoto (mockup)`;
   if (changed) { window.scrollTo(0, 0); lastRoute = h; }
-  if (focusId && document.getElementById(focusId) && /^(ff|pf)-q$/.test(focusId)) { const el = document.getElementById(focusId); el.focus(); try { el.setSelectionRange(caret, caret); } catch (e) {} }
+  if (!changed) focar(foco, caret);
+  marcaRolagem();
   CASES.forEach(c => c.events.forEach(e => { if (e.fresh) setTimeout(() => { e.fresh = false; }, 50); }));
   $$(".chat").forEach(ch => { ch.scrollTop = 0; });
 }
@@ -1350,6 +1384,7 @@ function setF(path, v) { const [a, b] = path.split("."); UI[a][b] = v; }
 document.addEventListener("input", e => { const f = e.target.dataset && e.target.dataset.f; if (f && e.target.tagName === "INPUT") { setF(f, e.target.value); render(); } });
 document.addEventListener("change", e => { const f = e.target.dataset && e.target.dataset.f; if (f && e.target.tagName === "SELECT") { setF(f, e.target.value); render(); } });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#overlay").classList.contains("on")) closeModal(); });
+document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[role="button"][tabindex]')) { e.preventDefault(); e.target.click(); } });
 $("#overlay").addEventListener("mousedown", e => { if (e.target.id === "overlay") closeModal(); });
 $("#gsearch").addEventListener("keydown", e => { if (e.key !== "Enter") return; const q = e.target.value.trim().toUpperCase(); if (!q) return;
   const c = CASES.find(x => x.id === q) || CASES.find(x => x.nf === q) || CASES.find(x => x.id.endsWith(q)); if (c) { location.hash = "#caso/" + c.id; e.target.value = ""; } else toast(`Nenhum caso para "${esc(q)}".`); });
@@ -1400,6 +1435,7 @@ document.addEventListener("click", e => {
   const row = e.target.closest("[data-open]"); if (row && !e.target.closest("button,input,a,select,label")) location.hash = "#caso/" + row.dataset.open;
 });
 window.addEventListener("hashchange", render);
+let rzFrame = 0; window.addEventListener("resize", () => { cancelAnimationFrame(rzFrame); rzFrame = requestAnimationFrame(marcaRolagem); });
 render();
 setInterval(() => { if (!$("#overlay").classList.contains("on") && /^(dashboard|fila|pendencias)?$/.test((location.hash || "").slice(1)) && !(document.activeElement && /^(ff|pf)-q$/.test(document.activeElement.id))) render(); }, 60000);
 </script>
