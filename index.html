@@ -79,6 +79,7 @@ a{color:var(--accent)}
 .card-h .r{margin-left:auto}
 .card-b{padding:14px 16px 16px}
 .grid{display:grid;gap:16px}
+.g-21{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}.g-3{grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1.2fr)}.g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
 .kpi{padding:14px 16px}
 .kpi .l{font-size:12px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:6px;min-height:34px;line-height:1.3}
@@ -142,6 +143,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .tbl tbody tr:last-child td{border-bottom:none}
 .tbl td.r,.tbl th.r{text-align:right}
 #tbl-fila .proto{display:block}
+@media (min-width:821px){#tbl-fila,#tbl-pend{min-width:1000px}}
 .tbl .proto{text-decoration:none;font-family:var(--mono);font-weight:600;color:var(--accent);font-size:12.5px}
 .tbl .sub2{font-size:11.5px;color:var(--muted);margin-top:2px}
 .tbl input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
@@ -150,7 +152,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 /* ---------- Charts ---------- */
 .legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-.hbar{display:grid;grid-template-columns:170px 1fr 34px;gap:10px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer;border-radius:6px}
+.hbar{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) 34px;gap:10px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer;border-radius:6px}
 .hbar:hover .hb-track{background:#e6ebf1}
 .hb-track{height:10px;background:#eef1f5;border-radius:6px;overflow:hidden}
 .hb-fill{height:100%;border-radius:6px;background:var(--accent)}
@@ -171,7 +173,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .viewer .nomedia{color:#9fb0c4;font-size:13px;text-align:center;padding:20px}
 .viewer-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .kv{display:grid;grid-template-columns:150px 1fr;gap:7px 12px;font-size:13px}
-.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:500;min-width:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:500;min-width:0;overflow-wrap:break-word}.kv dd.num{overflow-wrap:normal}
 .ocr{width:100%;border-collapse:collapse;font-size:13px}
 .ocr td,.ocr th{padding:7px 0;border-bottom:1px solid #eef1f5;vertical-align:middle}
 .ocr tr:last-child td,.ocr tr:last-child th{border-bottom:none}
@@ -191,6 +193,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .tl li:last-child .pt::before{display:none}
 .tl li .pt i{position:absolute;left:3px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cfd7e2;background:#94a3b8}
 .tl .a-SISTEMA i{background:#64748b}.tl .a-REMETENTE i{background:#16a34a}.tl .a-OPERADOR i{background:#2563eb}.tl .a-MSG i{background:#0d9488}
+.tl li>div{min-width:0;overflow-wrap:break-word}.tl .code{white-space:normal;min-width:0;overflow-wrap:anywhere}
 .tl .ev-t{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .tl .ev-d{color:var(--text-2);font-size:12.5px;margin-top:2px}
 .tl .quote{margin-top:4px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid #0d9488;border-radius:6px;padding:6px 9px;font-size:12.5px;color:var(--text-2);white-space:pre-line}
@@ -221,14 +224,15 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .pick label:hover{background:var(--surface-2)}
 .pick input{accent-color:var(--accent)}
 .toasts{position:fixed;right:20px;bottom:46px;display:flex;flex-direction:column;gap:8px;z-index:200}
-.toast{background:#0f1b2a;color:#fff;border-radius:9px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:380px;display:flex;gap:10px;align-items:flex-start;animation:tin .2s ease}
+.toast{background:#0f1b2a;color:#fff;border-radius:9px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:min(380px,calc(100vw - 40px));display:flex;gap:10px;align-items:flex-start;animation:tin .2s ease}
 .toast b{color:#5eead4}
 @keyframes tin{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
 /* ---------- WhatsApp ---------- */
 .wa-wrap{display:grid;grid-template-columns:330px 330px minmax(0,1fr);gap:22px;align-items:start}
+.wa-wrap>*{min-width:0;max-width:100%}
 .flow-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .flow-h h2{margin:0;font-size:14px}
-.phone{width:330px;height:676px;background:#101418;border-radius:40px;padding:11px;box-shadow:0 18px 40px rgba(16,24,40,.22),inset 0 0 0 2px #2a3138;position:relative}
+.phone{width:330px;max-width:100%;height:676px;background:#101418;border-radius:40px;padding:11px;box-shadow:0 18px 40px rgba(16,24,40,.22),inset 0 0 0 2px #2a3138;position:relative}
 .screen{width:100%;height:100%;border-radius:30px;overflow:hidden;display:flex;flex-direction:column;background:#efeae2}
 .sbar{height:26px;background:#0b5c53;color:#e6fffa;font-size:11.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 26px}
 .wa-head{background:#0b5c53;color:#fff;display:flex;align-items:center;gap:10px;padding:6px 12px 9px}
@@ -279,7 +283,8 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .mhdr .av{width:38px;height:38px;border-radius:50%;background:#ede9fe;color:#5b21b6;display:grid;place-items:center;font-weight:700;font-size:13px}
 .mhdr .av.fx{background:var(--accent-soft);color:var(--accent)}
 .mbody{margin:14px 0 0 48px;font-size:13.5px;line-height:1.55;color:var(--text-2);white-space:pre-line}
-.attach{margin:14px 0 0 48px;display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:9px;padding:8px;width:340px;background:var(--surface-2)}
+.attach{margin:14px 0 0 48px;display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:9px;padding:8px;width:340px;max-width:calc(100% - 48px);background:var(--surface-2)}
+.attach .badge{white-space:normal}
 .attach .th{width:110px;border-radius:5px;overflow:hidden;flex:none;background:#333}
 .attach .th svg{display:block;width:100%;height:auto}
 .thread-item{border-top:1px solid var(--border);margin-top:16px;padding-top:14px}
@@ -287,6 +292,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .collapsed{display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--muted);padding:8px 0 0 48px;cursor:pointer}
 .collapsed:hover{color:var(--text)}
 .auths{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0 48px}
+.mind{margin:10px 0 0 48px}
 pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2a;color:#cfe3f3;border-radius:8px;padding:10px 12px;font-size:11.5px;line-height:1.5;overflow:auto;font-family:var(--mono)}
 /* ---------- Config ---------- */
 .opt{border:1px solid var(--border);border-radius:10px;padding:13px 14px;display:grid;grid-template-columns:20px 1fr;gap:10px;background:#fff;cursor:pointer}
@@ -309,7 +315,10 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
 @media (max-width:1280px){.search{display:none}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.wa-wrap{grid-template-columns:330px 330px}.wa-side{grid-column:1/-1}.mail-wrap{grid-template-columns:240px minmax(0,1fr)}.mail-side{grid-column:1/-1}}
 @media (max-width:1280px){.det3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.det3>.hist{grid-column:1/-1}}
 @media (max-width:1100px){.det3{grid-template-columns:1fr!important}:root{--sbw:64px}.brand-name,.brand-mod,.nav .count,.nav-sec,.sb-foot{display:none}.nav a span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}.nav a{justify-content:center}.det-grid,.split,.cfg-grid{grid-template-columns:1fr}.search input{width:160px}}
-@media (max-width:820px){.phase,.tenant{display:none}.app{grid-template-columns:1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:820px){.phase,.tenant{display:none}.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis,.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-21,.g-3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){.tbl.stk,.tbl.stk tbody{display:block;width:100%}.tbl.stk colgroup,.tbl.stk thead{display:none}.tbl.stk tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-flow:row dense;gap:8px 14px;padding:12px 14px;border-bottom:1px solid #edf1f5}.tbl.stk tbody tr:last-child{border-bottom:none}.tbl.stk td{display:block;padding:0;border:0;min-width:0;text-align:left}.tbl.stk td[data-l]::before{content:attr(data-l);display:block;font-size:10.5px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}.tbl.stk td.full,.tbl.stk td[colspan]{grid-column:1/-1}.tbl.stk-fila tr{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr)}.tbl.stk-fila td.chk{grid-row:1/span 6;padding-top:1px}.tbl.stk-fila td.full{grid-column:2/-1}.tbl.stk-fila td[colspan]{grid-column:1/-1}.tbl.stk-ced tr{grid-template-columns:repeat(3,minmax(0,1fr))}.tbl.stk-kv tr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:9px 14px}.tbl.stk-kv td.r{margin-left:auto}.tbl.stk td.clamp{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}}
+@media (max-width:640px){.mhdr{grid-template-columns:38px minmax(0,1fr)}.mhdr>:last-child{grid-column:2}.mbody,.auths,.mind{margin-left:0}.attach{margin-left:0;max-width:100%}.collapsed{padding-left:0}.kv{grid-template-columns:120px minmax(0,1fr)}}
+@media (max-width:480px){.hbar{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 34px}.ocr th{width:96px}.ocr td:last-child{width:86px!important}.conf .t{width:40px}}
 </style>
 </head>
 <body>
@@ -814,14 +823,14 @@ function viewDashboard() {
     <div class="card kpi"><div class="l">Tempo até pronto para lançamento (M1)</div><div class="v num">1 min 52 s</div><div class="d">p50 · p95 5 min 40 s</div></div>
     <div class="card kpi"><div class="l">Tempo até lançamento (M2, métrica norte)</div><div class="v num">2 h 14 min</div><div class="d">p50 · p95 7 h 05 min</div></div>
   </div>
-  <div class="grid" style="grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);margin-top:16px">
+  <div class="grid g-21" style="margin-top:16px">
     <div class="card"><div class="card-h"><h2>Casos recebidos por dia e canal</h2><span class="sub">últimos 14 dias</span><div class="r legend"><span><i style="background:#14b8a6"></i>WhatsApp</span><span><i style="background:#7986cb"></i>E-mail</span></div></div><div class="card-b" style="padding-top:6px">${barChart()}</div></div>
     <div class="card"><div class="card-h"><h2>Pendências abertas por motivo</h2><span class="sub">clique para filtrar</span></div><div class="card-b">
       ${mots.map(([m, n]) => `<div class="hbar" role="button" tabindex="0" data-act="goPend" data-mot="${m}" title="${m}"><span class="ellipsis">${esc(MOT[m].l)}</span><div class="hb-track"><div class="hb-fill" style="width:${(n / mmax) * 100}%;background:${MOT[m].sla === "4h" ? "#c2410c" : "#0f766e"}"></div></div><b class="num" style="text-align:right">${n}</b></div>`).join("") || `<div class="empty">Sem pendências abertas</div>`}
       <div class="legend" style="margin-top:8px"><span><i style="background:#0f766e"></i>Operacional (SLA 1 dia útil)</span><span><i style="background:#c2410c"></i>Técnica (SLA 4 h)</span></div>
     </div></div>
   </div>
-  <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1.2fr);margin-top:16px">
+  <div class="grid g-3" style="margin-top:16px">
     <div class="card"><div class="card-h"><h2>Funil de hoje</h2></div><div class="card-b funnel">
       ${[["Recebidos", 64], ["Identificados", 58], ["Título encontrado", 52], ["Confirmados", 39], ["Lançados", 27 + lancSess]].map(([l, n]) => `<div class="fn-row"><span class="small">${l}</span><div><div class="fn-bar" style="width:${Math.max(14, n / 64 * 100)}%">${n}</div></div><span class="small muted num">${Math.round(n / 64 * 100)}%</span></div>`).join("")}
     </div></div>
@@ -833,8 +842,8 @@ function viewDashboard() {
       <dt>Fila acima do SLA (M10)</dt><dd class="num" style="color:${vencidos ? "var(--bad)" : "inherit"}">${vencidos}</dd>
     </dl></div></div>
     <div class="card"><div class="card-h"><h2>Por cedente</h2><span class="sub">7 dias</span></div><div class="card-b" style="padding:8px 0 4px">
-      <table class="tbl" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r">Exceções</th><th class="r">M2 p50</th></tr></thead><tbody>
-      ${cedRows.map(r => `<tr style="cursor:default"><td class="ellipsis" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num">${r[1]}</td><td class="r num">${excBy(r[0])}</td><td class="r num">${r[2]}</td></tr>`).join("")}
+      <table class="tbl stk stk-ced" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r">Exceções</th><th class="r">M2 p50</th></tr></thead><tbody>
+      ${cedRows.map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Cedente" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num" data-l="Recebidos">${r[1]}</td><td class="r num" data-l="Exceções">${excBy(r[0])}</td><td class="r num" data-l="M2 p50">${r[2]}</td></tr>`).join("")}
       </tbody></table></div></div>
   </div>`;
 }
@@ -858,7 +867,7 @@ function viewFila() {
   const opt = (v, l, cur) => `<option value="${v}"${v === cur ? " selected" : ""}>${esc(l)}</option>`;
   return `
   <div class="ph"><div><h1 id="t-pg">Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
-  <div class="grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
+  <div class="grid g-4" style="margin-bottom:16px">
     <div class="card kpi"><div class="l" style="min-height:0">Aguardando lançamento</div><div class="v num">${all.length}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">SLA vencido</div><div class="v num" style="color:${venc ? "var(--bad)" : "inherit"}">${venc}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">Vence em até 1 h</div><div class="v num" style="color:${av ? "var(--warn)" : "inherit"}">${av}</div></div>
@@ -873,24 +882,24 @@ function viewFila() {
       <div class="field grow"><label for="ff-q">Busca</label><input class="input" id="ff-q" data-f="fila.q" value="${esc(f.q)}" placeholder="Protocolo, NF, sacado, cedente ou remetente"></div>
       <button class="btn ghost" data-act="clearFila">Limpar</button>
     </div>
-    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl" id="tbl-fila">
+    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk stk-fila" id="tbl-fila">
       <colgroup><col style="width:34px"><col style="width:96px"><col style="width:84px"><col><col><col style="width:104px"><col style="width:90px"><col style="width:74px"><col style="width:92px"><col style="width:142px"><col style="width:156px"></colgroup>
       <thead><tr><th><input type="checkbox" data-act="selAll" aria-label="Selecionar todos"${rows.length && rows.every(r => f.sel.has(r.id)) ? " checked" : ""}></th><th>Protocolo</th><th>NF / série</th><th>Cedente</th><th>Sacado</th><th class="r">Valor</th><th>Vencimento</th><th>Canal</th><th>Recebido</th><th>SLA</th><th>Ação</th></tr></thead>
       <tbody>${rows.map(x => {
         const doneRow = x.estado !== "PENDENTE";
         const act = x.lancadoEm ? `<div>${badge(x.estado === "DESFEITO" ? "Desfeito" : "Lançado " + fHM(x.lancadoEm), x.estado === "DESFEITO" ? "b-bad" : "b-ok")}</div><div class="sub2">por ${esc(x.lancadoPor)}</div>` : x.estado === "DESCARTADO" ? badge("Descartado", "b-neu") : `<button class="btn primary sm" data-act="lancar" data-id="${x.id}">Marcar como lançado</button>`;
         return `<tr data-open="${x.id}" class="${doneRow ? "done" : ""}">
-        <td><input type="checkbox" data-act="sel" data-id="${x.id}" aria-label="Selecionar ${x.id}"${f.sel.has(x.id) ? " checked" : ""}${doneRow ? " disabled" : ""}></td>
-        <td><a class="proto" href="#caso/${x.id}">${x.id}</a><div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td>
-        <td class="num"><div>${esc(x.nf)}</div><div class="sub2">série ${esc(x.serie)}</div></td>
-        <td class="ellipsis" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
-        <td class="ellipsis" title="${esc(x.titulo.sac)}">${esc(x.titulo.sac)}</td>
-        <td class="r num">${brl(x.titulo.val)}</td>
-        <td class="num">${fD(x.titulo.venc)}</td>
-        <td>${chanShort(x.canal)}</td>
-        <td class="num nowrap">${fDM(x.rec)}</td>
-        <td>${slaHTML(x)}</td>
-        <td>${act}</td></tr>`; }).join("") || `<tr><td colspan="11"><div class="empty">Nenhum caso com esses filtros.</div></td></tr>`}
+        <td class="chk"><input type="checkbox" data-act="sel" data-id="${x.id}" aria-label="Selecionar ${x.id}"${f.sel.has(x.id) ? " checked" : ""}${doneRow ? " disabled" : ""}></td>
+        <td data-l="Protocolo"><a class="proto" href="#caso/${x.id}">${x.id}</a><div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td>
+        <td class="num" data-l="NF / série"><div>${esc(x.nf)}</div><div class="sub2">série ${esc(x.serie)}</div></td>
+        <td class="ellipsis" data-l="Cedente" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
+        <td class="ellipsis" data-l="Sacado" title="${esc(x.titulo.sac)}">${esc(x.titulo.sac)}</td>
+        <td class="r num" data-l="Valor">${brl(x.titulo.val)}</td>
+        <td class="num" data-l="Vencimento">${fD(x.titulo.venc)}</td>
+        <td data-l="Canal">${chanShort(x.canal)}</td>
+        <td class="num nowrap" data-l="Recebido">${fDM(x.rec)}</td>
+        <td class="full" data-l="SLA">${slaHTML(x)}</td>
+        <td class="full" data-l="Ação">${act}</td></tr>`; }).join("") || `<tr><td colspan="11"><div class="empty">Nenhum caso com esses filtros.</div></td></tr>`}
       </tbody></table></div>
     <div class="tbl-foot"><span>${f.sel.size} selecionado(s)</span><button class="btn sm" data-act="assumirLote"${f.sel.size ? "" : " disabled"}>Assumir selecionados</button><button class="btn sm" disabled title="Desejável, fora do MVP">Marcar como lançado (lote)</button><span style="margin-left:auto">Exibindo ${rows.length} caso(s) · clique na linha para abrir o detalhe</span></div>
   </div>`;
@@ -934,16 +943,16 @@ function viewPend() {
       <div class="field grow"><label for="pf-q">Busca</label><input class="input" id="pf-q" data-f="pend.q" value="${esc(p.q)}" placeholder="Protocolo, NF, cedente, remetente ou detalhe"></div>
       <button class="btn ghost" data-act="clearPend">Limpar</button>
     </div>
-    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl">
+    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk" id="tbl-pend">
       <colgroup><col style="width:96px"><col style="width:80px"><col style="width:74px"><col style="width:14%"><col style="width:82px"><col><col style="width:166px"><col style="width:82px"><col style="width:150px"></colgroup>
       <thead><tr><th>Protocolo</th><th>Recebido</th><th>Canal</th><th>Cedente</th><th>NF</th><th>Motivo e detalhe</th><th>Status · resp.</th><th>Idade</th><th>SLA</th></tr></thead>
       <tbody>${rows.map(x => { const st = PSTAT[x.pst] || ["—", "b-neu"]; const age = x.aberta ? dur(clock() - x.aberta) : "—";
         return `<tr data-open="${x.id}">
-        <td><a class="proto" href="#caso/${x.id}">${x.id}</a></td><td class="num small">${fD(x.rec).slice(0,5)}<div class="sub2">${fHM(x.rec)}</div></td><td>${chanShort(x.canal)}</td>
-        <td class="ellipsis" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
-        <td class="num">${x.nf ? esc(x.nf) : '<span class="muted" title="Não identificado">?</span>'}</td>
-        <td><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(x.detalhe)}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(x.detalhe)}</div></td>
-        <td>${badge(st[0], st[1])}<div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td><td class="num nowrap small">${age}</td><td>${slaHTML(x)}</td></tr>`; }).join("") || `<tr><td colspan="9"><div class="empty">Nenhuma pendência com esses filtros.</div></td></tr>`}
+        <td data-l="Protocolo"><a class="proto" href="#caso/${x.id}">${x.id}</a></td><td class="num small" data-l="Recebido">${fD(x.rec).slice(0,5)}<div class="sub2">${fHM(x.rec)}</div></td><td data-l="Canal">${chanShort(x.canal)}</td>
+        <td class="ellipsis" data-l="Cedente" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
+        <td class="num" data-l="NF">${x.nf ? esc(x.nf) : '<span class="muted" title="Não identificado">?</span>'}</td>
+        <td class="full" data-l="Motivo e detalhe"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(x.detalhe)}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(x.detalhe)}</div></td>
+        <td class="full" data-l="Status · resp.">${badge(st[0], st[1])}<div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td><td class="num nowrap small" data-l="Idade">${age}</td><td class="full" data-l="SLA">${slaHTML(x)}</td></tr>`; }).join("") || `<tr><td colspan="9"><div class="empty">Nenhuma pendência com esses filtros.</div></td></tr>`}
       </tbody></table></div>
     <div class="tbl-foot"><span>Exibindo ${rows.length} caso(s)</span><span>· Duplicidades não abrem pendência: o caso é encerrado como <span class="code">JA_REGISTRADO</span> e aparece aqui só para conferência.</span></div>
   </div>`;
@@ -1243,7 +1252,7 @@ function mailThread(c, mm) {
 function viewEmail() {
   const mm = MAILS.find(m => m.id === UI.mail); const c = byId(mm.id); const th = mailThread(c, mm);
   const ok = c.mot !== "FORMATO_NAO_SUPORTADO";
-  const item = (x, open) => open ? `<div class="thread-item"><div class="mhdr"><div class="av fx">F</div><div><div style="font-weight:650">Flixsign Canhotos <span class="auto">Resposta automática</span></div><div class="small muted">para ${esc(mask(c.rem.id))} · ${esc(x.subj)}</div></div><div class="small muted num">${fDT(x.t)}</div></div><div class="mbody">${esc(x.body)}</div><div class="small faint" style="margin:10px 0 0 48px">Template ${esc(x.tpl)} · resposta na mesma thread (In-Reply-To / References)</div></div>`
+  const item = (x, open) => open ? `<div class="thread-item"><div class="mhdr"><div class="av fx">F</div><div><div style="font-weight:650">Flixsign Canhotos <span class="auto">Resposta automática</span></div><div class="small muted">para ${esc(mask(c.rem.id))} · ${esc(x.subj)}</div></div><div class="small muted num">${fDT(x.t)}</div></div><div class="mbody">${esc(x.body)}</div><div class="small faint mind">Template ${esc(x.tpl)} · resposta na mesma thread (In-Reply-To / References)</div></div>`
     : `<div class="collapsed" role="button" tabindex="0" data-act="mexp"><span class="avatar" style="width:24px;height:24px;font-size:10px;${x.auto ? "background:var(--accent-soft);color:var(--accent)" : "background:#ede9fe;color:#5b21b6"}">${x.auto ? "F" : esc(c.rem.nome[0])}</span><b style="color:var(--text-2)">${x.auto ? "Flixsign Canhotos" : esc(c.rem.nome)}</b><span class="ellipsis" style="flex:1">${esc(x.body.split("\n")[0])}</span><span class="num">${fDM(x.t)}</span></div>`;
   return `
   <div class="ph"><div><h1>E-mail</h1><p>Caixa dedicada do canal (endereço ilustrativo). Cada imagem anexada gera um caso; a resposta automática segue na mesma thread, com SIM ou NÃO na primeira linha.</p></div></div>
@@ -1259,7 +1268,7 @@ function viewEmail() {
       <div class="attach">${ok ? `<div class="th">${svgFor(c)}</div>` : `<div class="th" style="height:60px;display:grid;place-items:center;color:#fff;background:#2b579a;font-weight:700">DOCX</div>`}<div style="min-width:0"><div class="ellipsis" style="font-weight:600;font-size:13px">${IC.clip.replace("<svg", '<svg style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"')}${esc(mm.file)}</div><div class="small muted ellipsis">${esc(c.mime.length > 20 ? "Documento Word" : c.mime)} · ${String(c.tam).replace(".", ",")} MB</div><div class="small" style="margin-top:4px">${ok ? `Caso <a href="#caso/${c.id}" class="mono">${c.id}</a> criado` : badge("Formato não suportado", "b-warn")}</div></div></div>
       ${th.length ? item(th[0], true) : ""}
       ${th.slice(1).map((x, i) => UI.mailOpen === i ? item(x, true) : item(x, false).replace('data-act="mexp"', `data-act="mexp" data-i="${i}"`)).join("")}
-      ${th.length > 1 ? `<div class="xs faint" style="margin:10px 0 0 48px">Clique numa mensagem recolhida para expandir.</div>` : ""}
+      ${th.length > 1 ? `<div class="xs faint mind">Clique numa mensagem recolhida para expandir.</div>` : ""}
     </div>
     <div class="grid mail-side" style="gap:16px">
       <div class="card"><div class="card-h"><h2>Processamento</h2></div><div class="card-b"><dl class="kv" style="grid-template-columns:108px 1fr;font-size:12.5px">
@@ -1299,7 +1308,7 @@ function viewConfig() {
       </div></div>
       <div class="card"><div class="card-h"><h2>Cliente (tenant)</h2></div><div class="card-b"><dl class="kv">
         <dt>Nome</dt><dd>${TENANT.nome}</dd><dt>CNPJ</dt><dd class="num">${TENANT.cnpj}</dd><dt>Tipo</dt><dd>FIDC</dd><dt>Status</dt><dd>${badge("Piloto", "b-info")}</dd>
-        <dt id="l-opera">Quem opera a fila</dt><dd style="display:flex;gap:8px;align-items:center"><select class="input" aria-labelledby="l-opera" style="width:150px;height:30px"><option>Flixsign</option><option>Cliente</option><option>Ambos</option></select>${badge("A definir (D7)", "b-warn plain")}</dd>
+        <dt id="l-opera">Quem opera a fila</dt><dd style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select class="input" aria-labelledby="l-opera" style="width:150px;height:30px"><option>Flixsign</option><option>Cliente</option><option>Ambos</option></select>${badge("A definir (D7)", "b-warn plain")}</dd>
         <dt>WhatsApp</dt><dd>Número dedicado · provedor oficial ${badge("A definir", "b-warn plain")}</dd><dt>E-mail</dt><dd>canhotos+modeloalfa@flixsign.com.br <span class="xs faint">(ilustrativo)</span></dd>
       </dl><div class="note neu" style="margin-top:12px">${IC.info}<span>Isolamento por tenant: nenhuma consulta, fila, imagem ou métrica atravessa clientes.</span></div></div></div>
       <div class="card"><div class="card-h"><h2>Integração NetFactor</h2></div><div class="card-b"><dl class="kv">
@@ -1307,24 +1316,24 @@ function viewConfig() {
       </dl><div class="note warn" style="margin-top:12px">${IC.warn}<span>Acesso de serviço sem usuário logado (h) a confirmar com a OrderBy. O segredo fica em cofre e nunca é exibido depois do cadastro.</span></div>
       <button class="btn sm" style="margin-top:10px" data-act="cred">Cadastrar credencial</button></div></div>
     </div>`;
-  if (t === "cedentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl"><colgroup><col style="width:170px"><col><col style="width:110px"><col style="width:150px"><col style="width:150px"><col style="width:100px"><col style="width:70px"></colgroup><thead><tr><th>CNPJ</th><th>Razão social</th><th>ID NetFactor</th><th>Fonte do índice</th><th>Última sincronização</th><th class="r">Remetentes</th><th>Ativo</th></tr></thead><tbody>
-    ${Object.values(CED).map(x => `<tr style="cursor:default"><td class="num">${x.cnpj}</td><td>${esc(x.razao)}</td><td class="mono">${x.idnf}</td><td>${badge("Planilha", "b-acc plain")}</td><td class="num">${fDT(SYNC)}</td><td class="r num">${x.rem}</td><td><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(x.razao)}"><span></span></label></td></tr>`).join("")}</tbody></table></div></div>`;
-  if (t === "remetentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl"><colgroup><col style="width:30%"><col style="width:20%"><col><col style="width:130px"><col style="width:70px"></colgroup><thead><tr><th>Telefone ou e-mail</th><th>Nome</th><th>Cedentes vinculados</th><th>Vigência</th><th>Ativo</th></tr></thead><tbody>
-    ${Object.values(REM).filter(r => r.aut).map(r => `<tr style="cursor:default"><td class="ellipsis">${esc(r.id)}</td><td>${esc(r.nome)}</td><td class="ellipsis">${r.ceds.map(cedName).join(", ")}</td><td class="num">01/09/2026 —</td><td><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(r.nome)}"><span></span></label></td></tr>`).join("")}</tbody></table></div>
+  if (t === "cedentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:170px"><col><col style="width:110px"><col style="width:150px"><col style="width:150px"><col style="width:100px"><col style="width:70px"></colgroup><thead><tr><th>CNPJ</th><th>Razão social</th><th>ID NetFactor</th><th>Fonte do índice</th><th>Última sincronização</th><th class="r">Remetentes</th><th>Ativo</th></tr></thead><tbody>
+    ${Object.values(CED).map(x => `<tr style="cursor:default"><td class="num" data-l="CNPJ">${x.cnpj}</td><td data-l="Razão social">${esc(x.razao)}</td><td class="mono" data-l="ID NetFactor">${x.idnf}</td><td data-l="Fonte do índice">${badge("Planilha", "b-acc plain")}</td><td class="num" data-l="Última sincronização">${fDT(SYNC)}</td><td class="r num" data-l="Remetentes">${x.rem}</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(x.razao)}"><span></span></label></td></tr>`).join("")}</tbody></table></div></div>`;
+  if (t === "remetentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:30%"><col style="width:20%"><col><col style="width:130px"><col style="width:70px"></colgroup><thead><tr><th>Telefone ou e-mail</th><th>Nome</th><th>Cedentes vinculados</th><th>Vigência</th><th>Ativo</th></tr></thead><tbody>
+    ${Object.values(REM).filter(r => r.aut).map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Telefone ou e-mail">${esc(r.id)}</td><td data-l="Nome">${esc(r.nome)}</td><td class="ellipsis full" data-l="Cedentes vinculados">${r.ceds.map(cedName).join(", ")}</td><td class="num" data-l="Vigência">01/09/2026 —</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(r.nome)}"><span></span></label></td></tr>`).join("")}</tbody></table></div>
     <div class="tbl-foot">Remetente desconhecido: política "seguir com revisão" (pendência REMETENTE_NAO_AUTORIZADO) · ver caso <a href="#caso/K7Q2-71" class="mono">K7Q2-71</a></div></div>`;
-  if (t === "operadores") body = `<div class="card"><table class="tbl"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th></tr></thead><tbody>
-    ${[["Ana Ribeiro", "ana.ribeiro@flixsign.exemplo", "Supervisora"], ["Bruno Teles", "bruno.teles@flixsign.exemplo", "Operador"], ["Camila Duarte", "camila.duarte@fidcmodeloalfa.exemplo", "Auditor (somente leitura)"], ["Rafael Moreira", "rafael.moreira@fidcmodeloalfa.exemplo", "Admin do cliente"], ["Equipe de implantação", "implantacao@flixsign.exemplo", "Admin Flixsign"]].map(o => `<tr style="cursor:default"><td>${o[0]}</td><td class="muted">${o[1]}</td><td>${badge(o[2], "b-neu plain")}</td><td><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${o[0]}"><span></span></label></td></tr>`).join("")}</tbody></table><div class="tbl-foot">Login via SSO com MFA.</div></div>`;
+  if (t === "operadores") body = `<div class="card"><table class="tbl stk"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th></tr></thead><tbody>
+    ${[["Ana Ribeiro", "ana.ribeiro@flixsign.exemplo", "Supervisora"], ["Bruno Teles", "bruno.teles@flixsign.exemplo", "Operador"], ["Camila Duarte", "camila.duarte@fidcmodeloalfa.exemplo", "Auditor (somente leitura)"], ["Rafael Moreira", "rafael.moreira@fidcmodeloalfa.exemplo", "Admin do cliente"], ["Equipe de implantação", "implantacao@flixsign.exemplo", "Admin Flixsign"]].map(o => `<tr style="cursor:default"><td data-l="Nome">${o[0]}</td><td class="muted full" data-l="E-mail">${o[1]}</td><td data-l="Perfil">${badge(o[2], "b-neu plain")}</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${o[0]}"><span></span></label></td></tr>`).join("")}</tbody></table><div class="tbl-foot">Login via SSO com MFA.</div></div>`;
   if (t === "parametros") body = `<div class="cfg-grid"><div class="card"><div class="card-h"><h2>Leitura e conversa</h2></div><div class="card-b grid" style="grid-template-columns:1fr 1fr;gap:12px">
       <div class="field"><label for="p-limiar">Limiar de confiança do OCR</label><input class="input" id="p-limiar" value="0,85"><span class="xs faint">[A DEFINIR na Fase 0]</span></div><div class="field"><label for="p-tent">Tentativas de digitação / nova foto</label><input class="input" id="p-tent" value="3 / 2"></div>
       <div class="field"><label for="p-lembrete">Lembrete (horas)</label><input class="input" id="p-lembrete" value="2"></div><div class="field"><label for="p-timeout">Timeout para pendência (horas)</label><input class="input" id="p-timeout" value="24"></div>
       <div class="field"><label for="p-remdesc">Remetente desconhecido</label><select class="input" id="p-remdesc"><option>Seguir com revisão</option><option>Rejeitar</option></select></div><div class="field"><label for="p-emailna">E-mail não autenticado</label><select class="input" id="p-emailna"><option>Abrir pendência</option><option>Descartar</option></select></div>
       <div style="grid-column:1/-1"><button class="btn primary sm" data-act="salvarParam">Salvar parâmetros</button></div></div></div>
-    <div class="card"><div class="card-h"><h2>SLA por motivo</h2><span class="sub">spec 11.1 como padrão</span></div><div class="card-b" style="padding:6px 0"><table class="tbl"><tbody>
+    <div class="card"><div class="card-h"><h2>SLA por motivo</h2><span class="sub">spec 11.1 como padrão</span></div><div class="card-b" style="padding:6px 0"><table class="tbl stk stk-kv"><tbody>
       ${Object.entries(MOT).filter(([k, v]) => !v.dup && !v.fase2).map(([k, v]) => `<tr style="cursor:default"><td><span class="code">${k}</span></td><td class="r">${{ "4h": "4 h", "1du": "1 dia útil", mesmo: "Mesmo dia útil", imediato: "Imediato (automático)" }[v.sla]}</td></tr>`).join("")}</tbody></table></div></div></div>`;
   if (t === "templates") { const ex = { p: "K7Q2-91", nf: "458731", sac: "Comercial Ponte Alta Ltda", val: 18430, venc: DN(11, 6), dh: "08/10/2026 17:05", mot: "imagem ilegível", dr: "08/10/2026 14:05" };
     const rows = [["RECEBIMENTO", "Não se aplica"], ["PEDIDO_DIGITACAO", "Não se aplica"], ["NOVA_FOTO", "Não se aplica"], ["CONFIRMACAO", "Não se aplica"], ["NAO_ENCONTRADA", "Não se aplica"], ["CONFIRMADO_EM_REGISTRO", "Não se aplica"], ["SUCESSO", "Aprovado"], ["PENDENCIA", "Aprovado"], ["INDISPONIVEL", "Pendente"], ["NEGADO", "Não se aplica"], ["DUPLICIDADE", "Não se aplica"]];
-    body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl"><colgroup><col style="width:210px"><col style="width:70px"><col style="width:150px"><col></colgroup><thead><tr><th>Tipo</th><th>Versão</th><th>Aprovação WhatsApp</th><th>Texto (com exemplo)</th></tr></thead><tbody>
-    ${rows.map(([k, a]) => `<tr style="cursor:default"><td><span class="code">${k}</span></td><td class="num">v1</td><td>${badge(a, a === "Aprovado" ? "b-ok" : a === "Pendente" ? "b-warn" : "b-neu")}</td><td class="ellipsis small" title="${esc(TPL[k](ex))}">${esc(TPL[k](ex).replace(/\n/g, " · "))}</td></tr>`).join("")}</tbody></table></div><div class="tbl-foot">Mensagens fora da janela de 24 h do WhatsApp usam template aprovado (ex.: aviso de sucesso após lançamento manual).</div></div>`; }
+    body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:210px"><col style="width:70px"><col style="width:150px"><col></colgroup><thead><tr><th>Tipo</th><th>Versão</th><th>Aprovação WhatsApp</th><th>Texto (com exemplo)</th></tr></thead><tbody>
+    ${rows.map(([k, a]) => `<tr style="cursor:default"><td class="full" data-l="Tipo"><span class="code">${k}</span></td><td class="num" data-l="Versão">v1</td><td data-l="Aprovação WhatsApp">${badge(a, a === "Aprovado" ? "b-ok" : a === "Pendente" ? "b-warn" : "b-neu")}</td><td class="ellipsis small full clamp" data-l="Texto (com exemplo)" title="${esc(TPL[k](ex))}">${esc(TPL[k](ex).replace(/\n/g, " · "))}</td></tr>`).join("")}</tbody></table></div><div class="tbl-foot">Mensagens fora da janela de 24 h do WhatsApp usam template aprovado (ex.: aviso de sucesso após lançamento manual).</div></div>`; }
   return `<div class="ph"><div><h1 id="t-pg">Configurações</h1><p>Administração do tenant ${TENANT.nome}: cadastros, fonte do índice de títulos, adaptador de registro e parâmetros.</p></div></div>
     <div class="tabs">${tabs.map(([k, l]) => `<button class="${k === t ? "on" : ""}" aria-pressed="${k === t}" data-act="cfgTab" data-k="${k}">${l}</button>`).join("")}</div>${body}`;
 }
