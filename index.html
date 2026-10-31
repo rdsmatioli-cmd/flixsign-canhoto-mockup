@@ -1119,10 +1119,27 @@ function dlgCorrigir(c) {
       return true;
     });
 }
+/* Busca no índice do "Vincular": consulta e campos passam pela mesma normalização (minúsculas, sem acento,
+   sem espaços, "R$" só como prefixo, ponto de milhar só entre dígitos) */
+const normBusca = s => String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/^r\$\s*/, "").replace(/(\d)\.(?=\d)/g, "$1").replace(/\s+/g, "");
+const VINC_MAX = 8;
+/* itens: até VINC_MAX títulos que casam (candidatos do caso primeiro); total: quantos casaram;
+   fixo: o título escolhido (o.fixo) quando ele não está entre os itens, para não sumir ao redesenhar */
+function buscaTitulos(c, q, o) {
+  o = o || {}; const nq = normBusca(q); const cands = c.cands || [];
+  const achados = cands.concat(IDX.filter(t => !cands.includes(t))).filter(t => !nq || [t.nf, t.sac, brlN(t.val), t.id].some(v => normBusca(v).includes(nq)));
+  const itens = achados.slice(0, VINC_MAX);
+  const fixo = o.fixo && !itens.some(t => t.id === o.fixo) ? IDX.find(t => t.id === o.fixo) || null : null;
+  return { itens, total: achados.length, fixo };
+}
 function dlgVincular(c) {
-  const list = q => { q = (q || "").toLowerCase().replace(/[r$\s.]/g, ""); const base = (c.cands || []).concat(IDX.filter(t => !(c.cands || []).includes(t)));
-    return base.filter(t => !q || [t.nf, t.sac.toLowerCase().replace(/\s/g, ""), brlN(t.val).replace(/\./g, ""), t.id].some(s => s.includes(q.replace(/,/g, ",")))).slice(0, 8); };
-  const pick = q => list(q).map((t, i) => `<label><input type="radio" name="m-t" value="${t.id}"${i === 0 && c.cands ? " checked" : ""}><span><b class="num">NF ${t.nf}</b> · ${esc(t.sac)}${t.parcela ? ` · parcela ${t.parcela}` : ""}<br><span class="xs muted">${esc(cedName(t.ced))} · título ${t.id} · venc. ${fD(t.venc)}</span></span><span class="num">${brl(t.val)}</span></label>`).join("") || `<div class="empty" style="padding:14px">Nenhum título no índice.</div>`;
+  let selId = c.cands && c.cands[0] ? c.cands[0].id : null;
+  const item = t => `<label><input type="radio" name="m-t" value="${t.id}"${t.id === selId ? " checked" : ""}><span><b class="num">NF ${t.nf}</b> · ${esc(t.sac)}${t.parcela ? ` · parcela ${t.parcela}` : ""}<br><span class="xs muted">${esc(cedName(t.ced))} · título ${t.id} · venc. ${fD(t.venc)}</span></span><span class="num">${brl(t.val)}</span></label>`;
+  const pick = q => {
+    q = (q || "").trim(); const r = buscaTitulos(c, q, { fixo: selId }); const resto = r.total - r.itens.length;
+    return (r.fixo ? item(r.fixo) : "") + (r.itens.map(item).join("") || `<div class="empty" style="padding:14px">${q ? `Nenhum título encontrado para "${esc(q)}".` : "Nenhum título no índice."}</div>`)
+      + (resto > 0 ? `<div class="xs muted" style="padding:8px 10px">Mais ${resto} título${resto > 1 ? "s" : ""}: refine a busca.</div>` : "");
+  };
   const q0 = c.mot === "NF_NAO_ENCONTRADA" ? (c.nf || "").slice(0, 4) : (c.nf || "");
   openModal(`Vincular manualmente · ${c.id}`, `<div class="note neu">${IC.info}<span>O operador escolhe o título e assume a confirmação. O caso vai para <span class="code">CONFIRMADO</span> e entra na fila de lançamento.</span></div>
     <div class="field"><label for="m-q">Buscar no índice (NF, sacado ou valor)</label><input class="input" id="m-q" value="${esc(q0)}"></div>
@@ -1141,6 +1158,7 @@ function dlgVincular(c) {
       Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), encerradaEm: null, alert: null }); c.sla = slaVence(c);
       toast(`<b>${c.id}</b> vinculado ao título ${t.id} e movido para a Fila de lançamento.`); return true;
     });
+  $("#m-pick").addEventListener("change", e => { if (e.target.name === "m-t") selId = e.target.value; });
   $("#m-q").addEventListener("input", e => { $("#m-pick").innerHTML = pick(e.target.value); });
 }
 function dlgDescartar(c) {
