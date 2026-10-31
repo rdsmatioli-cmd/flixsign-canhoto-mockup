@@ -56,3 +56,70 @@ test("ação no detalhe mantém a posição do Histórico; trocar de tela não c
   m.run(`location.hash = "#caso/K7Q2-61"; render()`);
   assert.equal(m.els.has("#rol-hist"), false, "rota nova começa do topo");
 });
+
+/* Mini-DOM da Fila a 1280 px, com as medidas do Chromium: a área #rol-fila vai de x 249 a 1255 e as colunas fixas SLA e Ação
+   começam em 925 e 1089. O link do protocolo fica em x 292 - scrollLeft; o botão "Marcar como lançado" está na Ação.
+   Botão e link existem ou não conforme o HTML que render() acabou de gerar. */
+function filaComGeometria(m, id) {
+  m.run(`globalThis.getComputedStyle = el => el.estilo || { position: "static", left: "auto", right: "auto" }`);
+  const wrap = m.campo("#rol-fila", { clientLeft: 0, clientTop: 0, clientWidth: 1006, clientHeight: 640, getBoundingClientRect: () => ({ left: 249, right: 1255, top: 260, bottom: 900 }) });
+  const tr = { children: [] };
+  const fixa = (left, right) => ({ parentElement: tr, estilo: { position: "sticky", left: "auto", right }, getBoundingClientRect: () => ({ left, right: left + 164 }) });
+  const celProto = { parentElement: tr }, celAcao = fixa(1089, "0px");
+  tr.children.push(celProto, fixa(925, "166px"), celAcao);
+  const naArea = (cel, x0, x1) => ({ closest: s => (s === "[id^='rol-']" ? wrap : s === "td, th" ? cel : null), getBoundingClientRect: () => ({ left: x0(), right: x1(), top: 400, bottom: 420 }) });
+  const sel = { botao: `#view [data-act="lancar"][data-id="${id}"]`, link: `#view a[href="#caso/${id}"]`, outra: `#view [data-act][data-id="${id}"]:not([disabled]):not([aria-disabled="true"])` };
+  const view = m.els.get("#view") || m.run(`document.querySelector("#view")`); let html = "";
+  view.contains = () => true;
+  Object.defineProperty(view, "innerHTML", { get: () => html, set(v) {
+    html = v;
+    if (v.includes(`data-act="lancar" data-id="${id}"`)) m.campo(sel.botao, { dataset: { act: "lancar", id }, ...naArea(celAcao, () => 1100, () => 1240) }); else m.els.set(sel.botao, null);
+    if (v.includes(`href="#caso/${id}"`)) m.campo(sel.link, naArea(celProto, () => 292 - wrap.scrollLeft, () => 370 - wrap.scrollLeft)); else m.els.set(sel.link, null);
+    m.els.set(sel.outra, null);
+  } });
+  return { wrap, sel, html: () => html };
+}
+
+test("ajusteVisivel: rola só o necessário, para a esquerda ou para trás das colunas fixas", () => {
+  const m = carregar();
+  const aj = (r, a) => JSON.parse(m.run(`JSON.stringify(ajusteVisivel(${JSON.stringify(r)}, ${JSON.stringify(a)}))`));
+  const area = { l: 249, r: 925, t: 260, b: 900 };
+  assert.deepEqual(aj({ left: 52, right: 130, top: 400, bottom: 420 }, area), { dx: -205, dy: 0 });
+  assert.deepEqual(aj({ left: 900, right: 980, top: 400, bottom: 420 }, area), { dx: 63, dy: 0 });
+  assert.deepEqual(aj({ left: 262, right: 340, top: 400, bottom: 420 }, area), { dx: 0, dy: 0 });
+  assert.deepEqual(aj({ left: 262, right: 340, top: 890, bottom: 910 }, area), { dx: 0, dy: 18 });
+});
+
+test("lançar pela linha com a Fila rolada: o foco vai ao link do protocolo e a área rola até ele", () => {
+  const m = carregar();
+  const id = "K7Q2-58";
+  const { wrap, sel, html } = filaComGeometria(m, id);
+  m.run(`location.hash = "#fila"; render()`);
+  rolada(m, "rol-fila", 240, 0); wrap.scrollLeft = 240;
+  m.els.get(sel.botao).focus();
+  m.clicar({ act: "lancar", id });
+  m.campo("#m-ok", { checked: true }); m.campo("input[name=m-img]:checked", { value: "1" }); m.campo("#m-obs", { value: "" });
+  m.clicar({ act: "mok" });
+  assert.equal(m.run(`byId("${id}").estado`), "CONCLUIDO");
+  assert.doesNotMatch(html(), new RegExp(`data-act="(?!lancar")[^"]*"[^>]*data-id="${id}"(?![^>]*disabled)`), "linha lançada sem outra ação habilitada");
+  assert.equal(m.focos.at(-1), sel.link, "o foco cai no link do protocolo");
+  const r = m.els.get(sel.link).getBoundingClientRect();
+  assert.ok(r.left >= 249 && r.right <= 925, `link em x ${r.left} a ${r.right}, fora da área visível 249 a 925`);
+  assert.equal(wrap.scrollLeft, 35, "rola só o necessário (240 → 35), sem zerar");
+});
+
+test("redesenho com o foco já visível não mexe na rolagem preservada", () => {
+  const m = carregar();
+  const id = "K7Q2-58";
+  const { wrap, sel } = filaComGeometria(m, id);
+  m.run(`location.hash = "#fila"; render()`);
+  rolada(m, "rol-fila", 240, 0); wrap.scrollLeft = 240;
+  m.els.get(sel.botao).focus();
+  m.run("render()");
+  assert.equal(m.focos.at(-1), sel.botao, "o botão na coluna fixa Ação continua com o foco");
+  assert.equal(wrap.scrollLeft, 240, "botão na coluna fixa está sempre visível");
+  wrap.scrollLeft = 30;
+  m.run(`focar({ sel: 'a[href="#caso/${id}"]', id: "${id}" })`);
+  assert.equal(m.focos.at(-1), sel.link);
+  assert.equal(wrap.scrollLeft, 30, "link em x 262 a 340 já visível");
+});

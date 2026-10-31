@@ -1571,7 +1571,24 @@ function focar(d, caret) {
   if (!d) return;
   const alvos = [d.sel, d.i != null && `[data-exp="${CSS.escape(d.i)}"]`, d.id && `[data-act][data-id="${CSS.escape(d.id)}"]:not([disabled]):not([aria-disabled="true"])`, d.id && `a[href="#caso/${CSS.escape(d.id)}"]`].filter(Boolean);
   for (const s of alvos) { const el = $("#view " + s); if (!el) continue; el.focus({ preventScroll: true }); if (document.activeElement !== el) continue;
-    if (caret != null && /^(ff|pf)-q$/.test(el.id)) { try { el.setSelectionRange(caret, caret); } catch (e) {} } return; }
+    if (caret != null && /^(ff|pf)-q$/.test(el.id)) { try { el.setSelectionRange(caret, caret); } catch (e) {} }
+    mostraFoco(el); return; }
+}
+/* Quanto rolar (dx, dy) para o retângulo r caber na área visível a {l, r, t, b}, com folga m para o anel de foco; 0 se já cabe */
+const ajusteVisivel = (r, a, m = 8) => ({
+  dx: r.left < a.l ? r.left - a.l - m : r.right > a.r ? r.right - a.r + m : 0,
+  dy: r.top < a.t ? r.top - a.t - m : r.bottom > a.b ? r.bottom - a.b + m : 0 });
+/* O foco devolvido com preventScroll numa área #rol-* cuja rolagem sobreviveu ao redesenho pode cair fora da parte visível
+   ou atrás das colunas fixas (SLA e Ação da Fila, Ação das Pendências): rola a área só o necessário para mostrá-lo */
+function mostraFoco(el) {
+  const w = el.closest && el.closest("[id^='rol-']"); if (!w || w === el) return;
+  const b = w.getBoundingClientRect(), a = { l: b.left + w.clientLeft, t: b.top + w.clientTop }; a.r = a.l + w.clientWidth; a.b = a.t + w.clientHeight;
+  const cel = el.closest("td, th"), fixa = c => getComputedStyle(c).position === "sticky";
+  if (cel && !fixa(cel)) for (const c of cel.parentElement.children) {
+    if (!fixa(c)) continue; const s = getComputedStyle(c), cr = c.getBoundingClientRect();
+    if (s.right !== "auto") a.r = Math.min(a.r, cr.left); else if (s.left !== "auto") a.l = Math.max(a.l, cr.right); }
+  const { dx, dy } = ajusteVisivel(el.getBoundingClientRect(), a);
+  if (dx) w.scrollLeft += dx; if (dy) w.scrollTop += dy;
 }
 /* Tabelas que rolam dentro do cartão ganham a sombra das colunas fixas */
 function marcaRolagem() { $$(".tbl-wrap").forEach(w => w.classList.toggle("ovf", w.scrollWidth > w.clientWidth + 1)); }
