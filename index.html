@@ -557,16 +557,17 @@ const IC = {
 };
 const chanHTML = c => c === "WHATSAPP" ? `<span class="chan wa">${IC.wa}WhatsApp</span>` : `<span class="chan em">${IC.em}E-mail</span>`;
 const badge = (txt, cls, plain) => `<span class="badge ${cls}${plain ? " plain" : ""}">${esc(txt)}</span>`;
-/* ---------- Remetentes (RemetenteAutorizado) ---------- */
+/* ---------- Remetentes (RemetenteAutorizado) ----------
+   Fictícios: celular 9 0000-NNNN (assinante começando por 0 não existe no plano de numeração) e domínio .exemplo */
 const REM = {
-  marcos:  { id: "+55 11 98421-4127", nome: "Marcos Lima", aut: true, ceds: ["TARUMA"] },
-  juliana: { id: "logistica@plasticosribeiranova-exemplo.com.br", nome: "Juliana Prado", aut: true, ceds: ["RIBEIRA"] },
-  rogerio: { id: "+55 19 99130-5582", nome: "Rogério Nunes", aut: true, ceds: ["CAMPO"] },
-  carla:   { id: "+55 31 98877-2014", nome: "Carla Mendes", aut: true, ceds: ["HORIZ"] },
-  carlos:  { id: "+55 31 99640-7713", nome: "Carlos Freitas", aut: true, ceds: ["HORIZ"] },
-  serra:   { id: "expedicao@serraclara-exemplo.com.br", nome: "Expedição Serra Clara", aut: true, ceds: ["SERRA"] },
-  rota:    { id: "+55 11 97765-3390", nome: "Transportes Rota Leve", aut: true, ceds: ["TARUMA", "CAMPO"] },
-  desconh: { id: "+55 41 99702-0862", nome: "Paulo", aut: false, ceds: [] },
+  marcos:  { id: "+55 11 90000-0001", nome: "Marcos Lima", aut: true, ceds: ["TARUMA"] },
+  juliana: { id: "logistica@plasticosribeiranova.exemplo", nome: "Juliana Prado", aut: true, ceds: ["RIBEIRA"] },
+  rogerio: { id: "+55 19 90000-0002", nome: "Rogério Nunes", aut: true, ceds: ["CAMPO"] },
+  carla:   { id: "+55 31 90000-0003", nome: "Carla Mendes", aut: true, ceds: ["HORIZ"] },
+  carlos:  { id: "+55 31 90000-0004", nome: "Carlos Freitas", aut: true, ceds: ["HORIZ"] },
+  serra:   { id: "expedicao@serraclara.exemplo", nome: "Expedição Serra Clara", aut: true, ceds: ["SERRA"] },
+  rota:    { id: "+55 11 90000-0005", nome: "Transportes Rota Leve", aut: true, ceds: ["TARUMA", "CAMPO"] },
+  desconh: { id: "+55 41 90000-0006", nome: "Paulo", aut: false, ceds: [] },
 };
 function mask(id) {
   if (id.includes("@")) { const [u, d] = id.split("@"); return u.slice(0, 3) + "***@" + d; }
@@ -725,15 +726,15 @@ c = X({ id: "K7Q2-79", canal: "EMAIL", rec: D(7, 10, 12), rem: REM.serra, ced: "
 recv(c); ocrOk(c, 2); found(c, 3); M(c, 3, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c))); E(c, 123, "LEMBRETE_ENVIADO", "SISTEMA", "Lembrete após 2 h");
 E(c, 1443, "PENDENCIA_ABERTA", "SISTEMA", "Motivo SEM_CONFIRMACAO · timeout de 24 h", null, { est: ["AGUARDANDO_CONFIRMACAO", "PENDENTE"] }); M(c, 1443, "PENDENCIA", TPL.PENDENCIA({ p: c.id, mot: MOT.SEM_CONFIRMACAO.amig })); E(c, 1500, "CASO_ATRIBUIDO", "OPERADOR", "Atribuído a Bruno Teles · contato com o remetente por telefone");
 
-c = X({ id: "K7Q2-90", rec: D(8, 14, 20), rem: REM.marcos, ced: "TARUMA", nf: "458760", serie: "1", mot: "NETFACTOR_INDISPONIVEL", pst: "REPROCESSANDO", aberta: D(8, 14, 21), nextTry: D(8, 16, 45),
-  detalhe: "Timeout na consulta de títulos após 3 tentativas; reprocessamento a cada 15 min (próximo às 16:45)", ocr: { nf: .97, serie: .96, chave: null, cnpj: .92, data: .8, assin: .91 }, receb: "08/10/26", recebedor: "U. Farias", emissao: "06/10/2026", hidden: tt.i90 });
+c = X({ id: "K7Q2-90", rec: D(8, 14, 20), rem: REM.marcos, ced: "TARUMA", nf: "458760", serie: "1", mot: "NETFACTOR_INDISPONIVEL", pst: "REPROCESSANDO", aberta: D(8, 14, 21), nextTry: D(8, 16, 50),
+  detalhe: "Timeout na consulta de títulos após 3 tentativas; reprocessamento automático a cada 15 min", ocr: { nf: .97, serie: .96, chave: null, cnpj: .92, data: .8, assin: .91 }, receb: "08/10/26", recebedor: "U. Farias", emissao: "06/10/2026", hidden: tt.i90 });
 recv(c); ocrOk(c, 0); E(c, 1, "NETFACTOR_ERRO", "SISTEMA", "Timeout · tentativa 1 de 3"); E(c, 1, "NETFACTOR_ERRO", "SISTEMA", "Timeout · tentativa 2 de 3 (backoff)"); E(c, 1, "NETFACTOR_ERRO", "SISTEMA", "Timeout · tentativa 3 de 3 (backoff)");
 E(c, 1, "PENDENCIA_ABERTA", "SISTEMA", "Motivo NETFACTOR_INDISPONIVEL · reprocessamento automático", null, { est: ["BUSCANDO_TITULO", "PENDENTE"] }); M(c, 1, "INDISPONIVEL", TPL.INDISPONIVEL({ p: c.id }));
 E(c, 135, "PENDENCIA_REPROCESSADA", "SISTEMA", "Tentativa agendada · ainda indisponível");
 
 c = X({ id: "K7Q2-55", rec: D(7, 8, 15), rem: REM.rota, ced: "TARUMA", mot: "FALHA_INGESTAO", aberta: D(7, 8, 25), img: false, tent: 0,
   detalhe: "URL da mídia expirou no provedor após 3 tentativas de download", ocr: {} });
-E(c, 0, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 1 de 3)"); E(c, 4, "MIDIA_REJEITADA", "SISTEMA", "Falha no download (tentativa 3 de 3)");
+E(c, 0, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 1 de 3)"); E(c, 2, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 2 de 3)"); E(c, 4, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 3 de 3)");
 E(c, 10, "PENDENCIA_ABERTA", "SISTEMA", "Motivo FALHA_INGESTAO", null, { est: ["—", "PENDENTE"] });
 
 c = X({ id: "K7Q2-68", canal: "EMAIL", rec: D(7, 18, 33), rem: REM.serra, ced: "SERRA", mot: "FORMATO_NAO_SUPORTADO", pst: "RESOLVIDA", aberta: D(7, 18, 33), encerradaEm: D(7, 18, 34), img: false, tent: 0, estado: "DESCARTADO",
@@ -772,7 +773,7 @@ const isOpenExc = x => !isFila(x) && !MOT[x.mot].dup && ["ABERTA", "EM_ANALISE",
 /* ================= Estado de UI ================= */
 const LOAD = Date.now();
 const clock = () => new Date(NOW.getTime() + (Date.now() - LOAD));
-const UI = { fila: { ced: "", canal: "", resp: "", sla: "", q: "", sel: new Set() }, pend: { mot: "", canal: "", st: "", sla: "", q: "" }, zoom: 1, rot: 0, cfgTab: "geral", wa: {}, seenMedia: new Set() };
+const UI = { dash: { per: "hoje" }, fila: { ced: "", canal: "", resp: "", sla: "", q: "", sel: new Set() }, pend: { mot: "", canal: "", st: "", sla: "", q: "" }, zoom: 1, rot: 0, cfgTab: "geral", wa: {}, seenMedia: new Set() };
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 function toast(html) { const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<span>${html}</span>`; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transition = "opacity .3s"; }, 3800); setTimeout(() => t.remove(), 4200); }
@@ -803,6 +804,15 @@ function slaInfo(c) {
   return { t: `${durS(diff)} restantes`, cls: "b-ok" };
 }
 function durS(ms) { ms = Math.abs(ms); const m = Math.round(ms / 60000); if (m < 60) return `${m} min`; const h = Math.floor(m / 60), mm = m % 60; if (h < 10) return mm ? `${h} h ${mm} min` : `${h} h`; if (h < 24) return `${h} h`; const d = Math.floor(h / 24), hh = h % 24; return hh ? `${d} d ${hh} h` : `${d} d`; }
+/* Reprocessamento automático (NETFACTOR_INDISPONIVEL): uma tentativa a cada REPROC_MIN a partir de nextTry;
+   as tentativas que o relógio já passou entram no histórico e "próximo às" acompanha o relógio */
+const REPROC_MIN = 15;
+const emReprocesso = c => !!c.nextTry && isOpenExc(c) && c.pst === "REPROCESSANDO";
+function avancaReprocesso(c, agora) {
+  if (!emReprocesso(c)) return;
+  while (c.nextTry <= agora) { c.events.push({ t: c.nextTry, tipo: "PENDENCIA_REPROCESSADA", ator: "SISTEMA", d: "Tentativa agendada · ainda indisponível" }); c.nextTry = addMin(c.nextTry, REPROC_MIN); }
+}
+const detalheDe = c => emReprocesso(c) ? `${c.detalhe} (próximo às ${fHM(c.nextTry)})` : c.detalhe;
 const slaHTML = c => { const s = slaInfo(c); return s.cls ? badge(s.t, s.cls) : `<span class="muted">${esc(s.t)}</span>`; };
 const chanShort = c => c === "WHATSAPP" ? `<span class="chan wa" title="WhatsApp">${IC.wa}WA</span>` : `<span class="chan em" title="E-mail">${IC.em}E-mail</span>`;
 const cedName = k => k && CED[k] ? CED[k].razao : "—";
@@ -814,14 +824,19 @@ function counts() {
 }
 
 /* ================= Visão geral ================= */
+/* Casos recebidos por dia: [dia, WhatsApp, E-mail]; fonte do gráfico, do KPI de recebidos e do período "Por cedente" */
 const DAYS = [["25/09",41,14],["26/09",9,2],["27/09",4,1],["28/09",52,18],["29/09",47,16],["30/09",50,15],["01/10",45,17],["02/10",43,13],["03/10",11,3],["04/10",5,0],["05/10",55,19],["06/10",49,18],["07/10",51,16],["08/10",47,17]];
-function barChart() {
+function periodoDias(n) { const d = DAYS.slice(-n); const w = d.reduce((a, x) => a + x[1], 0), e = d.reduce((a, x) => a + x[2], 0); return { n, ini: d[0][0], fim: d[d.length - 1][0], w, e, total: w + e }; }
+/* Por cedente nos últimos 7 dias do gráfico: os recebidos somam periodoDias(7).total */
+const CED_7D = [["TARUMA", 99, "1 h 48 min"], ["CAMPO", 92, "2 h 05 min"], ["HORIZ", 74, "2 h 31 min"], ["RIBEIRA", 45, "1 h 57 min"], ["SERRA", 37, "3 h 12 min"]];
+function barChart(nDestaque) {
+  nDestaque = nDestaque || 1;
   const W = 760, H = 186, L = 30, B = 24, T = 12, max = 80, bw = (W - L - 10) / DAYS.length;
   let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Casos recebidos por dia e canal">`;
   for (let v = 0; v <= max; v += 20) { const y = H - B - (v / max) * (H - B - T); s += `<line x1="${L}" y1="${y}" x2="${W - 6}" y2="${y}" stroke="#eef1f5"/><text x="${L - 6}" y="${y + 3.5}" font-size="10" fill="#64758d" text-anchor="end">${v}</text>`; }
   DAYS.forEach((d, i) => {
     const x = L + i * bw + bw * .18, w = bw * .64, hW = (d[1] / max) * (H - B - T), hE = (d[2] / max) * (H - B - T);
-    const y1 = H - B - hW, y2 = y1 - hE, today = i === DAYS.length - 1;
+    const y1 = H - B - hW, y2 = y1 - hE, today = i >= DAYS.length - nDestaque;
     s += `<rect x="${x}" y="${y1}" width="${w}" height="${hW}" fill="${today ? "#0f766e" : "#14b8a6"}" rx="2"><title>${d[0]}: WhatsApp ${d[1]}</title></rect>`;
     s += `<rect x="${x}" y="${y2}" width="${w}" height="${hE}" fill="${today ? "#3949ab" : "#7986cb"}" rx="2"><title>${d[0]}: E-mail ${d[2]}</title></rect>`;
     s += `<text x="${x + w / 2}" y="${y2 - 4}" font-size="9.5" fill="#5f6c81" text-anchor="middle">${d[1] + d[2]}</text>`;
@@ -836,21 +851,21 @@ function viewDashboard() {
   const ls = lancamentosSessao();
   const byMot = {}; CASES.filter(isOpenExc).forEach(x => byMot[x.mot] = (byMot[x.mot] || 0) + 1);
   const mots = Object.entries(byMot).sort((a, b) => b[1] - a[1]); const mmax = Math.max(1, ...mots.map(m => m[1]));
-  const cedRows = [["TARUMA", 96, "1 h 48 min"], ["CAMPO", 88, "2 h 05 min"], ["HORIZ", 71, "2 h 31 min"], ["RIBEIRA", 42, "1 h 57 min"], ["SERRA", 36, "3 h 12 min"]];
+  const per7 = UI.dash.per === "7d", p = periodoDias(per7 ? 7 : 1), p7 = periodoDias(7), hj = per7 ? " · hoje" : "";
   const excBy = ced => CASES.filter(x => isOpenExc(x) && x.ced === ced).length;
   return `
-  <div class="ph"><div><h1>Visão geral ${badge("Dados de exemplo", "b-warn plain")}</h1><p>Indicadores do tenant FIDC Modelo Alfa · hoje, 08/10/2026, atualizado às ${fHM(clock())} (horário de Brasília). A fila de lançamento é o caminho normal da Fase 1 e não entra na taxa de exceções.</p></div>
-    <div class="actions"><select class="input" style="width:150px" aria-label="Período"><option>Hoje</option><option>Últimos 7 dias</option><option>Últimos 30 dias</option></select></div></div>
+  <div class="ph"><div><h1>Visão geral ${badge("Dados de exemplo", "b-warn plain")}</h1><p>Indicadores do tenant FIDC Modelo Alfa · ${per7 ? `casos recebidos de ${p.ini} a ${p.fim}/2026, demais cartões de hoje` : "hoje, 08/10/2026"}, atualizado às ${fHM(clock())} (horário de Brasília). A fila de lançamento é o caminho normal da Fase 1 e não entra na taxa de exceções.</p></div>
+    <div class="actions"><select class="input" style="width:150px" id="dash-per" aria-label="Período" data-f="dash.per"><option value="hoje"${per7 ? "" : " selected"}>Hoje</option><option value="7d"${per7 ? " selected" : ""}>Últimos 7 dias</option><option value="30d" disabled>Últimos 30 dias (sem dados no exemplo)</option></select></div></div>
   <div class="grid kpis">
-    <div class="card kpi accent"><div class="l">Casos recebidos hoje</div><div class="v num">64</div><div class="d">WhatsApp 47 · E-mail 17</div></div>
-    <div class="card kpi"><div class="l">Confirmados pelo remetente</div><div class="v num">39 <small>61%</small></div><div class="d"><b class="up">+4 p.p.</b> vs. média de 7 dias</div></div>
+    <div class="card kpi accent"><div class="l">${per7 ? `Casos recebidos · ${p.ini} a ${p.fim}` : "Casos recebidos hoje"}</div><div class="v num">${p.total}</div><div class="d">WhatsApp ${p.w} · E-mail ${p.e}</div></div>
+    <div class="card kpi"><div class="l">Confirmados pelo remetente${hj}</div><div class="v num">39 <small>61%</small></div><div class="d"><b class="up">+4 p.p.</b> vs. média de 7 dias</div></div>
     <div class="card kpi"><div class="l">Aguardando lançamento manual</div><div class="v num">${k.fila}</div><div class="d">${vencidos ? `<b class="down">${vencidos} com SLA vencido</b>` : "Nenhum com SLA vencido"}${ls.lancados ? ` · ${ls.lancados} lançado(s) agora` : ""}${ls.desfeitos ? ` · ${nDesfeitos(ls.desfeitos)}` : ""}</div></div>
     <div class="card kpi"><div class="l">Pendências abertas (exceções)</div><div class="v num">${k.pend}</div><div class="d">${mots.length} motivos · ver gráfico abaixo</div></div>
-    <div class="card kpi"><div class="l">Tempo até pronto para lançamento (M1)</div><div class="v num">1 min 52 s</div><div class="d">p50 · p95 5 min 40 s</div></div>
-    <div class="card kpi"><div class="l">Tempo até lançamento (M2, métrica norte)</div><div class="v num">2 h 14 min</div><div class="d">p50 · p95 7 h 05 min</div></div>
+    <div class="card kpi"><div class="l">Tempo até pronto para lançamento (M1)${hj}</div><div class="v num">1 min 52 s</div><div class="d">p50 · p95 5 min 40 s</div></div>
+    <div class="card kpi"><div class="l">Tempo até lançamento (M2, métrica norte)${hj}</div><div class="v num">2 h 14 min</div><div class="d">p50 · p95 7 h 05 min</div></div>
   </div>
   <div class="grid g-21" style="margin-top:16px">
-    <div class="card"><div class="card-h"><h2>Casos recebidos por dia e canal</h2><span class="sub">últimos 14 dias</span><div class="r legend"><span><i style="background:#14b8a6"></i>WhatsApp</span><span><i style="background:#7986cb"></i>E-mail</span></div></div><div class="card-b" style="padding-top:6px">${barChart()}</div></div>
+    <div class="card"><div class="card-h"><h2>Casos recebidos por dia e canal</h2><span class="sub">últimos 14 dias</span><div class="r legend"><span><i style="background:#14b8a6"></i>WhatsApp</span><span><i style="background:#7986cb"></i>E-mail</span></div></div><div class="card-b" style="padding-top:6px">${barChart(p.n)}</div></div>
     <div class="card"><div class="card-h"><h2>Pendências abertas por motivo</h2><span class="sub">clique para filtrar</span></div><div class="card-b">
       ${mots.map(([m, n]) => `<div class="hbar" role="button" tabindex="0" data-act="goPend" data-mot="${m}" title="${m}"><span class="ellipsis">${esc(MOT[m].l)}</span><div class="hb-track"><div class="hb-fill" style="width:${(n / mmax) * 100}%;background:${MOT[m].sla === "4h" ? "#c2410c" : "#0f766e"}"></div></div><b class="num" style="text-align:right">${n}</b></div>`).join("") || `<div class="empty">Sem pendências abertas</div>`}
       <div class="legend" style="margin-top:8px"><span><i style="background:#0f766e"></i>Operacional (SLA 1 dia útil)</span><span><i style="background:#c2410c"></i>Técnica (SLA 4 h)</span></div>
@@ -867,10 +882,10 @@ function viewDashboard() {
       <dt>Completude da trilha (M8)</dt><dd class="num">100%</dd>
       <dt>Fila acima do SLA (M10)</dt><dd class="num" style="color:${vencidos ? "var(--bad)" : "inherit"}">${vencidos}</dd>
     </dl></div></div>
-    <div class="card"><div class="card-h"><h2>Por cedente</h2><span class="sub">7 dias</span></div><div class="card-b" style="padding:8px 0 4px">
-      <table class="tbl stk stk-ced" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r">Exceções</th><th class="r">M2 p50</th></tr></thead><tbody>
-      ${cedRows.map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Cedente" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num" data-l="Recebidos">${r[1]}</td><td class="r num" data-l="Exceções">${excBy(r[0])}</td><td class="r num" data-l="M2 p50">${r[2]}</td></tr>`).join("")}
-      </tbody></table></div></div>
+    <div class="card"><div class="card-h"><h2>Por cedente</h2><span class="sub">7 dias · ${p7.ini} a ${p7.fim}</span></div><div class="card-b" style="padding:8px 0 4px">
+      <table class="tbl stk stk-ced" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r" title="Exceções abertas agora">Exceções abertas agora</th><th class="r">M2 p50</th></tr></thead><tbody>
+      ${CED_7D.map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Cedente" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num" data-l="Recebidos">${r[1]}</td><td class="r num" data-l="Exceções abertas agora">${excBy(r[0])}</td><td class="r num" data-l="M2 p50">${r[2]}</td></tr>`).join("")}
+      </tbody></table><div class="xs muted" style="padding:8px 16px 4px">Recebidos e M2 no período; exceções abertas agora.</div></div></div>
   </div>`;
 }
 
@@ -984,7 +999,7 @@ function viewPend() {
         <td data-l="Protocolo"><a class="proto" href="#caso/${x.id}">${x.id}</a></td><td class="num small" data-l="Recebido">${fD(x.rec).slice(0,5)}<div class="sub2">${fHM(x.rec)}</div></td><td data-l="Canal">${chanShort(x.canal)}</td>
         <td class="ellipsis" data-l="Cedente" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
         <td class="num" data-l="NF">${x.nf ? esc(x.nf) : '<span class="muted" title="Não identificado">?</span>'}</td>
-        <td class="full" data-l="Motivo e detalhe"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(x.detalhe)}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(x.detalhe)}</div></td>
+        <td class="full" data-l="Motivo e detalhe"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(detalheDe(x))}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(detalheDe(x))}</div></td>
         <td class="full" data-l="Status · resp.">${badge(st[0], st[1])}<div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td><td class="num nowrap small" data-l="Idade">${age}</td><td class="full" data-l="SLA">${slaHTML(x)}</td></tr>`; }).join("") || `<tr><td colspan="9"><div class="empty">Nenhuma pendência com esses filtros.</div></td></tr>`}
       </tbody></table></div>
     <div class="tbl-foot"><span>Exibindo ${rows.length} caso(s)</span><span>· Duplicidades não abrem pendência: o caso é encerrado como <span class="code">JA_REGISTRADO</span> e aparece aqui só para conferência.</span></div>
@@ -1042,7 +1057,7 @@ function viewCaso(id) {
       ${actBtn(c, "assumir", "Assumir caso")}${actBtn(c, "lancar", `${IC.check}Marcar como lançado`, "primary")}${actBtn(c, "corrigir", "Corrigir NF")}${actBtn(c, "vincular", "Vincular manualmente")}${actBtn(c, "reprocessar", `${IC.rot}Reprocessar`)}${actBtn(c, "descartar", "Descartar", "danger")}${actBtn(c, "desfazer", "Desfazer", "ghost")}
       <span class="hint">Ações habilitadas conforme estado e perfil · passe o mouse nas desabilitadas</span>
     </div>
-    ${isExc || c.alert || m.dup ? `<div style="padding:0 16px 14px"><div class="note ${m.sla === "4h" || c.alert ? "warn" : "neu"}">${IC.warn}<span><b>${esc(m.dup ? "Duplicidade · " + c.dupCode : m.l + " · " + c.mot)}</b> — ${esc(c.detalhe)}${c.nextTry ? "" : ""}</span></div></div>` : ""}
+    ${isExc || c.alert || m.dup ? `<div style="padding:0 16px 14px"><div class="note ${m.sla === "4h" || c.alert ? "warn" : "neu"}">${IC.warn}<span><b>${esc(m.dup ? "Duplicidade · " + c.dupCode : m.l + " · " + c.mot)}</b> — ${esc(detalheDe(c))}</span></div></div>` : ""}
   </div>
   <div class="det3" style="display:grid;grid-template-columns:minmax(0,470px) minmax(0,1fr) minmax(0,360px);gap:16px;align-items:start">
     <div class="grid" style="gap:16px">
@@ -1484,6 +1499,7 @@ function render() {
   const changed = h !== lastRoute; if (changed && route === "caso") { UI.zoom = 1; UI.rot = 0; }
   if (changed && (route === "fila" || route === "pendencias")) fromList = route;
   const ae = document.activeElement, foco = focoDe(ae), caret = ae && ae.selectionStart;
+  const agora = clock(); CASES.forEach(c => avancaReprocesso(c, agora));
   const html = { dashboard: viewDashboard, fila: viewFila, pendencias: viewPend, caso: () => viewCaso(arg), whatsapp: viewWA, email: viewEmail, config: viewConfig }[route]();
   $("#view").innerHTML = html; counts();
   $$("#view [data-indet]").forEach(i => { i.indeterminate = true; });
