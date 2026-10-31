@@ -130,6 +130,7 @@ textarea.input{height:auto;min-height:72px;padding:8px 10px;resize:vertical}
 .input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ring)}
 .input.err{border-color:var(--bad);box-shadow:0 0 0 3px rgba(180,35,24,.12)}
 .err-msg{color:var(--bad);font-size:12px;min-height:16px}
+fieldset.field{border:0;margin:0;padding:0;min-width:0}fieldset.field legend{padding:0;margin-bottom:5px}
 .check{display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer}
 .check input{margin-top:3px;accent-color:var(--accent)}
 .filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--border)}
@@ -1088,22 +1089,46 @@ function viewCaso(id) {
 
 /* ================= Diálogos de ação (produto 7.3) ================= */
 let modalOk = null, modalFrom = null;
+/* Diálogo modal: o resto da página (.app) fica inerte e o Tab circula dentro dele (prendeTab);
+   o foco começa no primeiro controle do formulário (checkbox incluído) ou, sem controle, no título */
+const CONTROLES_MODAL = "#modal .modal-b input:not([disabled]):not([type=hidden]), #modal .modal-b select:not([disabled]), #modal .modal-b textarea:not([disabled])";
+function focoInicialModal() {
+  const cs = $$(CONTROLES_MODAL); let f = cs[0];
+  if (f && f.type === "radio") f = cs.find(x => x.name === f.name && x.checked) || f;
+  (f || $("#modal-t")).focus();
+}
 function openModal(title, body, okLabel, okCls, onOk) {
   modalFrom = focoDe(document.activeElement);
-  $("#modal").innerHTML = `<div class="modal-h"><h2 id="modal-t">${title}</h2><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
-  modalOk = onOk; $("#overlay").classList.add("on"); const f = $("#modal input:not([type=radio]):not([type=checkbox]), #modal textarea, #modal select"); if (f) setTimeout(() => f.focus(), 30);
+  $("#modal").innerHTML = `<div class="modal-h"><h2 id="modal-t" tabindex="-1">${title}</h2><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
+  modalOk = onOk; $(".app").inert = true; $("#overlay").classList.add("on"); setTimeout(focoInicialModal, 30);
 }
-function closeModal() { $("#overlay").classList.remove("on"); modalOk = null; const d = modalFrom; modalFrom = null; focar(d); }
+function closeModal() { $("#overlay").classList.remove("on"); $(".app").inert = false; modalOk = null; const d = modalFrom; modalFrom = null; focar(d); }
+const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function prendeTab(e) {
+  if (e.key !== "Tab" || !$("#overlay").classList.contains("on")) return;
+  const fs = $$(FOCAVEIS, $("#modal")).filter(x => x.getClientRects().length); if (!fs.length) return;
+  const a = document.activeElement, prim = fs[0], ult = fs[fs.length - 1];
+  const sai = !$("#modal").contains(a) || (e.shiftKey ? a === prim || a === $("#modal-t") : a === ult);
+  if (sai) { e.preventDefault(); (e.shiftKey ? ult : prim).focus(); }
+}
+/* Erro de validação: texto em #m-err (role=alert), campo marcado inválido e descrito pelo erro, foco nele */
+function erroModal(sel, msg) {
+  $$("#modal [aria-invalid]").forEach(i => { i.removeAttribute("aria-invalid"); i.removeAttribute("aria-describedby"); i.classList.remove("err"); });
+  $("#m-err").textContent = msg;
+  const el = sel && $(sel);
+  if (el) { el.setAttribute("aria-invalid", "true"); el.setAttribute("aria-describedby", "m-err"); el.classList.add("err"); el.focus(); }
+  return false;
+}
 const pkgHTML = c => `<div class="pkg"><span>Protocolo</span><span class="mono">${c.id}</span><span>NF / série</span><span class="num">${esc(c.nf)} / ${esc(c.serie)}</span><span>Título</span><span class="num">${c.titulo ? c.titulo.id : "—"}</span><span>Cedente</span><span>${esc(cedName(c.ced))}</span><span>Sacado</span><span>${c.titulo ? esc(c.titulo.sac) : "—"}</span><span>Valor / venc.</span><span class="num">${c.titulo ? brl(c.titulo.val) + " · " + fD(c.titulo.venc) : "—"}</span><span>Remetente</span><span>${esc(mask(c.rem.id))} · ${chanHTML(c.canal)}</span><span>Confirmação</span><span>${c.conf ? `"${esc(c.conf.txt)}" em ${fDM(c.conf.em)}` : "—"}</span></div>`;
 function ensureAssigned(c) { if (c.resp !== ME) { c.resp = ME; addEv(c, "CASO_ATRIBUIDO", "OPERADOR", `Atribuído a ${ME}`); } }
 function dlgLancar(c) {
   openModal("Marcar como lançado", `${pkgHTML(c)}
     <div class="note neu">${IC.info}<span>Lance o canhoto no título do NetFactor (fora do produto) e confirme aqui. ${c.resp !== ME ? "<b>O caso será atribuído a você</b> (CASO_ATRIBUIDO)." : ""}</span></div>
-    <label class="check"><input type="checkbox" id="m-ok"> <span><b>Lancei este canhoto no NetFactor</b></span></label>
-    <div class="field"><span class="lbl">Imagem anexada no NetFactor?</span><div style="display:flex;gap:16px"><label class="check"><input type="radio" name="m-img" value="1" checked> Sim</label><label class="check"><input type="radio" name="m-img" value="0"> Não (só marquei o recebimento)</label></div></div>
-    <div class="field"><label for="m-obs">Observação (opcional)</label><textarea class="input" id="m-obs" placeholder="Ex.: anexado como tipo canhoto"></textarea></div><div class="err-msg" id="m-err"></div>`,
+    <label class="check"><input type="checkbox" id="m-ok" aria-required="true"> <span><b>Lancei este canhoto no NetFactor</b></span></label>
+    <fieldset class="field"><legend class="lbl">Imagem anexada no NetFactor?</legend><div style="display:flex;gap:6px 16px;flex-wrap:wrap"><label class="check"><input type="radio" name="m-img" value="1" checked> Sim</label><label class="check"><input type="radio" name="m-img" value="0"> Não (só marquei o recebimento)</label></div></fieldset>
+    <div class="field"><label for="m-obs">Observação (opcional)</label><textarea class="input" id="m-obs" placeholder="Ex.: anexado como tipo canhoto"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
     "Confirmar lançamento", "primary", () => {
-      if (!$("#m-ok").checked) { $("#m-err").textContent = "Confirme que o canhoto foi lançado no NetFactor."; return false; }
+      if (!$("#m-ok").checked) return erroModal("#m-ok", "Confirme que o canhoto foi lançado no NetFactor.");
       const img = $("input[name=m-img]:checked").value === "1", obs = $("#m-obs").value.trim();
       ensureAssigned(c); const now = clock();
       addEv(c, "LANCAMENTO_MANUAL_REGISTRADO", "OPERADOR", `Declarado por ${ME} · modo MANUAL_ASSISTIDO · imagem anexada no NetFactor: ${img ? "sim" : "não"}${obs ? " · " + obs : ""}`, null, ["PENDENTE", "REGISTRADO"]);
@@ -1157,11 +1182,10 @@ function dlgCorrigir(c) {
   openModal(`Corrigir NF · ${c.id}`, `<div class="note neu">${IC.info}<span>O caso volta para <span class="code">IDENTIFICADO</span> com origem OPERADOR e segue para a busca do título e a confirmação do remetente.${sug ? ` Exemplo de demonstração: <b class="num">${sug}</b> existe no índice.` : ""}</span></div>
     <div style="display:grid;grid-template-columns:1fr 110px;gap:10px"><div class="field"><label for="m-nf">Número da NF</label><input class="input num" id="m-nf" inputmode="numeric" value="${esc(c.nf || "")}" placeholder="Só dígitos"></div><div class="field"><label for="m-serie">Série</label><input class="input num" id="m-serie" inputmode="numeric" value="${esc(c.serie || (c.ced === "HORIZ" ? "3" : c.ced === "RIBEIRA" ? "2" : "1"))}"></div></div>
     <div class="field"><label for="m-chave">Chave de acesso (opcional, 44 dígitos)</label><input class="input mono" id="m-chave" inputmode="numeric" placeholder="Precisa bater com NF, série e cedente"></div>
-    <div class="field"><label for="m-just">Justificativa</label><textarea class="input" id="m-just" placeholder="Ex.: número lido na imagem ampliada"></textarea></div><div class="err-msg" id="m-err"></div>`,
+    <div class="field"><label for="m-just">Justificativa</label><textarea class="input" id="m-just" placeholder="Ex.: número lido na imagem ampliada"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
     "Salvar correção", "primary", () => {
       const v = validarCorrecao(c, { nf: $("#m-nf").value, serie: $("#m-serie").value, chave: $("#m-chave").value });
-      $$("#modal .input").forEach(i => i.classList.remove("err"));
-      if (!v.ok) { $("#m-" + v.campo).classList.add("err"); $("#m-err").textContent = v.erro; return false; }
+      if (!v.ok) return erroModal("#m-" + v.campo, v.erro);
       const { nf, serie } = v, ch = v.chave;
       const old = c.nf || "?"; const oldMot = c.mot; ensureAssigned(c);
       addEv(c, "PENDENCIA_RESOLVIDA", "OPERADOR", `NF corrigida por ${ME}: de ${old} para ${nf}${$("#m-just").value.trim() ? " · " + $("#m-just").value.trim() : ""}`, null, ["PENDENTE", "IDENTIFICADO"]);
@@ -1204,11 +1228,11 @@ const remCeds = r => r && r.ceds.length ? r.ceds.map(cedName).join(", ") : "nenh
 /* Vínculo manual: título sem outro caso com canhoto, do cedente do caso (outro cedente só com o.outros) e justificativa */
 function vincularCaso(c, t, just, o) {
   o = o || {};
-  if (!t) return { ok: false, erro: "Selecione um título." };
+  if (!t) return { ok: false, campo: "pick", erro: "Selecione um título." };
   const dono = donoDoTitulo(t, c);
-  if (dono) return { ok: false, erro: `O título ${t.id} já tem canhoto (caso ${dono.id}). Escolha outro título.` };
+  if (dono) return { ok: false, campo: "pick", erro: `O título ${t.id} já tem canhoto (caso ${dono.id}). Escolha outro título.` };
   const outro = !!c.ced && t.ced !== c.ced;
-  if (outro && !o.outros) return { ok: false, erro: `O título ${t.id} é de outro cedente. Marque "Incluir títulos de outros cedentes" para confirmar.` };
+  if (outro && !o.outros) return { ok: false, campo: "outros", erro: `O título ${t.id} é de outro cedente. Marque "Incluir títulos de outros cedentes" para confirmar.` };
   if (!just) return { ok: false, campo: "just", erro: "A justificativa é obrigatória." };
   const oldMot = c.mot, oldCed = c.ced; ensureAssigned(c);
   if (outro) addEv(c, "VINCULO_OUTRO_CEDENTE", "OPERADOR", `Título ${t.id} é de ${cedName(t.ced)}; o caso era de ${cedName(oldCed)} e o remetente está autorizado para ${remCeds(c.rem)} · vinculado por ${ME}`);
@@ -1238,14 +1262,13 @@ function dlgVincular(c) {
   openModal(`Vincular manualmente · ${c.id}`, `<div class="note neu">${IC.info}<span>O operador escolhe o título e assume a confirmação. O caso vai para <span class="code">CONFIRMADO</span> e entra na fila de lançamento.</span></div>
     <div class="field"><label for="m-q">Buscar no índice (NF, sacado ou valor)</label><input class="input" id="m-q" value="${esc(q0)}"></div>
     ${c.ced ? `<label class="check"><input type="checkbox" id="m-outros"> <span>Incluir títulos de outros cedentes</span></label>` : ""}<div id="m-aviso" aria-live="polite"></div>
-    <div class="pick" id="m-pick" tabindex="0" role="region" aria-label="Títulos encontrados">${pick(q0)}</div>
-    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err"></div>`,
+    <div class="pick" id="m-pick" tabindex="0" role="radiogroup" aria-label="Títulos encontrados">${pick(q0)}</div>
+    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
     "Vincular e confirmar", "primary", () => {
       const sel = $("input[name=m-t]:checked"), just = $("#m-just").value.trim();
       const t = sel ? IDX.find(x => x.id === sel.value) : null;
-      $("#m-just").classList.remove("err");
       const r = vincularCaso(c, t, just, { outros: !!($("#m-outros") && $("#m-outros").checked) });
-      if (!r.ok) { if (r.campo === "just") $("#m-just").classList.add("err"); $("#m-err").textContent = r.erro; return false; }
+      if (!r.ok) return erroModal("#m-" + r.campo, r.erro);
       toast(`<b>${c.id}</b> vinculado ao título ${t.id}${r.outro ? ` (${esc(cedName(t.ced))})` : ""} e movido para a Fila de lançamento.`); return true;
     });
   $("#m-pick").addEventListener("change", e => { if (e.target.name === "m-t") selId = e.target.value; });
@@ -1260,9 +1283,9 @@ function dlgVincular(c) {
 function dlgDescartar(c) {
   openModal(`Descartar · ${c.id}`, `<div class="field"><label for="m-mot">Motivo padronizado</label><select class="input" id="m-mot"><option>Não é canhoto</option><option>Envio indevido</option><option>Já registrado no NetFactor</option><option>Outro</option></select></div>
     <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just"></textarea></div>
-    <label class="check"><input type="checkbox" id="m-av" checked> Avisar o remetente</label><div class="err-msg" id="m-err"></div>`,
+    <label class="check"><input type="checkbox" id="m-av" checked> Avisar o remetente</label><div class="err-msg" id="m-err" role="alert"></div>`,
     "Descartar caso", "danger", () => {
-      const just = $("#m-just").value.trim(); if (!just) { $("#m-just").classList.add("err"); $("#m-err").textContent = "A justificativa é obrigatória."; return false; }
+      const just = $("#m-just").value.trim(); if (!just) return erroModal("#m-just", "A justificativa é obrigatória.");
       const wasF = isFila(c);
       addEv(c, "PENDENCIA_RESOLVIDA", "OPERADOR", `Descartado por ${ME} · ${$("#m-mot").value} · ${just}`, null, ["PENDENTE", "DESCARTADO"]);
       if ($("#m-av").checked) addEv(c, "NOTIFICACAO_ENVIADA", "SISTEMA", "Aviso de encerramento enviado ao remetente");
@@ -1273,9 +1296,9 @@ function dlgDescartar(c) {
 function dlgDesfazer(c) {
   openModal(`Desfazer registro · ${c.id}`, `<div class="note warn">${IC.warn}<span>Na Fase 1 a reversão no NetFactor é manual e declarada. Ação restrita ao perfil supervisor.</span></div>
     <div class="field"><label for="m-just">Motivo (obrigatório)</label><textarea class="input" id="m-just" placeholder="Ex.: canhoto lançado no título errado"></textarea></div>
-    <label class="check"><input type="checkbox" id="m-ok"> Confirmo que reverti manualmente o registro no NetFactor</label><div class="err-msg" id="m-err"></div>`,
+    <label class="check"><input type="checkbox" id="m-ok"> Confirmo que reverti manualmente o registro no NetFactor</label><div class="err-msg" id="m-err" role="alert"></div>`,
     "Desfazer registro", "danger", () => {
-      const just = $("#m-just").value.trim(); if (!just || !$("#m-ok").checked) { $("#m-err").textContent = "Informe o motivo e confirme a reversão manual."; return false; }
+      const just = $("#m-just").value.trim(); if (!just || !$("#m-ok").checked) return erroModal(just ? "#m-ok" : "#m-just", "Informe o motivo e confirme a reversão manual.");
       addEv(c, "REGISTRO_DESFEITO", "OPERADOR", `Desfeito por ${ME} · ${just}`, null, ["CONCLUIDO", "DESFEITO"]); c.estado = "DESFEITO"; c.desfeitoEm = clock(); c.encerradaEm = c.encerradaEm || c.desfeitoEm;
       toast(`Registro do caso <b>${c.id}</b> desfeito.`); return true;
     });
@@ -1519,6 +1542,7 @@ function setF(path, v) { const [a, b] = path.split("."); UI[a][b] = v; }
 document.addEventListener("input", e => { const f = e.target.dataset && e.target.dataset.f; if (f && e.target.tagName === "INPUT") { setF(f, e.target.value); render(); } });
 document.addEventListener("change", e => { const f = e.target.dataset && e.target.dataset.f; if (f && e.target.tagName === "SELECT") { setF(f, e.target.value); render(); } });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#overlay").classList.contains("on")) closeModal(); });
+document.addEventListener("keydown", prendeTab);
 document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[role="button"][tabindex]')) { e.preventDefault(); e.target.click(); } });
 $("#overlay").addEventListener("mousedown", e => { if (e.target.id === "overlay") closeModal(); });
 $("#gsearch").addEventListener("keydown", e => { if (e.key !== "Enter") return; const q = e.target.value.trim().toUpperCase(); if (!q) return;

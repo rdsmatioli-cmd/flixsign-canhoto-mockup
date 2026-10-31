@@ -6,15 +6,17 @@ import vm from "node:vm";
 const HTML = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const SRC = HTML.match(/<script>([\s\S]*?)<\/script>/)[1];
 
-function elemento(sel) {
+function elementoBase(sel, aoFocar) {
   const ouvintes = {};
   const classes = new Set();
+  const attrs = new Map();
   const el = {
     sel, value: "", checked: false, disabled: false, indeterminate: false, innerHTML: "", textContent: "", dataset: {}, style: {}, scrollTop: 0, scrollHeight: 0, filhos: [],
     classList: { add: (...c) => c.forEach(x => classes.add(x)), remove: (...c) => c.forEach(x => classes.delete(x)), toggle: (c, f) => ((f ?? !classes.has(c)) ? classes.add(c) : classes.delete(c)), contains: c => classes.has(c) },
     addEventListener: (t, f) => { (ouvintes[t] ||= []).push(f); },
     disparar: (t, ev) => (ouvintes[t] || []).forEach(f => f(Object.assign({ target: el }, ev))),
-    appendChild: c => { el.filhos.push(c); return c; }, remove() {}, focus() {}, click() {}, contains: () => false, insertAdjacentHTML() {}, setSelectionRange() {},
+    setAttribute: (k, v) => { attrs.set(k, String(v)); }, getAttribute: k => (attrs.has(k) ? attrs.get(k) : null), removeAttribute: k => { attrs.delete(k); }, hasAttribute: k => attrs.has(k),
+    appendChild: c => { el.filhos.push(c); return c; }, remove() {}, focus() { if (aoFocar) aoFocar(el); }, click() {}, contains: () => false, insertAdjacentHTML() {}, setSelectionRange() {},
     querySelector: () => null, querySelectorAll: () => [], closest: () => null, matches: () => false,
   };
   return el;
@@ -24,6 +26,9 @@ export function carregar() {
   const els = new Map();
   const definidos = new Set();
   const timers = [];
+  /* foco: cada focus() de elemento do mockup entra em focos (seletor) e vira o activeElement */
+  const focos = [];
+  const elemento = sel => elementoBase(sel, el => { focos.push(el.sel); document.activeElement = el; });
   /* o modal troca o conteúdo a cada diálogo: os campos do anterior somem, como no DOM real */
   const modal = elemento("#modal"); let modalHTML = "";
   Object.defineProperty(modal, "innerHTML", { get: () => modalHTML, set(v) { modalHTML = v; for (const k of [...els.keys()]) if (/^#m-|^input\[name=/.test(k)) els.delete(k); } });
@@ -48,7 +53,7 @@ export function carregar() {
   vm.runInContext(SRC, ctx, { filename: "index.html" });
   const run = code => vm.runInContext(code, ctx);
   const api = {
-    run, els,
+    run, els, focos,
     /* avança o relógio do mockup em minutos */
     avancar: min => run(`__avancar(${min * 60000})`),
     /* define um campo do formulário do modal (valor, checked); para rádio marcado use o seletor com :checked */
