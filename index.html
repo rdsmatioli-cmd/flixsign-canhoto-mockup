@@ -124,6 +124,13 @@ h1[tabindex="-1"]:focus{outline:none}h1[tabindex="-1"]:focus-visible{outline:2px
 .btn.sm{height:28px;padding:0 10px;font-size:12px;border-radius:7px}
 .btn[disabled]{opacity:.45;cursor:not-allowed;background:#fff}
 .btn.primary[disabled]{background:var(--accent);color:#fff}
+/* aria-disabled: continua no Tab e no toque; mesmas cores do [disabled] sem opacity, para o anel de foco não sumir */
+.btn[aria-disabled="true"],.btn[aria-disabled="true"]:hover{cursor:not-allowed;background:#fff;color:#979ba2;border-color:#e9edf2}
+.btn.ghost[aria-disabled="true"]{background:transparent;border-color:transparent}
+.btn.primary[aria-disabled="true"],.btn.primary[aria-disabled="true"]:hover{background:#93c1be;border-color:#93c1be;color:#fff}
+.btn.danger[aria-disabled="true"]{color:#dd9c97;border-color:#f8e1df}
+.why{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:0 16px 12px;font-size:12px;color:var(--muted)}
+.why ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px 16px}.why b{color:var(--text-2);font-weight:600}
 /* ---------- Forms ---------- */
 .field{display:flex;flex-direction:column;gap:5px}
 .field label,.lbl{font-size:12px;font-weight:600;color:var(--text-2)}
@@ -313,6 +320,7 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
 .opt input{margin-top:3px;accent-color:var(--accent)}
 .opt .ot{font-weight:650;font-size:13.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .opt .od{font-size:12.5px;color:var(--muted);margin-top:3px}
+.opt .ind{font-size:12px;color:var(--warn);font-weight:600;margin-top:6px}
 .cfg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .switch{position:relative;display:inline-block;width:32px;height:18px;vertical-align:middle}
 .switch input{opacity:0;width:0;height:0}
@@ -953,7 +961,7 @@ function viewFila() {
         <td class="full" data-l="SLA">${slaHTML(x)}</td>
         <td class="full" data-l="Ação">${act}</td></tr>`; }).join("") || `<tr><td colspan="11"><div class="empty">Nenhum caso com esses filtros.</div></td></tr>`}
       </tbody></table></div>
-    <div class="tbl-foot"><span>${f.sel.size} selecionado(s)</span><button class="btn sm" data-act="assumirLote"${f.sel.size ? "" : " disabled"}>Assumir selecionados</button><button class="btn sm" disabled title="Desejável, fora do MVP">Marcar como lançado (lote)</button><span style="margin-left:auto">Exibindo ${rows.length} caso(s) · clique na linha para abrir o detalhe</span></div>
+    <div class="tbl-foot"><span>${f.sel.size} selecionado(s)</span><button class="btn sm" data-act="assumirLote"${f.sel.size ? "" : " disabled"}>Assumir selecionados</button><button class="btn sm" aria-disabled="true" aria-describedby="why-lote">Marcar como lançado (lote)</button><span class="xs" id="why-lote">Lançamento em lote: desejável, fora do MVP</span><span style="margin-left:auto">Exibindo ${rows.length} caso(s) · clique na linha para abrir o detalhe</span></div>
   </div>`;
 }
 
@@ -1016,16 +1024,23 @@ const confHTML = v => v == null ? `<span class="faint small">—</span>` : `<div
 function avail(c) {
   const P = c.estado === "PENDENTE", open = P && !PST_FECHADA.includes(c.pst);
   return {
-    assumir: [open && c.resp !== ME, c.resp === ME ? "Caso já atribuído a você" : "Disponível para pendências abertas"],
-    lancar: [P && c.mot === "PRONTO_LANCAMENTO_MANUAL", "Disponível para PRONTO_LANCAMENTO_MANUAL"],
-    corrigir: [P && ["FOTO_ILEGIVEL", "SEM_RESPOSTA_DIGITACAO", "NF_NAO_ENCONTRADA"].includes(c.mot), "Disponível para FOTO_ILEGIVEL, SEM_RESPOSTA_DIGITACAO e NF_NAO_ENCONTRADA"],
-    vincular: [P && ["TITULO_AMBIGUO", "NF_NAO_ENCONTRADA", "SEM_CONFIRMACAO"].includes(c.mot), "Disponível para TITULO_AMBIGUO, NF_NAO_ENCONTRADA e SEM_CONFIRMACAO"],
-    reprocessar: [open && (MOT[c.mot].auto || c.mot === "REMETENTE_NAO_AUTORIZADO") && c.mot !== "PRONTO_LANCAMENTO_MANUAL", "Disponível para pendências reprocessáveis"],
-    descartar: [open, "Disponível para qualquer pendência aberta"],
-    desfazer: [c.estado === "CONCLUIDO", "Disponível só para casos concluídos (perfil supervisor)"],
+    assumir: [open && c.resp !== ME, c.resp === ME ? "caso já atribuído a você" : "disponível só para pendências abertas"],
+    lancar: [P && c.mot === "PRONTO_LANCAMENTO_MANUAL", "disponível só para PRONTO_LANCAMENTO_MANUAL"],
+    corrigir: [P && ["FOTO_ILEGIVEL", "SEM_RESPOSTA_DIGITACAO", "NF_NAO_ENCONTRADA"].includes(c.mot), "disponível só para FOTO_ILEGIVEL, SEM_RESPOSTA_DIGITACAO e NF_NAO_ENCONTRADA"],
+    vincular: [P && ["TITULO_AMBIGUO", "NF_NAO_ENCONTRADA", "SEM_CONFIRMACAO"].includes(c.mot), "disponível só para TITULO_AMBIGUO, NF_NAO_ENCONTRADA e SEM_CONFIRMACAO"],
+    reprocessar: [open && (MOT[c.mot].auto || c.mot === "REMETENTE_NAO_AUTORIZADO") && c.mot !== "PRONTO_LANCAMENTO_MANUAL", "disponível só para pendências reprocessáveis"],
+    descartar: [open, "disponível só para pendências abertas"],
+    desfazer: [c.estado === "CONCLUIDO", "disponível só para casos concluídos (perfil supervisor)"],
   };
 }
-function actBtn(c, key, label, cls) { const [on, why] = avail(c)[key]; return `<button class="btn ${cls || ""}" data-act="${key}" data-id="${c.id}"${on ? "" : ` disabled title="${esc(why)}"`}>${label}</button>`; }
+/* Ação indisponível: aria-disabled (continua no Tab e no toque, o clique não faz nada) e motivo em texto visível,
+   ligado ao botão por aria-describedby; title não aparece no teclado nem no toque */
+const ACOES = { assumir: "Assumir caso", lancar: "Marcar como lançado", corrigir: "Corrigir NF", vincular: "Vincular manualmente", reprocessar: "Reprocessar", descartar: "Descartar", desfazer: "Desfazer" };
+function actBtn(c, key, label, cls) { const [on] = avail(c)[key]; return `<button class="btn ${cls || ""}" data-act="${key}" data-id="${c.id}"${on ? "" : ` aria-disabled="true" aria-describedby="why-${key}"`}>${label}</button>`; }
+function indisponiveisHTML(c) {
+  const a = avail(c), ks = Object.keys(ACOES).filter(k => !a[k][0]);
+  return ks.length ? `<div class="why"><span>Indisponíveis neste caso:</span><ul>${ks.map(k => `<li><b>${ACOES[k]}</b>: <span id="why-${k}">${esc(a[k][1])}</span></li>`).join("")}</ul></div>` : "";
+}
 function svgFor(c, extra) { return canhotoSVG(Object.assign({ emit: cedName(c.ced) === "—" ? "Emitente não identificado" : cedName(c.ced), nf: c.titulo ? c.titulo.nf : (c.nfShow || c.nf || "771251"), serie: c.serie || (c.titulo && c.titulo.serie) || "1", dest: c.titulo ? c.titulo.sac : "Destinatário", valor: c.titulo ? brlN(c.titulo.val) : "4.380,00", emissao: c.emissao, receb: c.receb, recebedor: c.recebedor, blur: c.blur, rot: c.rot }, extra || {})); }
 function viewCaso(id) {
   const c = byId(id); if (!c) return `<div class="card"><div class="empty">Caso ${esc(id)} não encontrado. <a href="#fila">Voltar</a></div></div>`;
@@ -1044,8 +1059,8 @@ function viewCaso(id) {
   const evs = c.events.slice().sort((a, b) => a.t - b.t).filter(e => !UI.histF || (UI.histF === "msg" ? ["MENSAGEM_ENVIADA", "MENSAGEM_RECEBIDA"].includes(e.tipo) : !["MENSAGEM_ENVIADA", "MENSAGEM_RECEBIDA"].includes(e.tipo)));
   const tituloBlock = c.titulo ? `
       <dl class="kv" style="grid-template-columns:100px 1fr"><dt>ID NetFactor</dt><dd class="num">${esc(c.titulo.id)}${c.titulo.parcela ? ` · parcela ${c.titulo.parcela}` : ""}</dd><dt>Cedente</dt><dd>${esc(cedName(c.titulo.ced))}</dd><dt>Sacado</dt><dd>${esc(c.titulo.sac)}</dd><dt>Valor</dt><dd class="num"><b>${brl(c.titulo.val)}</b></dd><dt>Vencimento</dt><dd class="num">${fD(c.titulo.venc)}</dd><dt>Dados de</dt><dd class="small">Índice local (planilha), sincronizado ${fDM(c.titulo.sync)}</dd></dl>
-      <div class="viewer-tools" style="margin-top:12px"><button class="btn sm" disabled title="Link direto depende de URL estável por título no NetFactor [A DEFINIR]">${IC.ext}Abrir no NetFactor</button><button class="btn sm" data-act="copiar" data-id="${c.id}">${IC.copy}Copiar dados</button></div>
-      <div class="xs faint" style="margin-top:6px">Link direto depende de URL estável por título na interface do NetFactor [A DEFINIR].</div>`
+      <div class="viewer-tools" style="margin-top:12px"><button class="btn sm" aria-disabled="true" aria-describedby="why-nf">${IC.ext}Abrir no NetFactor</button><button class="btn sm" data-act="copiar" data-id="${c.id}">${IC.copy}Copiar dados</button></div>
+      <div class="xs faint" style="margin-top:6px" id="why-nf">Indisponível: o link direto depende de URL estável por título na interface do NetFactor [A DEFINIR].</div>`
     : c.cands && c.mot === "TITULO_AMBIGUO" ? `<div class="note warn" style="margin-bottom:10px">${IC.warn}<span>${c.cands.length} títulos candidatos para a NF ${esc(c.nf)}. Use <b>Vincular manualmente</b> para escolher.</span></div>
       ${c.cands.map(t => `<div style="font-size:12.5px;padding:7px 0;border-bottom:1px solid #eef1f5"><div style="display:flex;gap:8px"><b class="num">Título ${t.id}</b><span class="muted">parcela ${t.parcela || "—"}</span><span class="num" style="margin-left:auto">${brl(t.val)}</span></div><div class="xs muted" style="display:flex;gap:8px;margin-top:2px"><span class="ellipsis">${esc(t.sac)}</span><span class="num" style="margin-left:auto;white-space:nowrap">venc. ${fD(t.venc)}</span></div></div>`).join("")}`
     : `<div class="note neu">${IC.info}<span>Nenhum título vinculado. ${c.ced ? `Última sincronização do cedente: ${fDM(SYNC)} (planilha).` : "Cedente não inferido."}</span></div>`;
@@ -1058,9 +1073,10 @@ function viewCaso(id) {
       <div class="det-meta" style="margin-left:auto"><span>SLA ${slaHTML(c)}</span><span>Pendência ${badge(st[0], st[1])}</span><span>Responsável <b>${c.resp ? esc(c.resp) : "—"}</b></span><span>${chanHTML(c.canal)}</span><span>Recebido <b class="num">${fDM(c.rec)}</b></span></div>
     </div>
     <div class="actionbar">
-      ${actBtn(c, "assumir", "Assumir caso")}${actBtn(c, "lancar", `${IC.check}Marcar como lançado`, "primary")}${actBtn(c, "corrigir", "Corrigir NF")}${actBtn(c, "vincular", "Vincular manualmente")}${actBtn(c, "reprocessar", `${IC.rot}Reprocessar`)}${actBtn(c, "descartar", "Descartar", "danger")}${actBtn(c, "desfazer", "Desfazer", "ghost")}
-      <span class="hint">Ações habilitadas conforme estado e perfil · passe o mouse nas desabilitadas</span>
+      ${actBtn(c, "assumir", ACOES.assumir)}${actBtn(c, "lancar", `${IC.check}${ACOES.lancar}`, "primary")}${actBtn(c, "corrigir", ACOES.corrigir)}${actBtn(c, "vincular", ACOES.vincular)}${actBtn(c, "reprocessar", `${IC.rot}${ACOES.reprocessar}`)}${actBtn(c, "descartar", ACOES.descartar, "danger")}${actBtn(c, "desfazer", ACOES.desfazer, "ghost")}
+      <span class="hint">Ações habilitadas conforme estado e perfil</span>
     </div>
+    ${indisponiveisHTML(c)}
     ${isExc || c.alert || m.dup ? `<div style="padding:0 16px 14px"><div class="note ${m.sla === "4h" || c.alert ? "warn" : "neu"}">${IC.warn}<span><b>${esc(m.dup ? "Duplicidade · " + c.dupCode : m.l + " · " + c.mot)}</b> — ${esc(detalheDe(c))}</span></div></div>` : ""}
   </div>
   <div class="det3" style="display:grid;grid-template-columns:minmax(0,470px) minmax(0,1fr) minmax(0,360px);gap:16px;align-items:start">
@@ -1464,12 +1480,12 @@ function viewConfig() {
       <div class="card"><div class="card-h"><h2>Fonte do índice de títulos</h2><span class="sub">ResolvedorTitulo · IndiceLocal</span></div><div class="card-b grid" style="gap:10px">
         <label class="opt on"><input type="radio" name="fonte" checked><div><div class="ot">Importação de planilha ${badge("Ativa", "b-ok")}</div><div class="od">Planilha exportada do NetFactor ou de outro sistema do cliente. Último lote: ${fDT(SYNC)} · 1.284 linhas lidas, 1.271 inseridas ou atualizadas, <a href="#config" data-act="toastErr">13 rejeitadas</a>.</div>
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><div class="drop" data-act="upload" style="flex:1;min-width:180px">Arraste a planilha (.xlsx ou .csv) ou clique para importar</div><button class="btn sm" data-act="modelo" type="button">${IC.dl}Modelo de colunas</button></div></div></label>
-        <label class="opt dis" title="Indisponível até a liberação da API pela OrderBy"><input type="radio" name="fonte" disabled><div><div class="ot">Sincronização NetFactor ${badge("Aguardando API OrderBy", "b-warn")}</div><div class="od">Listagem de títulos por cedente e período via credencial de serviço (h); busca direta por NF (a) ainda não disponível. Ativação por cedente quando houver credencial.</div></div></label>
+        <label class="opt dis"><input type="radio" name="fonte" disabled><div><div class="ot">Sincronização NetFactor ${badge("Aguardando API OrderBy", "b-warn")}</div><div class="od">Listagem de títulos por cedente e período via credencial de serviço (h); busca direta por NF (a) ainda não disponível. Ativação por cedente quando houver credencial.</div><div class="ind">Indisponível até a liberação da API pela OrderBy.</div></div></label>
       </div></div>
       <div class="card"><div class="card-h"><h2>Adaptador de registro</h2><span class="sub">RegistroCanhoto · por tenant</span></div><div class="card-b grid" style="gap:10px">
         <label class="opt on"><input type="radio" name="adapt" checked><div><div class="ot">Manual assistido ${badge("Ativo", "b-ok")}</div><div class="od">Gera o pacote de lançamento e abre <span class="code">PRONTO_LANCAMENTO_MANUAL</span>. O operador lança no NetFactor e marca como lançado.</div></div></label>
-        <label class="opt dis" title="Indisponível: depende das capacidades (c) e (d)"><input type="radio" name="adapt" disabled><div><div class="ot">API NetFactor ${badge("Indisponível", "b-bad")}</div><div class="od">Depende de (c) anexar imagem a título existente e (d) marcar canhoto recebido, com respostas claras (e) e acesso de serviço (h). Pendente de resposta da OrderBy.</div></div></label>
-        <label class="opt dis"><input type="radio" name="adapt" disabled><div><div class="ot">Simulado ${badge("Só homologação", "b-neu")}</div><div class="od">Simula sucesso, falha técnica, rejeição e registro parcial para testes de contrato.</div></div></label>
+        <label class="opt dis"><input type="radio" name="adapt" disabled><div><div class="ot">API NetFactor ${badge("Indisponível", "b-bad")}</div><div class="od">Depende de (c) anexar imagem a título existente e (d) marcar canhoto recebido, com respostas claras (e) e acesso de serviço (h). Pendente de resposta da OrderBy.</div><div class="ind">Indisponível: depende das capacidades (c) e (d).</div></div></label>
+        <label class="opt dis"><input type="radio" name="adapt" disabled><div><div class="ot">Simulado ${badge("Só homologação", "b-neu")}</div><div class="od">Simula sucesso, falha técnica, rejeição e registro parcial para testes de contrato.</div><div class="ind">Indisponível neste ambiente: só em homologação.</div></div></label>
         <div class="xs faint">Troca de adaptador: somente admin Flixsign. Alteração gera evento CONFIGURACAO_ALTERADA.</div>
       </div></div>
       <div class="card"><div class="card-h"><h2>Cliente (tenant)</h2></div><div class="card-b"><dl class="kv">
@@ -1531,7 +1547,7 @@ function focoDe(el) {
 }
 function focar(d, caret) {
   if (!d) return;
-  const alvos = [d.sel, d.i != null && `[data-exp="${CSS.escape(d.i)}"]`, d.id && `[data-act][data-id="${CSS.escape(d.id)}"]:not([disabled])`, d.id && `a[href="#caso/${CSS.escape(d.id)}"]`].filter(Boolean);
+  const alvos = [d.sel, d.i != null && `[data-exp="${CSS.escape(d.i)}"]`, d.id && `[data-act][data-id="${CSS.escape(d.id)}"]:not([disabled]):not([aria-disabled="true"])`, d.id && `a[href="#caso/${CSS.escape(d.id)}"]`].filter(Boolean);
   for (const s of alvos) { const el = $("#view " + s); if (!el) continue; el.focus({ preventScroll: true }); if (document.activeElement !== el) continue;
     if (caret != null && /^(ff|pf)-q$/.test(el.id)) { try { el.setSelectionRange(caret, caret); } catch (e) {} } return; }
 }
@@ -1568,7 +1584,7 @@ $("#tenant").addEventListener("change", e => { toast(e.target.value === "beta" ?
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]");
   if (t) {
-    if (t.disabled) return;
+    if (t.disabled || t.getAttribute("aria-disabled") === "true") return;
     const act = t.dataset.act, c = t.dataset.id ? byId(t.dataset.id) : null;
     switch (act) {
       case "mclose": closeModal(); return;
