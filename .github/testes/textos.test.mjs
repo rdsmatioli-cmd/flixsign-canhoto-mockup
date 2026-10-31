@@ -60,11 +60,27 @@ test('CAN-TXT-03: hash descrito como registro de integridade, não como forma de
   assert.ok(!script.includes('Foto guardada com SHA-256'));
   assert.ok(script.includes('Foto guardada e hash SHA-256 registrado'));
 });
-test('CAN-TXT-03: nenhuma promessa de validade jurídica ou de prova de entrega sem parecer', () => {
-  const visivel = html.replace(/<style[\s\S]*?<\/style>/g, ' ');
-  for (const proibido of [/validade jur[ií]dica/i, /valor probat[óo]rio/i, /prova (jur[ií]dica )?de entrega/i,
-    /substitui o canhoto/i, /MP 2\.200/, /14\.063/, /ICP-Brasil/i, /comprovante de entrega da NF-e/i,
-    /garant(e|ia|imos)\b/i, /100% (seguro|v[aá]lido|legal)/i]) {
-    assert.ok(!proibido.test(visivel), String(proibido));
-  }
+// Promessas (validade, valor probatório, comprovação de entrega, substituição do canhoto, garantia) e
+// menções à MP 2.200-2/2001, à Lei 14.063/2020, à ICP-Brasil, ao evento 110130 e ao Ajuste SINIEF só
+// aparecem dentro de uma ressalva aprovada pelo Advogado, liberada por igualdade exata da frase
+// inteira (como o CP-07 do chargeback). Sem parecer, a lista é vazia.
+const RESSALVAS_APROVADAS = [];
+const PROMESSAS = [/validade (jur[ií]dica|legal)/i, /(juridicamente|legalmente) v[aá]lid/i, /valor (probat[óo]rio|legal|jur[ií]dico)/i,
+  /comprov[a-zçãõ]* (a|de|da) entrega/i, /prova (jur[ií]dica |legal )?(de|da) entrega/i, /substitu[a-z]* (o|do) canhoto/i,
+  /garant[a-zçãõ]*/i, /100% (seguro|v[aá]lido|legal)/i];
+const MENCOES = [/MP 2\.200|Medida Provis[óo]ria n?[ºo°]? ?2\.200/i, /14\.063/, /ICP-Brasil/i, /110130/, /comprovante de entrega da NF-e/i, /Ajuste SINIEF/i];
+const semRessalvas = (texto, ressalvas) => ressalvas.reduce((t, r) => t.split(r).join(' '), texto);
+const achados = (texto, ressalvas) => [...PROMESSAS, ...MENCOES].filter((re) => re.test(semRessalvas(texto, ressalvas))).map(String);
+test('CAN-TXT-03: nenhuma promessa jurídica nem menção normativa fora de ressalva aprovada', () => {
+  assert.deepEqual(achados(html.replace(/<style[\s\S]*?<\/style>/g, ' '), RESSALVAS_APROVADAS), []);
+});
+test('CAN-TXT-03: o filtro pega as variantes de promessa e só libera a ressalva idêntica', () => {
+  for (const frase of ['Vale como comprovante de entrega.', 'A foto comprova a entrega.', 'Registro juridicamente válido.',
+    'Tem validade legal.', 'Entrega garantida.', 'Para garantir o recebível.', 'Tem valor legal.', 'Substitui o canhoto.',
+    'Comprovação da entrega pelo WhatsApp.', 'Prova de entrega.']) assert.notDeepEqual(achados(frase, []), [], frase);
+  const ressalva = 'Este registro não substitui o evento Comprovante de Entrega da NF-e (110130).';
+  assert.notDeepEqual(achados(ressalva, []), []);
+  assert.deepEqual(achados(ressalva, [ressalva]), []);
+  assert.notDeepEqual(achados(ressalva.replace('não substitui', 'substitui'), [ressalva]), []);
+  assert.deepEqual(achados('Foto guardada e hash SHA-256 registrado', []), []);
 });
