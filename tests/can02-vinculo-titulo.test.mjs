@@ -96,10 +96,17 @@ test("Corrigir NF para título já na fila de lançamento também é duplicidade
   assert.match(m.run(`byId("K7Q2-52").detalhe`), /K7Q2-91 em PRONTO_LANCAMENTO_MANUAL/);
 });
 
-test("lista de títulos é grupo de opções rotulado e focável (pode rolar só com títulos desabilitados)", () => {
+test("lista de títulos é grupo de opções rotulado; focável pelo Tab só quando não há rádio habilitado (pode rolar só com títulos desabilitados)", () => {
   const m = carregar();
   m.run(`dlgVincular(byId("K7Q2-63"))`);
-  assert.match(m.modal(), /<div class="pick" id="m-pick" tabindex="0" role="radiogroup" aria-label="Títulos encontrados">/);
+  assert.match(m.modal(), /<div class="pick" id="m-pick" tabindex="-1" role="radiogroup" aria-label="Títulos encontrados"/, "com rádio habilitado, o Tab entra pelo rádio");
+  m.els.get("#m-q").disparar("input", { target: { value: "220934" } });
+  const pick = m.els.get("#m-pick");
+  assert.match(pick.innerHTML, /name="m-t" value="8842167" disabled/);
+  assert.doesNotMatch(pick.innerHTML, /name="m-t" value="[^"]*"(?: checked)?>/, "só títulos que já têm canhoto");
+  assert.equal(pick.getAttribute("tabindex"), "0", "a lista continua alcançável pelo teclado para rolar");
+  m.els.get("#m-q").disparar("input", { target: { value: "" } });
+  assert.equal(pick.getAttribute("tabindex"), "-1");
 });
 
 test("Reprocessar que acha título já vinculado a outro caso também encerra como duplicidade", () => {
