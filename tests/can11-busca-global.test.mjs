@@ -61,3 +61,37 @@ test("buscar o caso que já está aberto leva o foco ao título dele", () => {
   assert.equal(m.run("location.hash"), "#caso/K7Q2-61");
   assert.equal(m.focos.at(-1), "#view h1");
 });
+
+test("busca aberta no celular fecha ao trocar de tela pelo menu", () => {
+  const m = carregar();
+  m.run(`location.hash = "#fila"; render()`);
+  m.clicar({ act: "gsearch" });
+  assert.equal(m.els.get("#topbar").classList.contains("busca"), true);
+  m.run(`location.hash = "#pendencias"; render()`);
+  assert.equal(m.els.get("#topbar").classList.contains("busca"), false);
+  assert.equal(m.els.get("#gsearch-btn").getAttribute("aria-expanded"), "false");
+  assert.equal(m.focos.at(-1), "#view h1", "o foco segue a regra da troca de tela");
+});
+
+test("ao passar para o layout de desktop a busca aberta fecha e o botão escondido não fica com aria-expanded=true", () => {
+  const ouvintes = [];
+  const m = carregar({ window: { matchMedia: q => ({ media: q, matches: true, addEventListener: (t, f) => ouvintes.push([q, t, f]) }) } });
+  const [q, tipo, aoMudar] = ouvintes.find(([q]) => /max-width:820px/.test(q)) || [];
+  assert.equal(q, "(max-width:820px)", "acompanha o mesmo limite do CSS do celular");
+  assert.equal(tipo, "change");
+  m.clicar({ act: "gsearch" });
+  const n = m.focos.length;
+  aoMudar({ matches: true });
+  assert.equal(m.els.get("#topbar").classList.contains("busca"), true, "continua no celular: nada muda");
+  aoMudar({ matches: false });
+  assert.equal(m.els.get("#topbar").classList.contains("busca"), false);
+  assert.equal(m.els.get("#gsearch-btn").getAttribute("aria-expanded"), "false");
+  assert.equal(m.focos.length, n, "não move o foco");
+  m.run(`document.activeElement = document.querySelector("#view h1")`);
+  aoMudar({ matches: true });
+  assert.equal(m.els.get("#topbar").classList.contains("busca"), false, "volta ao celular fechada se o foco está fora do campo");
+  m.run(`document.activeElement = document.querySelector("#gsearch")`);
+  aoMudar({ matches: true });
+  assert.equal(m.els.get("#topbar").classList.contains("busca"), true, "com o foco no campo, abre para ele continuar visível");
+  assert.equal(m.els.get("#gsearch-btn").getAttribute("aria-expanded"), "true");
+});

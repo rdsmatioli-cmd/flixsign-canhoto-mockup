@@ -22,7 +22,8 @@ function elementoBase(sel, aoFocar) {
   return el;
 }
 
-export function carregar() {
+/* opcoes.window: propriedades extras do window simulado (ex.: matchMedia), já presentes quando o script do mockup roda */
+export function carregar(opcoes = {}) {
   const els = new Map();
   const definidos = new Set();
   const timers = [];
@@ -46,7 +47,7 @@ export function carregar() {
     addEventListener: (t, f) => { (ouvintesDoc[t] ||= []).push(f); },
   };
   const ctx = vm.createContext({
-    document, window: { addEventListener() {}, scrollTo() {} }, location: { hash: "" }, CSS: { escape: s => String(s) }, navigator: {}, console,
+    document, window: { addEventListener() {}, scrollTo() {}, ...(opcoes.window || {}) }, location: { hash: "" }, CSS: { escape: s => String(s) }, navigator: {}, console,
     setTimeout: (f, ms) => { timers.push({ f, ms }); return timers.length; }, clearTimeout() {}, setInterval: () => 0, requestAnimationFrame: () => 0, cancelAnimationFrame() {},
   });
   vm.runInContext("(() => { const base = Date.now(); let d = 0; Date.now = () => base + d; globalThis.__avancar = ms => { d += ms; }; })();", ctx);
