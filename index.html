@@ -61,7 +61,8 @@ h1[tabindex="-1"]:focus{outline:none}h1[tabindex="-1"]:focus-visible{outline:2px
 .crumb .sep{color:var(--faint)}
 .phase{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid #bfe3de;border-radius:20px;padding:2px 9px;white-space:nowrap}
 .top-right{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none}
-.search{position:relative}
+.search{position:relative;flex:none}
+.btn.search-btn{display:none;width:34px;padding:0;flex:none}.search-btn svg{width:17px;height:17px}
 .search input{width:192px;height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:0 10px 0 32px;background:var(--surface-2);font-size:13px}
 .search svg{position:absolute;left:10px;top:9px;width:16px;height:16px;color:var(--faint)}
 .tenant{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
@@ -331,10 +332,10 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
 .drop{border:1.5px dashed var(--border-strong);border-radius:9px;padding:12px;text-align:center;font-size:12.5px;color:var(--muted);background:var(--surface-2);cursor:pointer}
 .drop:hover{border-color:var(--accent);color:var(--accent)}
 /* ---------- Responsive ---------- */
-@media (max-width:1280px){.search{display:none}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.wa-wrap{grid-template-columns:330px 330px}.wa-side{grid-column:1/-1}.mail-wrap{grid-template-columns:240px minmax(0,1fr)}.mail-side{grid-column:1/-1}}
+@media (max-width:1280px){.user{padding-left:10px}.user .who{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.wa-wrap{grid-template-columns:330px 330px}.wa-side{grid-column:1/-1}.mail-wrap{grid-template-columns:240px minmax(0,1fr)}.mail-side{grid-column:1/-1}}
 @media (max-width:1280px){.det3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.det3>.hist{grid-column:1/-1}}
-@media (max-width:1100px){.det3{grid-template-columns:1fr!important}:root{--sbw:64px}.brand-name,.brand-mod,.nav .count,.nav-sec,.sb-foot{display:none}.nav a span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}.nav a{justify-content:center}.det-grid,.split,.cfg-grid{grid-template-columns:1fr}.search input{width:160px}}
-@media (max-width:820px){.crumb{container-type:normal}.phase,.tenant{display:none}.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis,.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-21,.g-3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){.det3{grid-template-columns:1fr!important}:root{--sbw:64px}.brand-name,.brand-mod,.nav .count,.nav-sec,.sb-foot{display:none}.nav a span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}.nav a{justify-content:center}.det-grid,.split,.cfg-grid{grid-template-columns:1fr}.topbar{padding:0 16px;gap:12px}}
+@media (max-width:820px){.crumb{container-type:normal}.phase,.tenant{display:none}.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.btn.search-btn{display:inline-flex;margin-left:auto}.top-right{margin-left:0}.topbar.busca .search{display:block;order:5;flex:1 1 100%}.topbar.busca .search input{width:100%}.topbar.busca .search-btn{background:var(--neu-bg)}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis,.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-21,.g-3{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:820px){.tbl.stk,.tbl.stk tbody{display:block;width:100%}.tbl.stk colgroup,.tbl.stk thead{display:none}.tbl.stk tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-flow:row dense;gap:8px 14px;padding:12px 14px;border-bottom:1px solid #edf1f5}.tbl.stk tbody tr:last-child{border-bottom:none}.tbl.stk td{display:block;padding:0;border:0;min-width:0;text-align:left}.tbl.stk td[data-l]::before{content:attr(data-l);display:block;font-size:10.5px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}.tbl.stk td.full,.tbl.stk td[colspan]{grid-column:1/-1}.tbl.stk-fila tr{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr)}.tbl.stk-fila td.chk{grid-row:1/span 6;padding-top:1px}.tbl.stk-fila td.full{grid-column:2/-1}.tbl.stk-fila td[colspan]{grid-column:1/-1}.tbl.stk-ced tr{grid-template-columns:repeat(3,minmax(0,1fr))}.tbl.stk-kv tr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:9px 14px}.tbl.stk-kv td.r{margin-left:auto}.tbl.stk td.clamp{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.tbl.stk-fila thead{display:block}.tbl.stk-fila thead tr{display:block;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2)}.tbl.stk-fila thead th{display:none}.tbl.stk-fila thead th:first-child{display:block;padding:0;border:0;background:none;overflow:visible}.tbl.stk-fila .selall span{display:inline;font-size:12.5px;font-weight:600;color:var(--text-2);text-transform:none;letter-spacing:0}}
 @media (max-width:640px){.mhdr{grid-template-columns:38px minmax(0,1fr)}.mhdr>:last-child{grid-column:2}.mbody,.auths,.mind{margin-left:0}.attach{margin-left:0;max-width:100%}.collapsed{padding-left:0}.kv{grid-template-columns:120px minmax(0,1fr)}}
 @media (max-width:480px){.hbar{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 34px}.ocr th{width:96px}.ocr td:last-child{width:86px!important}.conf .t{width:40px}}
@@ -366,15 +367,16 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
     </div>
   </aside>
   <div class="main">
-    <header class="topbar">
+    <header class="topbar" id="topbar">
       <div class="crumb"><span class="pre"><b>Flixsign</b><span class="sep">/</span><b>Canhoto</b><span class="sep">/</span></span><span id="crumb-page">Visão geral</span><span class="phase">Fase 1 · modo assistido</span></div>
+      <button class="btn ghost search-btn" type="button" id="gsearch-btn" data-act="gsearch" aria-expanded="false" aria-controls="gsearch-box" aria-label="Buscar caso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+      <div class="search" id="gsearch-box" role="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gsearch" placeholder="Protocolo ou NF (Enter)" aria-label="Buscar caso por protocolo ou NF"></div>
       <div class="top-right">
-        <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gsearch" placeholder="Protocolo ou NF (Enter)" aria-label="Buscar caso por protocolo ou NF"></div>
         <label class="tenant" title="Tenant (cliente)">
           <select id="tenant" aria-label="Tenant"><option value="alfa">FIDC Modelo Alfa</option><option value="beta">Securitizadora Modelo Beta</option></select>
         </label>
         <span class="sample" title="Todos os números e nomes desta tela são fictícios">Dados de exemplo</span>
-        <div class="user"><div class="avatar">AR</div><div><div class="n">Ana Ribeiro</div><div class="r">Supervisora · Flixsign</div></div></div>
+        <div class="user" title="Ana Ribeiro · Supervisora · Flixsign"><div class="avatar">AR</div><div class="who"><div class="n">Ana Ribeiro</div><div class="r">Supervisora · Flixsign</div></div></div>
       </div>
     </header>
     <main class="content" id="view"></main>
@@ -1581,8 +1583,14 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#overla
 document.addEventListener("keydown", prendeTab);
 document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[role="button"][tabindex]')) { e.preventDefault(); e.target.click(); } });
 $("#overlay").addEventListener("mousedown", e => { if (e.target.id === "overlay") closeModal(); });
-$("#gsearch").addEventListener("keydown", e => { if (e.key !== "Enter") return; const q = e.target.value.trim().toUpperCase(); if (!q) return;
-  const c = CASES.find(x => x.id === q) || CASES.find(x => x.nf === q) || CASES.find(x => x.id.endsWith(q)); if (c) { location.hash = "#caso/" + c.id; e.target.value = ""; } else toast(`Nenhum caso para "${esc(q)}".`); });
+/* Busca global: campo fixo na barra a partir de 821 px; no celular abre pelo botão (aria-expanded) numa linha própria */
+function buscaMovel(abrir) { $("#topbar").classList.toggle("busca", abrir); $("#gsearch-btn").setAttribute("aria-expanded", String(abrir)); if (abrir) $("#gsearch").focus(); }
+$("#gsearch").addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("#topbar").classList.contains("busca")) { buscaMovel(false); $("#gsearch-btn").focus(); return; }
+  if (e.key !== "Enter") return; const q = e.target.value.trim().toUpperCase(); if (!q) return;
+  const c = CASES.find(x => x.id === q) || CASES.find(x => x.nf === q) || CASES.find(x => x.id.endsWith(q)); if (!c) { toast(`Nenhum caso para "${esc(q)}".`); return; }
+  e.target.value = ""; buscaMovel(false); const alvo = "#caso/" + c.id;
+  if (location.hash === alvo) focarTela(null); else location.hash = alvo; });
 $("#tenant").addEventListener("change", e => { toast(e.target.value === "beta" ? "Troca de tenant simulada. No produto, filas, imagens e métricas não atravessam tenants; este mockup mostra só o FIDC Modelo Alfa." : "Tenant FIDC Modelo Alfa."); e.target.value = "alfa"; });
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]");
@@ -1601,6 +1609,7 @@ document.addEventListener("click", e => {
       case "desfazer": dlgDesfazer(c); return;
       case "back": location.hash = "#" + fromList; return;
       case "skip": e.preventDefault(); focarTela(null); return;
+      case "gsearch": buscaMovel(!$("#topbar").classList.contains("busca")); return;
       case "zin": UI.zoom = Math.min(2.4, UI.zoom + .25); $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
       case "zout": UI.zoom = Math.max(.6, UI.zoom - .25); $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
       case "rot": UI.rot = (UI.rot + 90) % 360; $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
