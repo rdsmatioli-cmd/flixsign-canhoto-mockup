@@ -48,3 +48,24 @@ test("link Pular para o conteúdo é o primeiro da página e leva o foco ao tít
   assert.equal(m.focos.at(-1), "#view h1");
   assert.equal(m.run("location.hash"), "", "não troca a rota");
 });
+
+test("voltar do caso para a tela de onde ele foi aberto (E-mail, WhatsApp) foca o link do caso", () => {
+  const m = carregar();
+  ir(m, "#email");
+  assert.equal(ir(m, "#caso/K7Q2-93"), "#view h1");
+  assert.equal(ir(m, "#email"), '#view a[href="#caso/K7Q2-93"]');
+  ir(m, "#whatsapp");
+  ir(m, "#caso/K7Q2-91");
+  assert.equal(ir(m, "#whatsapp"), '#view a[href="#caso/K7Q2-91"]');
+});
+
+test("ir do caso para outra tela que não é a de origem nem lista foca o h1", () => {
+  const m = carregar();
+  ir(m, "#fila");
+  ir(m, "#caso/K7Q2-93");
+  assert.equal(ir(m, "#email"), "#view h1", "o caso foi aberto da Fila, não do E-mail");
+  ir(m, "#email"); ir(m, "#caso/K7Q2-93");
+  assert.equal(ir(m, "#whatsapp"), "#view h1");
+  ir(m, "#caso/K7Q2-93");
+  assert.equal(ir(m, "#email"), "#view h1", "aberto de outra tela (WhatsApp)");
+});

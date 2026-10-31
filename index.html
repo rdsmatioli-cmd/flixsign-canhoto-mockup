@@ -1558,13 +1558,15 @@ function viewConfig() {
 
 /* ================= Roteador e eventos ================= */
 const TITLES = { dashboard: "Visão geral", fila: "Fila de lançamento", pendencias: "Pendências", caso: "Detalhe do caso", whatsapp: "Conversa WhatsApp", email: "E-mail", config: "Configurações" };
-let lastRoute = "", fromList = "fila";
+let lastRoute = "", fromList = "fila", origemCaso = null;
 /* Menu: aria-current="page" no link da tela atual; no detalhe do caso, "true" no link da lista de origem */
 const ariaAtual = (r, route) => route === "caso" ? (r === fromList ? "true" : null) : r === route ? "page" : null;
-/* Troca de tela: o foco vai para o h1 da nova tela; ao voltar do caso X para a lista, para o link do caso X */
+/* Troca de tela: o foco vai para o h1 da nova tela; ao sair do caso X para a Fila ou as Pendências, para o link do caso X;
+   para outra tela (E-mail, WhatsApp), só se o caso foi aberto dela (origemCaso), como ao voltar pelo navegador */
 function focoDaRota(prev, route) {
-  const m = /^caso\/(.+)$/.exec(prev || "");
-  return m && (route === "fila" || route === "pendencias") ? `a[href="#caso/${CSS.escape(m[1])}"]` : null;
+  const m = /^caso\/(.+)$/.exec(prev || ""); if (!m) return null;
+  const lista = route === "fila" || route === "pendencias", origem = !!origemCaso && origemCaso.id === m[1] && origemCaso.de === route;
+  return lista || origem ? `a[href="#caso/${CSS.escape(m[1])}"]` : null;
 }
 function focarTela(sel) {
   const alvo = sel && $("#view " + sel);
@@ -1610,6 +1612,7 @@ function render() {
   const h = (location.hash || "#dashboard").slice(1); const [r, arg] = h.split("/"); const route = TITLES[r] ? r : "dashboard";
   const changed = h !== lastRoute; if (changed && route === "caso") { UI.zoom = 1; UI.rot = 0; }
   if (changed && (route === "fila" || route === "pendencias")) fromList = route;
+  if (changed && route === "caso") origemCaso = { de: lastRoute.split("/")[0] || null, id: arg };
   const ae = document.activeElement, foco = focoDe(ae), caret = ae && ae.selectionStart;
   const agora = clock(); CASES.forEach(c => avancaReprocesso(c, agora));
   const html = { dashboard: viewDashboard, fila: viewFila, pendencias: viewPend, caso: () => viewCaso(arg), whatsapp: viewWA, email: viewEmail, config: viewConfig }[route]();
