@@ -43,3 +43,11 @@ test('CAN-TXT-01: chave de acesso de 44 dígitos e DV módulo 11 conferem com o 
   assert.equal(k.slice(20, 22), '55');
   assert.equal(chaveValida(k), true);
 });
+
+// CAN-TXT-02: LGPD (Lei 13.709/2018, norma atualizada da Câmara, 31/10/2026), art. 9º: o titular
+// tem acesso facilitado à finalidade, forma e duração do tratamento, identificação e contato do
+// controlador, uso compartilhado, responsabilidades e direitos do art. 18. O aviso do primeiro
+// contato ainda não tem texto; o mockup indica o conteúdo mínimo e não inventa o texto.
+test('CAN-TXT-02: aviso de privacidade do primeiro contato remete ao art. 9º da LGPD', () => {
+  assert.ok(script.includes('Primeiro contato: aviso de privacidade enviado (texto a definir com o jurídico, com as informações do art. 9º da LGPD)'));
+});
