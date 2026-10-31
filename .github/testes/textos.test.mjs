@@ -51,3 +51,20 @@ test('CAN-TXT-01: chave de acesso de 44 dígitos e DV módulo 11 conferem com o 
 test('CAN-TXT-02: aviso de privacidade do primeiro contato remete ao art. 9º da LGPD', () => {
   assert.ok(script.includes('Primeiro contato: aviso de privacidade enviado (texto a definir com o jurídico, com as informações do art. 9º da LGPD)'));
 });
+
+// CAN-TXT-03: o hash prova que a imagem não mudou desde o recebimento; não identifica quem assinou
+// nem substitui o evento "Comprovante de Entrega da NF-e" (tpEvento 110130, NT 2021.001 v1.01,
+// facultativo, assinado com certificado ICP-Brasil). Sem parecer, o mockup não promete validade
+// jurídica, prova de entrega nem substituição do canhoto.
+test('CAN-TXT-03: hash descrito como registro de integridade, não como forma de guarda', () => {
+  assert.ok(!script.includes('Foto guardada com SHA-256'));
+  assert.ok(script.includes('Foto guardada e hash SHA-256 registrado'));
+});
+test('CAN-TXT-03: nenhuma promessa de validade jurídica ou de prova de entrega sem parecer', () => {
+  const visivel = html.replace(/<style[\s\S]*?<\/style>/g, ' ');
+  for (const proibido of [/validade jur[ií]dica/i, /valor probat[óo]rio/i, /prova (jur[ií]dica )?de entrega/i,
+    /substitui o canhoto/i, /MP 2\.200/, /14\.063/, /ICP-Brasil/i, /comprovante de entrega da NF-e/i,
+    /garant(e|ia|imos)\b/i, /100% (seguro|v[aá]lido|legal)/i]) {
+    assert.ok(!proibido.test(visivel), String(proibido));
+  }
+});
