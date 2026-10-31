@@ -884,10 +884,17 @@ function filaRows() {
     .filter(x => !q || [x.id, x.nf, x.titulo && x.titulo.sac, cedName(x.ced), x.rem.id].join(" ").toLowerCase().includes(q))
     .sort((a, b) => a.rec - b.rec);
 }
+/* Seleção em lote: vale só para linhas visíveis e selecionáveis (PENDENTE); o que sai da lista sai da seleção */
+const selecionavel = x => x.estado === "PENDENTE";
+function podarSelecao(rows) { const vis = new Set(rows.filter(selecionavel).map(x => x.id)); UI.fila.sel.forEach(id => { if (!vis.has(id)) UI.fila.sel.delete(id); }); }
+function estadoSelTodos(rows) {
+  const sel = rows.filter(selecionavel), n = sel.filter(x => UI.fila.sel.has(x.id)).length;
+  return { total: sel.length, marcados: n, checked: sel.length > 0 && n === sel.length, indeterminate: n > 0 && n < sel.length };
+}
 function viewFila() {
   counts();
   const all = CASES.filter(x => isFila(x) && x.estado === "PENDENTE");
-  const rows = filaRows(); const f = UI.fila;
+  const rows = filaRows(); const f = UI.fila; podarSelecao(rows); const st = estadoSelTodos(rows);
   const venc = all.filter(x => slaInfo(x).cls === "b-bad").length, av = all.filter(x => slaInfo(x).cls === "b-warn").length;
   const ls = lancamentosSessao();
   const opt = (v, l, cur) => `<option value="${v}"${v === cur ? " selected" : ""}>${esc(l)}</option>`;
@@ -910,7 +917,7 @@ function viewFila() {
     </div>
     <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk stk-fila" id="tbl-fila">
       <colgroup><col style="width:34px"><col style="width:96px"><col style="width:84px"><col><col><col style="width:104px"><col style="width:98px"><col style="width:74px"><col style="width:92px"><col style="width:164px"><col style="width:166px"></colgroup>
-      <thead><tr><th><label class="selall"><input type="checkbox" data-act="selAll" aria-label="Selecionar todos"${rows.length && rows.every(r => f.sel.has(r.id)) ? " checked" : ""}><span>Selecionar todos</span></label></th><th>Protocolo</th><th>NF / série</th><th>Cedente</th><th>Sacado</th><th class="r">Valor</th><th>Vencimento</th><th>Canal</th><th>Recebido</th><th>SLA</th><th>Ação</th></tr></thead>
+      <thead><tr><th><label class="selall"><input type="checkbox" data-act="selAll" aria-label="Selecionar todos"${st.checked ? " checked" : ""}${st.indeterminate ? ' data-indet="1"' : ""}${st.total ? "" : " disabled"}><span>Selecionar todos</span></label></th><th>Protocolo</th><th>NF / série</th><th>Cedente</th><th>Sacado</th><th class="r">Valor</th><th>Vencimento</th><th>Canal</th><th>Recebido</th><th>SLA</th><th>Ação</th></tr></thead>
       <tbody>${rows.map(x => {
         const doneRow = x.estado !== "PENDENTE";
         const act = x.lancadoEm ? `<div>${badge(x.estado === "DESFEITO" ? "Desfeito" : "Lançado " + fHM(x.lancadoEm), x.estado === "DESFEITO" ? "b-bad" : "b-ok")}</div><div class="sub2">por ${esc(x.lancadoPor)}</div>` : x.estado === "DESCARTADO" ? badge("Descartado", "b-neu") : `<button class="btn primary sm" data-act="lancar" data-id="${x.id}">Marcar como lançado</button>`;
@@ -1479,6 +1486,7 @@ function render() {
   const ae = document.activeElement, foco = focoDe(ae), caret = ae && ae.selectionStart;
   const html = { dashboard: viewDashboard, fila: viewFila, pendencias: viewPend, caso: () => viewCaso(arg), whatsapp: viewWA, email: viewEmail, config: viewConfig }[route]();
   $("#view").innerHTML = html; counts();
+  $$("#view [data-indet]").forEach(i => { i.indeterminate = true; });
   $$("#nav a").forEach(a => a.classList.toggle("active", a.dataset.r === (route === "caso" ? fromList : route)));
   $("#crumb-page").textContent = route === "caso" ? `Caso ${arg}` : TITLES[route];
   document.title = `${route === "caso" ? "Caso " + arg : TITLES[route]} · Flixsign Canhoto (mockup)`;
@@ -1522,8 +1530,9 @@ document.addEventListener("click", e => {
         try { navigator.clipboard.writeText(txt).catch(() => {}); } catch (err) {} toast("Dados do pacote de lançamento copiados."); return; }
       case "histF": UI.histF = t.dataset.k; render(); return;
       case "sel": e.stopPropagation(); t.checked ? UI.fila.sel.add(t.dataset.id) : UI.fila.sel.delete(t.dataset.id); render(); return;
-      case "selAll": { const rows = filaRows().filter(x => x.estado === "PENDENTE"); if (t.checked) rows.forEach(x => UI.fila.sel.add(x.id)); else UI.fila.sel.clear(); render(); return; }
-      case "assumirLote": { let n = 0; UI.fila.sel.forEach(id => { const x = byId(id); if (x && x.resp !== ME) { ensureAssigned(x); n++; } }); UI.fila.sel.clear(); toast(`${n} caso(s) atribuído(s) a você.`); render(); return; }
+      case "selAll": { const vis = filaRows().filter(selecionavel); vis.forEach(x => t.checked ? UI.fila.sel.add(x.id) : UI.fila.sel.delete(x.id)); render(); return; }
+      case "assumirLote": { const vis = new Set(filaRows().filter(selecionavel).map(x => x.id)); let n = 0;
+        UI.fila.sel.forEach(id => { const x = byId(id); if (x && vis.has(id) && x.resp !== ME) { ensureAssigned(x); n++; } }); UI.fila.sel.clear(); toast(`${n} caso(s) atribuído(s) a você.`); render(); return; }
       case "clearFila": Object.assign(UI.fila, { ced: "", canal: "", resp: "", sla: "", q: "" }); render(); return;
       case "clearPend": Object.assign(UI.pend, { mot: "", canal: "", st: "", sla: "", q: "" }); render(); return;
       case "chipMot": UI.pend.mot = t.dataset.mot; render(); return;
