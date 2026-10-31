@@ -1283,7 +1283,10 @@ function dlgDesfazer(c) {
 function doReprocessar(c) {
   addEv(c, "PENDENCIA_REPROCESSADA", "OPERADOR", `Reprocessamento solicitado por ${ME}`); const prev = c.pst; c.pst = "REPROCESSANDO"; toast(`Reprocessando <b>${c.id}</b>…`); render();
   setTimeout(() => {
-    if (c.mot === "NETFACTOR_INDISPONIVEL") {
+    const dono = c.mot === "NETFACTOR_INDISPONIVEL" ? donoDoTitulo(c.hidden, c) : null;
+    if (dono) {
+      fecharDuplicidade(c, c.hidden, dono); toast(`Consulta respondeu: o título ${c.hidden.id} já tem o caso <b>${dono.id}</b>. <b>${c.id}</b> encerrado como duplicidade.`);
+    } else if (c.mot === "NETFACTOR_INDISPONIVEL") {
       c.titulo = c.hidden; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA"; c.encerradaEm = clock();
       addEv(c, "TITULO_ENCONTRADO", "SISTEMA", `1 título · ID NetFactor ${c.titulo.id} · consulta respondeu`, null, ["BUSCANDO_TITULO", "AGUARDANDO_CONFIRMACAO"]);
       addEv(c, "CONFIRMACAO_SOLICITADA", "SISTEMA", "Resumo do título enviado ao remetente"); addMsg(c, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c)));

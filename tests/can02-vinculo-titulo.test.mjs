@@ -101,3 +101,14 @@ test("lista de títulos é região rotulada e focável (pode rolar só com títu
   m.run(`dlgVincular(byId("K7Q2-63"))`);
   assert.match(m.modal(), /<div class="pick" id="m-pick" tabindex="0" role="region" aria-label="Títulos encontrados">/);
 });
+
+test("Reprocessar que acha título já vinculado a outro caso também encerra como duplicidade", () => {
+  const m = carregar();
+  const v = abrirVincular(m, "K7Q2-52");
+  v.buscar("458760");
+  assert.notEqual(v.confirmar(idDaNF(m, "458760"), "confirmado por telefone"), false);
+  m.run(`doReprocessar(byId("K7Q2-90"))`); m.rodarTimers();
+  assert.equal(m.run(`byId("K7Q2-90").estado`), "JA_REGISTRADO");
+  assert.match(m.run(`byId("K7Q2-90").detalhe`), /K7Q2-52/);
+  assert.equal(m.run(`CASES.filter(x => x.titulo && x.titulo.nf === "458760" && !LIBERA_TITULO.includes(x.estado)).length`), 1);
+});
