@@ -735,7 +735,7 @@ c = X({ id: "K7Q2-55", rec: D(7, 8, 15), rem: REM.rota, ced: "TARUMA", mot: "FAL
 E(c, 0, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 1 de 3)"); E(c, 4, "MIDIA_REJEITADA", "SISTEMA", "Falha no download (tentativa 3 de 3)");
 E(c, 10, "PENDENCIA_ABERTA", "SISTEMA", "Motivo FALHA_INGESTAO", null, { est: ["—", "PENDENTE"] });
 
-c = X({ id: "K7Q2-68", canal: "EMAIL", rec: D(7, 18, 33), rem: REM.serra, ced: "SERRA", mot: "FORMATO_NAO_SUPORTADO", pst: "RESOLVIDA", aberta: D(7, 18, 33), img: false, tent: 0, estado: "DESCARTADO",
+c = X({ id: "K7Q2-68", canal: "EMAIL", rec: D(7, 18, 33), rem: REM.serra, ced: "SERRA", mot: "FORMATO_NAO_SUPORTADO", pst: "RESOLVIDA", aberta: D(7, 18, 33), encerradaEm: D(7, 18, 34), img: false, tent: 0, estado: "DESCARTADO",
   mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", detalhe: "Anexo canhoto_nf.docx; remetente orientado automaticamente", ocr: {} });
 E(c, 0, "MIDIA_REJEITADA", "SISTEMA", "Formato não suportado (.docx)"); E(c, 0, "PENDENCIA_ABERTA", "SISTEMA", "Motivo FORMATO_NAO_SUPORTADO"); E(c, 1, "PENDENCIA_RESOLVIDA", "SISTEMA", "Orientação de formatos aceitos enviada na thread (JPEG, PNG, HEIC, PDF)");
 
@@ -774,9 +774,25 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 function toast(html) { const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<span>${html}</span>`; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transition = "opacity .3s"; }, 3800); setTimeout(() => t.remove(), 4200); }
 function addEv(c, tipo, ator, d, q, est) { const e = { t: clock(), tipo, ator, d, q, est, fresh: true }; c.events.push(e); return e; }
 function addMsg(c, tpl, txt) { return addEv(c, "MENSAGEM_ENVIADA", "MSG", `Template ${tpl} · ${c.canal === "WHATSAPP" ? "WhatsApp" : "E-mail (mesma thread)"}`, txt); }
+const PST_FECHADA = ["RESOLVIDA", "ENCERRADA_SEM_REGISTRO", "AUTO"];
+const pendEncerrada = c => PST_FECHADA.includes(c.pst) || c.estado !== "PENDENTE";
+/* Idade da pendência: de aberta até o encerramento (encerradaEm) ou, se ainda aberta, até agora */
+function idadePend(c) {
+  if (!c.aberta) return "—";
+  if (pendEncerrada(c)) return c.encerradaEm ? dur(c.encerradaEm - c.aberta) : "—";
+  return dur(clock() - c.aberta);
+}
+/* Lançamentos feitos nesta sessão: só CONCLUIDO conta como lançado; o desfeito sai da conta e aparece à parte */
+const LANC_HOJE_BASE = 27;
+function lancamentosSessao() {
+  const l = CASES.filter(x => x.lancadoEm);
+  return { lancados: l.filter(x => x.estado === "CONCLUIDO").length, desfeitos: l.filter(x => x.estado === "DESFEITO").length };
+}
+const nDesfeitos = n => `${n} desfeito${n > 1 ? "s" : ""}`;
 function slaInfo(c) {
+  if (pendEncerrada(c)) return { t: "—", cls: "" };
   if (MOT[c.mot] && MOT[c.mot].sla === "imediato") return { t: "Imediato (automático)", cls: "b-neu" };
-  if (["RESOLVIDA", "ENCERRADA_SEM_REGISTRO", "AUTO"].includes(c.pst) || c.estado !== "PENDENTE" || !c.sla) return { t: "—", cls: "" };
+  if (!c.sla) return { t: "—", cls: "" };
   const diff = c.sla - clock();
   if (diff < 0) return { t: `Vencido há ${durS(diff)}`, cls: "b-bad" };
   if (diff < 3600000) return { t: `${durS(diff)} restantes`, cls: "b-warn" };
@@ -813,7 +829,7 @@ function viewDashboard() {
   const k = counts();
   const fila = CASES.filter(x => isFila(x) && x.estado === "PENDENTE");
   const vencidos = fila.filter(x => slaInfo(x).cls === "b-bad").length;
-  const lancSess = CASES.filter(x => x.lancadoEm).length;
+  const ls = lancamentosSessao();
   const byMot = {}; CASES.filter(isOpenExc).forEach(x => byMot[x.mot] = (byMot[x.mot] || 0) + 1);
   const mots = Object.entries(byMot).sort((a, b) => b[1] - a[1]); const mmax = Math.max(1, ...mots.map(m => m[1]));
   const cedRows = [["TARUMA", 96, "1 h 48 min"], ["CAMPO", 88, "2 h 05 min"], ["HORIZ", 71, "2 h 31 min"], ["RIBEIRA", 42, "1 h 57 min"], ["SERRA", 36, "3 h 12 min"]];
@@ -824,7 +840,7 @@ function viewDashboard() {
   <div class="grid kpis">
     <div class="card kpi accent"><div class="l">Casos recebidos hoje</div><div class="v num">64</div><div class="d">WhatsApp 47 · E-mail 17</div></div>
     <div class="card kpi"><div class="l">Confirmados pelo remetente</div><div class="v num">39 <small>61%</small></div><div class="d"><b class="up">+4 p.p.</b> vs. média de 7 dias</div></div>
-    <div class="card kpi"><div class="l">Aguardando lançamento manual</div><div class="v num">${k.fila}</div><div class="d">${vencidos ? `<b class="down">${vencidos} com SLA vencido</b>` : "Nenhum com SLA vencido"}${lancSess ? ` · ${lancSess} lançado(s) agora` : ""}</div></div>
+    <div class="card kpi"><div class="l">Aguardando lançamento manual</div><div class="v num">${k.fila}</div><div class="d">${vencidos ? `<b class="down">${vencidos} com SLA vencido</b>` : "Nenhum com SLA vencido"}${ls.lancados ? ` · ${ls.lancados} lançado(s) agora` : ""}${ls.desfeitos ? ` · ${nDesfeitos(ls.desfeitos)}` : ""}</div></div>
     <div class="card kpi"><div class="l">Pendências abertas (exceções)</div><div class="v num">${k.pend}</div><div class="d">${mots.length} motivos · ver gráfico abaixo</div></div>
     <div class="card kpi"><div class="l">Tempo até pronto para lançamento (M1)</div><div class="v num">1 min 52 s</div><div class="d">p50 · p95 5 min 40 s</div></div>
     <div class="card kpi"><div class="l">Tempo até lançamento (M2, métrica norte)</div><div class="v num">2 h 14 min</div><div class="d">p50 · p95 7 h 05 min</div></div>
@@ -838,7 +854,7 @@ function viewDashboard() {
   </div>
   <div class="grid g-3" style="margin-top:16px">
     <div class="card"><div class="card-h"><h2>Funil de hoje</h2></div><div class="card-b funnel">
-      ${[["Recebidos", 64], ["Identificados", 58], ["Título encontrado", 52], ["Confirmados", 39], ["Lançados", 27 + lancSess]].map(([l, n]) => `<div class="fn-row"><span class="small">${l}</span><div><div class="fn-bar" style="width:${Math.max(14, n / 64 * 100)}%">${n}</div></div><span class="small muted num">${Math.round(n / 64 * 100)}%</span></div>`).join("")}
+      ${[["Recebidos", 64], ["Identificados", 58], ["Título encontrado", 52], ["Confirmados", 39], ["Lançados", LANC_HOJE_BASE + ls.lancados]].map(([l, n]) => `<div class="fn-row"><span class="small">${l}</span><div><div class="fn-bar" style="width:${Math.max(14, n / 64 * 100)}%">${n}</div></div><span class="small muted num">${Math.round(n / 64 * 100)}%</span></div>`).join("")}
     </div></div>
     <div class="card"><div class="card-h"><h2>Qualidade</h2><span class="sub">Fase 1</span></div><div class="card-b"><dl class="kv" style="grid-template-columns:1fr auto">
       <dt>Identificação sem digitação (M3)</dt><dd class="num">84%</dd>
@@ -869,7 +885,7 @@ function viewFila() {
   const all = CASES.filter(x => isFila(x) && x.estado === "PENDENTE");
   const rows = filaRows(); const f = UI.fila;
   const venc = all.filter(x => slaInfo(x).cls === "b-bad").length, av = all.filter(x => slaInfo(x).cls === "b-warn").length;
-  const done = CASES.filter(x => x.lancadoEm).length;
+  const ls = lancamentosSessao();
   const opt = (v, l, cur) => `<option value="${v}"${v === cur ? " selected" : ""}>${esc(l)}</option>`;
   return `
   <div class="ph"><div><h1 id="t-pg">Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
@@ -877,7 +893,7 @@ function viewFila() {
     <div class="card kpi"><div class="l" style="min-height:0">Aguardando lançamento</div><div class="v num">${all.length}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">SLA vencido</div><div class="v num" style="color:${venc ? "var(--bad)" : "inherit"}">${venc}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">Vence em até 1 h</div><div class="v num" style="color:${av ? "var(--warn)" : "inherit"}">${av}</div></div>
-    <div class="card kpi"><div class="l" style="min-height:0">Lançados hoje</div><div class="v num">${27 + done}</div></div>
+    <div class="card kpi"><div class="l" style="min-height:0">Lançados hoje</div><div class="v num">${LANC_HOJE_BASE + ls.lancados}</div>${ls.desfeitos ? `<div class="d">${nDesfeitos(ls.desfeitos)}</div>` : ""}</div>
   </div>
   <div class="card">
     <div class="filters">
@@ -952,7 +968,7 @@ function viewPend() {
     <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk" id="tbl-pend">
       <colgroup><col style="width:92px"><col style="width:80px"><col style="width:74px"><col style="width:12%"><col style="width:80px"><col><col style="width:176px"><col style="width:72px"><col style="width:170px"></colgroup>
       <thead><tr><th>Protocolo</th><th>Recebido</th><th>Canal</th><th>Cedente</th><th>NF</th><th>Motivo e detalhe</th><th>Status · resp.</th><th>Idade</th><th>SLA</th></tr></thead>
-      <tbody>${rows.map(x => { const st = PSTAT[x.pst] || ["—", "b-neu"]; const age = x.aberta ? dur(clock() - x.aberta) : "—";
+      <tbody>${rows.map(x => { const st = PSTAT[x.pst] || ["—", "b-neu"]; const age = idadePend(x);
         return `<tr data-open="${x.id}">
         <td data-l="Protocolo"><a class="proto" href="#caso/${x.id}">${x.id}</a></td><td class="num small" data-l="Recebido">${fD(x.rec).slice(0,5)}<div class="sub2">${fHM(x.rec)}</div></td><td data-l="Canal">${chanShort(x.canal)}</td>
         <td class="ellipsis" data-l="Cedente" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
@@ -968,7 +984,7 @@ const ATOR = { SISTEMA: "Sistema", REMETENTE: "Remetente", OPERADOR: "Operador",
 const confColor = v => v >= .85 ? "#16a34a" : v >= .6 ? "#d97706" : "#dc2626";
 const confHTML = v => v == null ? `<span class="faint small">—</span>` : `<div class="conf"><div class="t"><div class="f" style="width:${v * 100}%;background:${confColor(v)}"></div></div><span class="n num" style="color:${v >= .85 ? "var(--ok)" : v >= .6 ? "var(--warn)" : "var(--bad)"}">${v.toFixed(2).replace(".", ",")}</span></div>`;
 function avail(c) {
-  const P = c.estado === "PENDENTE", open = P && !["RESOLVIDA", "ENCERRADA_SEM_REGISTRO", "AUTO"].includes(c.pst);
+  const P = c.estado === "PENDENTE", open = P && !PST_FECHADA.includes(c.pst);
   return {
     assumir: [open && c.resp !== ME, c.resp === ME ? "Caso já atribuído a você" : "Disponível para pendências abertas"],
     lancar: [P && c.mot === "PRONTO_LANCAMENTO_MANUAL", "Disponível para PRONTO_LANCAMENTO_MANUAL"],
@@ -1068,7 +1084,7 @@ function dlgLancar(c) {
       addEv(c, "PENDENCIA_RESOLVIDA", "SISTEMA", "PRONTO_LANCAMENTO_MANUAL resolvida");
       addMsg(c, "SUCESSO", TPL.SUCESSO({ nf: c.nf, dh: fDT(now), sac: c.titulo.sac, p: c.id }));
       addEv(c, "NOTIFICACAO_ENVIADA", "SISTEMA", "Aviso de sucesso enviado uma única vez (notificado_sucesso = verdadeiro)", null, ["REGISTRADO", "CONCLUIDO"]);
-      Object.assign(c, { estado: "CONCLUIDO", pst: "RESOLVIDA", lancadoEm: now, lancadoPor: ME, imgNF: img }); UI.fila.sel.delete(c.id);
+      Object.assign(c, { estado: "CONCLUIDO", pst: "RESOLVIDA", lancadoEm: now, lancadoPor: ME, imgNF: img, encerradaEm: now }); UI.fila.sel.delete(c.id);
       toast(`<b>${c.id}</b> marcado como lançado. Remetente avisado.`); return true;
     });
 }
@@ -1089,15 +1105,15 @@ function dlgCorrigir(c) {
       Object.assign(c, { nf, serie, chave: ch || null, origem: "OPERADOR", tent: c.tent + 1 });
       const hits = IDX.filter(t => t.nf === nf && (!c.ced || t.ced === c.ced));
       if (hits.length === 1) {
-        c.titulo = hits[0]; c.ced = hits[0].ced; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA";
+        c.titulo = hits[0]; c.ced = hits[0].ced; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA"; c.encerradaEm = clock();
         addEv(c, "TITULO_ENCONTRADO", "SISTEMA", `1 título · ID NetFactor ${c.titulo.id} · índice local`, null, ["BUSCANDO_TITULO", "AGUARDANDO_CONFIRMACAO"]);
         addEv(c, "CONFIRMACAO_SOLICITADA", "SISTEMA", "Resumo do título enviado ao remetente"); addMsg(c, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c)));
         toast(`Título encontrado. Confirmação enviada ao remetente do caso <b>${c.id}</b>.`);
       } else if (hits.length > 1) {
-        c.cands = hits; c.mot = "TITULO_AMBIGUO"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.sla = slaVence(c); c.detalhe = `${hits.length} títulos para a NF ${nf}`;
+        c.cands = hits; c.mot = "TITULO_AMBIGUO"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.encerradaEm = null; c.sla = slaVence(c); c.detalhe = `${hits.length} títulos para a NF ${nf}`;
         addEv(c, "TITULO_AMBIGUO", "SISTEMA", c.detalhe); addEv(c, "PENDENCIA_ABERTA", "SISTEMA", "Motivo TITULO_AMBIGUO", null, ["BUSCANDO_TITULO", "PENDENTE"]); toast("Mais de um título: escolha em Vincular manualmente.");
       } else {
-        c.mot = "NF_NAO_ENCONTRADA"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.sla = slaVence(c); c.detalhe = `NF ${nf} não consta no índice (planilha de ${fDM(SYNC)})`;
+        c.mot = "NF_NAO_ENCONTRADA"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.encerradaEm = null; c.sla = slaVence(c); c.detalhe = `NF ${nf} não consta no índice (planilha de ${fDM(SYNC)})`;
         addEv(c, "TITULO_NAO_ENCONTRADO", "SISTEMA", "0 títulos no índice local"); addEv(c, "PENDENCIA_ABERTA", "SISTEMA", `Motivo NF_NAO_ENCONTRADA${oldMot !== "NF_NAO_ENCONTRADA" ? " (antes " + oldMot + ")" : ""}`, null, ["BUSCANDO_TITULO", "PENDENTE"]); toast(`NF ${nf} não encontrada no índice. Pendência mantida.`);
       }
       return true;
@@ -1122,7 +1138,7 @@ function dlgVincular(c) {
       addEv(c, "PENDENCIA_RESOLVIDA", "SISTEMA", `${oldMot} resolvida por vínculo manual`);
       addEv(c, "PENDENCIA_ABERTA", "SISTEMA", "Motivo PRONTO_LANCAMENTO_MANUAL · adaptador ManualAssistido", null, ["CONFIRMADO", "PENDENTE"]);
       addMsg(c, "CONFIRMADO_EM_REGISTRO", TPL.CONFIRMADO_EM_REGISTRO({ p: c.id }));
-      Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), alert: null }); c.sla = slaVence(c);
+      Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), encerradaEm: null, alert: null }); c.sla = slaVence(c);
       toast(`<b>${c.id}</b> vinculado ao título ${t.id} e movido para a Fila de lançamento.`); return true;
     });
   $("#m-q").addEventListener("input", e => { $("#m-pick").innerHTML = pick(e.target.value); });
@@ -1136,7 +1152,7 @@ function dlgDescartar(c) {
       const wasF = isFila(c);
       addEv(c, "PENDENCIA_RESOLVIDA", "OPERADOR", `Descartado por ${ME} · ${$("#m-mot").value} · ${just}`, null, ["PENDENTE", "DESCARTADO"]);
       if ($("#m-av").checked) addEv(c, "NOTIFICACAO_ENVIADA", "SISTEMA", "Aviso de encerramento enviado ao remetente");
-      Object.assign(c, { estado: "DESCARTADO", pst: "ENCERRADA_SEM_REGISTRO", wasFila: wasF }); UI.fila.sel.delete(c.id);
+      Object.assign(c, { estado: "DESCARTADO", pst: "ENCERRADA_SEM_REGISTRO", wasFila: wasF, encerradaEm: clock() }); UI.fila.sel.delete(c.id);
       toast(`<b>${c.id}</b> descartado.`); return true;
     });
 }
@@ -1146,7 +1162,7 @@ function dlgDesfazer(c) {
     <label class="check"><input type="checkbox" id="m-ok"> Confirmo que reverti manualmente o registro no NetFactor</label><div class="err-msg" id="m-err"></div>`,
     "Desfazer registro", "danger", () => {
       const just = $("#m-just").value.trim(); if (!just || !$("#m-ok").checked) { $("#m-err").textContent = "Informe o motivo e confirme a reversão manual."; return false; }
-      addEv(c, "REGISTRO_DESFEITO", "OPERADOR", `Desfeito por ${ME} · ${just}`, null, ["CONCLUIDO", "DESFEITO"]); c.estado = "DESFEITO";
+      addEv(c, "REGISTRO_DESFEITO", "OPERADOR", `Desfeito por ${ME} · ${just}`, null, ["CONCLUIDO", "DESFEITO"]); c.estado = "DESFEITO"; c.desfeitoEm = clock(); c.encerradaEm = c.encerradaEm || c.desfeitoEm;
       toast(`Registro do caso <b>${c.id}</b> desfeito.`); return true;
     });
 }
@@ -1154,7 +1170,7 @@ function doReprocessar(c) {
   addEv(c, "PENDENCIA_REPROCESSADA", "OPERADOR", `Reprocessamento solicitado por ${ME}`); const prev = c.pst; c.pst = "REPROCESSANDO"; toast(`Reprocessando <b>${c.id}</b>…`); render();
   setTimeout(() => {
     if (c.mot === "NETFACTOR_INDISPONIVEL") {
-      c.titulo = c.hidden; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA";
+      c.titulo = c.hidden; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA"; c.encerradaEm = clock();
       addEv(c, "TITULO_ENCONTRADO", "SISTEMA", `1 título · ID NetFactor ${c.titulo.id} · consulta respondeu`, null, ["BUSCANDO_TITULO", "AGUARDANDO_CONFIRMACAO"]);
       addEv(c, "CONFIRMACAO_SOLICITADA", "SISTEMA", "Resumo do título enviado ao remetente"); addMsg(c, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c)));
       toast(`Consulta respondeu. Confirmação enviada ao remetente de <b>${c.id}</b>.`);

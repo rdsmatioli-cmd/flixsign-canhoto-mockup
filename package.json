@@ -1,0 +1,8 @@
+{
+  "name": "flixsign-canhoto-mockup",
+  "private": true,
+  "description": "Mockup Flixsign Canhoto (arquivo único). Testes das regras mostradas na tela, sem dependências.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
