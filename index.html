@@ -1171,7 +1171,7 @@ function waFlows() {
   const doneA = a.lancadoEm;
   const A = [
     { k: "sys", t: "Hoje", day: 1 },
-    { k: "sys", t: "Primeiro contato: aviso de privacidade enviado (texto a definir com o jurídico)" },
+    { k: "sys", t: "Primeiro contato: aviso de privacidade enviado (texto a definir com o jurídico, com as informações do art. 9º da LGPD)" },
     { k: "photo", c: a, tm: "14:02" },
     { k: "in", t: TPL.RECEBIMENTO({ p: a.id }), tm: "14:02" },
     { k: "in", t: TPL.CONFIRMACAO(vars(a)), tm: "14:03" }, { k: "qr" },
@@ -1216,7 +1216,7 @@ function viewWA() {
     <div><div class="flow-h"><h2 id="t-flow-B">OCR falhou</h2>${badge("K7Q2-89", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="B">${IC.play}Reproduzir</button></div>${phone("B", B, "13:55")}</div>
     <div class="grid wa-side" style="gap:16px">
       <div class="card"><div class="card-h"><h2>Estados percorridos · fluxo feliz</h2></div><div class="card-b">${steps([
-        ["RECEBIDO", "Foto guardada com SHA-256; protocolo enviado"], ["EM_LEITURA → IDENTIFICADO", "OCR leu NF 458731, série 1 (0,97)"], ["BUSCANDO_TITULO → AGUARDANDO_CONFIRMACAO", "1 título no índice; remetente autorizado"],
+        ["RECEBIDO", "Foto guardada e hash SHA-256 registrado; protocolo enviado"], ["EM_LEITURA → IDENTIFICADO", "OCR leu NF 458731, série 1 (0,97)"], ["BUSCANDO_TITULO → AGUARDANDO_CONFIRMACAO", "1 título no índice; remetente autorizado"],
         ["CONFIRMADO", 'Resposta "SIM" às 14:05'], ["PENDENTE · PRONTO_LANCAMENTO_MANUAL", "Entra na fila de lançamento"], ["REGISTRADO → CONCLUIDO", a.lancadoEm ? `Lançado por ${esc(a.lancadoPor)} às ${fHM(a.lancadoEm)}; aviso enviado` : "Após o operador marcar como lançado; aviso de sucesso"]])}
         <div style="margin-top:10px"><a href="#caso/K7Q2-91" class="btn sm">Abrir caso K7Q2-91</a></div></div></div>
       <div class="card"><div class="card-h"><h2>Estados percorridos · OCR falhou</h2></div><div class="card-b">${steps([

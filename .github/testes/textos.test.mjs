@@ -1,0 +1,86 @@
+// Testes dos textos regulatórios do mockup (index.html), sem dependências:
+// node --test .github/testes/*.test.mjs
+// Itens CAN-TXT-nn do dossiê para o parecer. Falham se o mockup voltar a divergir da fonte oficial
+// (MOC da NF-e, LGPD) ou se passar a prometer validade jurídica ou prova de entrega sem parecer.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+
+const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+// Funções puras do mockup, avaliadas sozinhas (o resto do script depende do DOM).
+const fonte = (nome) => {
+  const i = script.indexOf(`function ${nome}(`);
+  assert.ok(i >= 0, nome);
+  let n = 0, j = script.indexOf('{', i);
+  for (; j < script.length; j++) { if (script[j] === '{') n++; else if (script[j] === '}' && --n === 0) break; }
+  return script.slice(i, j + 1);
+};
+const ctx = {};
+vm.createContext(ctx);
+vm.runInContext(['cnpj', 'chaveNFe', 'chaveValida'].map(fonte).join('\n') + '\nglobalThis.__t = { cnpj, chaveNFe, chaveValida };', ctx);
+const { cnpj, chaveNFe, chaveValida } = ctx.__t;
+
+// CAN-TXT-01: canhoto do DANFE e chave de acesso conforme o MOC 7.0 (Portal da NF-e, conferido em
+// 31/10/2026). Anexo II (versão 7.00, out/2020), item 3.8.1: campos do bloco de canhoto
+// "RECEBEMOS DE...", "NF-e / Nº 000.000.000 / SÉRIE 000", "DATA DE RECEBIMENTO" e
+// "IDENTIFICAÇÃO E ASSINATURA..."; item 3.3.1: o bloco é opcional para o emitente.
+test('CAN-TXT-01: desenho do canhoto traz os campos do MOC 7.0, Anexo II, item 3.8.1', () => {
+  const svg = fonte('canhotoSVG');
+  for (const campo of ['RECEBEMOS DE ', 'NOTA FISCAL ELETRÔNICA INDICADA AO LADO', '>NF-e<', 'Nº ${esc(fmtNF(', 'SÉRIE ${esc(',
+    'DATA DE RECEBIMENTO', 'IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR', 'DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA']) {
+    assert.ok(svg.includes(campo), campo);
+  }
+});
+// MOC 7.0, Visão Geral (versão 7.00, nov/2020), 2.2.6.1 e 2.2.6.2: 44 dígitos (cUF, AAMM, CNPJ, mod,
+// série, nNF, tpEmis, cNF, cDV) e DV por módulo 11 com pesos 2 a 9; exemplo oficial com DV 5.
+test('CAN-TXT-01: chave de acesso de 44 dígitos e DV módulo 11 conferem com o exemplo do MOC', () => {
+  assert.equal(chaveValida('52060433009911002506550120000007800267301615'), true);
+  assert.equal(chaveValida('52060433009911002506550120000007800267301614'), false);
+  const k = chaveNFe('35', '2610', cnpj('990000040001'), 1, 30092817, '40917263');
+  assert.match(k, /^\d{44}$/);
+  assert.equal(k.slice(20, 22), '55');
+  assert.equal(chaveValida(k), true);
+});
+
+// CAN-TXT-02: LGPD (Lei 13.709/2018, norma atualizada da Câmara, 31/10/2026), art. 9º: o titular
+// tem acesso facilitado à finalidade, forma e duração do tratamento, identificação e contato do
+// controlador, uso compartilhado, responsabilidades e direitos do art. 18. O aviso do primeiro
+// contato ainda não tem texto; o mockup indica o conteúdo mínimo e não inventa o texto.
+test('CAN-TXT-02: aviso de privacidade do primeiro contato remete ao art. 9º da LGPD', () => {
+  assert.ok(script.includes('Primeiro contato: aviso de privacidade enviado (texto a definir com o jurídico, com as informações do art. 9º da LGPD)'));
+});
+
+// CAN-TXT-03: o hash prova que a imagem não mudou desde o recebimento; não identifica quem assinou
+// nem substitui o evento "Comprovante de Entrega da NF-e" (tpEvento 110130, NT 2021.001 v1.01,
+// facultativo, assinado com certificado ICP-Brasil). Sem parecer, o mockup não promete validade
+// jurídica, prova de entrega nem substituição do canhoto.
+test('CAN-TXT-03: hash descrito como registro de integridade, não como forma de guarda', () => {
+  assert.ok(!script.includes('Foto guardada com SHA-256'));
+  assert.ok(script.includes('Foto guardada e hash SHA-256 registrado'));
+});
+// Promessas (validade, valor probatório, comprovação de entrega, substituição do canhoto, garantia) e
+// menções à MP 2.200-2/2001, à Lei 14.063/2020, à ICP-Brasil, ao evento 110130 e ao Ajuste SINIEF só
+// aparecem dentro de uma ressalva aprovada pelo Advogado, liberada por igualdade exata da frase
+// inteira (como o CP-07 do chargeback). Sem parecer, a lista é vazia.
+const RESSALVAS_APROVADAS = [];
+const PROMESSAS = [/validade (jur[ií]dica|legal)/i, /(juridicamente|legalmente) v[aá]lid/i, /valor (probat[óo]rio|legal|jur[ií]dico)/i,
+  /comprov[a-zçãõ]* (a|de|da) entrega/i, /prova (jur[ií]dica |legal )?(de|da) entrega/i, /substitu[a-z]* (o|do) canhoto/i,
+  /garant[a-zçãõ]*/i, /100% (seguro|v[aá]lido|legal)/i];
+const MENCOES = [/MP 2\.200|Medida Provis[óo]ria n?[ºo°]? ?2\.200/i, /14\.063/, /ICP-Brasil/i, /110130/, /comprovante de entrega da NF-e/i, /Ajuste SINIEF/i];
+const semRessalvas = (texto, ressalvas) => ressalvas.reduce((t, r) => t.split(r).join(' '), texto);
+const achados = (texto, ressalvas) => [...PROMESSAS, ...MENCOES].filter((re) => re.test(semRessalvas(texto, ressalvas))).map(String);
+test('CAN-TXT-03: nenhuma promessa jurídica nem menção normativa fora de ressalva aprovada', () => {
+  assert.deepEqual(achados(html.replace(/<style[\s\S]*?<\/style>/g, ' '), RESSALVAS_APROVADAS), []);
+});
+test('CAN-TXT-03: o filtro pega as variantes de promessa e só libera a ressalva idêntica', () => {
+  for (const frase of ['Vale como comprovante de entrega.', 'A foto comprova a entrega.', 'Registro juridicamente válido.',
+    'Tem validade legal.', 'Entrega garantida.', 'Para garantir o recebível.', 'Tem valor legal.', 'Substitui o canhoto.',
+    'Comprovação da entrega pelo WhatsApp.', 'Prova de entrega.']) assert.notDeepEqual(achados(frase, []), [], frase);
+  const ressalva = 'Este registro não substitui o evento Comprovante de Entrega da NF-e (110130).';
+  assert.notDeepEqual(achados(ressalva, []), []);
+  assert.deepEqual(achados(ressalva, [ressalva]), []);
+  assert.notDeepEqual(achados(ressalva.replace('não substitui', 'substitui'), [ressalva]), []);
+  assert.deepEqual(achados('Foto guardada e hash SHA-256 registrado', []), []);
+});
