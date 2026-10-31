@@ -248,6 +248,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .pick input{accent-color:var(--accent)}
 .pick label.dis{cursor:not-allowed;background:var(--surface-2)}
 .pick .ja{color:var(--bad);font-weight:600}
+.pick.err{border-color:var(--bad);box-shadow:0 0 0 3px rgba(180,35,24,.12)}.check input.err{outline:2px solid var(--bad);outline-offset:2px}
 .toasts{position:fixed;right:20px;bottom:46px;display:flex;flex-direction:column;gap:8px;z-index:200}
 .toast{background:#0f1b2a;color:#fff;border-radius:9px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:min(380px,calc(100vw - 40px));display:flex;gap:10px;align-items:flex-start;animation:tin .2s ease}
 .toast b{color:#5eead4}
@@ -1141,6 +1142,13 @@ function openModal(title, body, okLabel, okCls, onOk) {
   $("#modal").innerHTML = `<div class="modal-h"><h2 id="modal-t" tabindex="-1">${title}</h2><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
   modalOk = onOk; $(".app").inert = true; $("#overlay").classList.add("on"); setTimeout(focoInicialModal, 30);
 }
+/* Campo marcado inválido volta ao normal quando o usuário mexe nele (rádio escolhido, caixa marcada, texto digitado);
+   a próxima confirmação valida de novo */
+function limpaInvalido(e) {
+  const el = e.target && e.target.closest && e.target.closest("#modal [aria-invalid]"); if (!el) return;
+  el.removeAttribute("aria-invalid"); el.removeAttribute("aria-describedby"); el.classList.remove("err"); $("#m-err").textContent = "";
+}
+$("#modal").addEventListener("input", limpaInvalido); $("#modal").addEventListener("change", limpaInvalido);
 function closeModal() { $("#overlay").classList.remove("on"); $(".app").inert = false; modalOk = null; const d = modalFrom; modalFrom = null; focar(d); }
 const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 function prendeTab(e) {
@@ -1283,6 +1291,9 @@ function vincularCaso(c, t, just, o) {
   Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), encerradaEm: null, alert: null }); c.sla = slaVence(c);
   return { ok: true, outro };
 }
+/* Lista de títulos do Vincular: com rádio habilitado, o Tab entra pelo rádio e o grupo só recebe foco por script (erro);
+   sem nenhum (só títulos que já têm canhoto, ou nenhum resultado), o próprio grupo é focável para rolar pelo teclado */
+const tabPick = html => /<input type="radio" name="m-t" value="[^"]*"(?: checked)?>/.test(html) ? "-1" : "0";
 function dlgVincular(c) {
   let selId = null, outros = false; // nenhum título pré-selecionado
   const negou = c.mot === "SEM_CONFIRMACAO" && c.titulo && c.events.some(e => e.tipo === "NEGADO") ? c.titulo.id : null;
@@ -1298,11 +1309,12 @@ function dlgVincular(c) {
   };
   const aviso = () => outros ? `<div class="note warn">${IC.warn}<span>Títulos de outro cedente aparecem marcados. O caso é de <b>${esc(cedName(c.ced))}</b> e o remetente está autorizado para ${esc(remCeds(c.rem))}. Vincular a outro cedente registra o evento <span class="code">VINCULO_OUTRO_CEDENTE</span>.</span></div>` : "";
   const q0 = c.mot === "NF_NAO_ENCONTRADA" ? (c.nf || "").slice(0, 4) : (c.nf || "");
+  const poePick = q => { const h = pick(q), p = $("#m-pick"); p.innerHTML = h; p.setAttribute("tabindex", tabPick(h)); };
   openModal(`Vincular manualmente · ${c.id}`, `<div class="note neu">${IC.info}<span>O operador escolhe o título e assume a confirmação. O caso vai para <span class="code">CONFIRMADO</span> e entra na fila de lançamento.</span></div>
     <div class="field"><label for="m-q">Buscar no índice (NF, sacado ou valor)</label><input class="input" id="m-q" value="${esc(q0)}"></div>
     ${c.ced ? `<label class="check"><input type="checkbox" id="m-outros"> <span>Incluir títulos de outros cedentes</span></label>` : ""}<div id="m-aviso" aria-live="polite"></div>
-    <div class="pick" id="m-pick" tabindex="0" role="radiogroup" aria-label="Títulos encontrados">${pick(q0)}</div>
-    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
+    <div class="pick" id="m-pick" tabindex="${tabPick(pick(q0))}" role="radiogroup" aria-label="Títulos encontrados" aria-required="true">${pick(q0)}</div>
+    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" aria-required="true" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
     "Vincular e confirmar", "primary", () => {
       const sel = $("input[name=m-t]:checked"), just = $("#m-just").value.trim();
       const t = sel ? IDX.find(x => x.id === sel.value) : null;
@@ -1315,13 +1327,13 @@ function dlgVincular(c) {
   if (cbOutros) cbOutros.addEventListener("change", () => {
     outros = cbOutros.checked;
     if (!outros && selId && (IDX.find(t => t.id === selId) || {}).ced !== c.ced) selId = null;
-    $("#m-aviso").innerHTML = aviso(); $("#m-pick").innerHTML = pick($("#m-q").value);
+    $("#m-aviso").innerHTML = aviso(); poePick($("#m-q").value);
   });
-  $("#m-q").addEventListener("input", e => { $("#m-pick").innerHTML = pick(e.target.value); });
+  $("#m-q").addEventListener("input", e => { poePick(e.target.value); });
 }
 function dlgDescartar(c) {
   openModal(`Descartar · ${c.id}`, `<div class="field"><label for="m-mot">Motivo padronizado</label><select class="input" id="m-mot"><option>Não é canhoto</option><option>Envio indevido</option><option>Já registrado no NetFactor</option><option>Outro</option></select></div>
-    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just"></textarea></div>
+    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" aria-required="true"></textarea></div>
     <label class="check"><input type="checkbox" id="m-av" checked> Avisar o remetente</label><div class="err-msg" id="m-err" role="alert"></div>`,
     "Descartar caso", "danger", () => {
       const just = $("#m-just").value.trim(); if (!just) return erroModal("#m-just", "A justificativa é obrigatória.");
@@ -1334,8 +1346,8 @@ function dlgDescartar(c) {
 }
 function dlgDesfazer(c) {
   openModal(`Desfazer registro · ${c.id}`, `<div class="note warn">${IC.warn}<span>Na Fase 1 a reversão no NetFactor é manual e declarada. Ação restrita ao perfil supervisor.</span></div>
-    <div class="field"><label for="m-just">Motivo (obrigatório)</label><textarea class="input" id="m-just" placeholder="Ex.: canhoto lançado no título errado"></textarea></div>
-    <label class="check"><input type="checkbox" id="m-ok"> Confirmo que reverti manualmente o registro no NetFactor</label><div class="err-msg" id="m-err" role="alert"></div>`,
+    <div class="field"><label for="m-just">Motivo (obrigatório)</label><textarea class="input" id="m-just" aria-required="true" placeholder="Ex.: canhoto lançado no título errado"></textarea></div>
+    <label class="check"><input type="checkbox" id="m-ok" aria-required="true"> Confirmo que reverti manualmente o registro no NetFactor</label><div class="err-msg" id="m-err" role="alert"></div>`,
     "Desfazer registro", "danger", () => {
       const just = $("#m-just").value.trim(); if (!just || !$("#m-ok").checked) return erroModal(just ? "#m-ok" : "#m-just", "Informe o motivo e confirme a reversão manual.");
       addEv(c, "REGISTRO_DESFEITO", "OPERADOR", `Desfeito por ${ME} · ${just}`, null, ["CONCLUIDO", "DESFEITO"]); c.estado = "DESFEITO"; c.desfeitoEm = clock(); c.encerradaEm = c.encerradaEm || c.desfeitoEm;
