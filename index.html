@@ -411,11 +411,10 @@ function cnpj(base12) {
   return `${s.slice(0, 2)}.${s.slice(2, 5)}.${s.slice(5, 8)}/${s.slice(8, 12)}-${s.slice(12)}`;
 }
 /* Chave de acesso NF-e (44 dígitos) fictícia com DV módulo 11 */
+function dvChave(base43) { let s = 0, w = 2; for (let i = base43.length - 1; i >= 0; i--) { s += Number(base43[i]) * w; w = w === 9 ? 2 : w + 1; } const r = s % 11; return r < 2 ? 0 : 11 - r; }
 function chaveNFe(uf, aamm, cnpjFmt, serie, nf, cod) {
   const base = uf + aamm + cnpjFmt.replace(/\D/g, "") + "55" + String(serie).padStart(3, "0") + String(nf).padStart(9, "0") + "1" + cod;
-  let s = 0, w = 2; for (let i = base.length - 1; i >= 0; i--) { s += Number(base[i]) * w; w = w === 9 ? 2 : w + 1; }
-  const r = s % 11; const dv = r < 2 ? 0 : 11 - r;
-  return base + dv;
+  return base + dvChave(base);
 }
 const fmtChave = k => k.replace(/(\d{4})/g, "$1 ").trim();
 
@@ -1093,7 +1092,36 @@ function dlgLancar(c) {
       toast(`<b>${c.id}</b> marcado como lançado. Remetente avisado.`); return true;
     });
 }
-function chaveValida(k) { if (!/^\d{44}$/.test(k)) return false; const b = k.slice(0, 43); let s = 0, w = 2; for (let i = b.length - 1; i >= 0; i--) { s += +b[i] * w; w = w === 9 ? 2 : w + 1; } const r = s % 11; return (r < 2 ? 0 : 11 - r) === +k[43]; }
+/* ---------- Correção de NF: série, NF sem zeros à esquerda e chave de acesso ----------
+   Chave: cUF(2) AAMM(4) CNPJ(14) modelo(2) série(3) nNF(9) tpEmis(1) cNF(8) DV(1) */
+const UF_IBGE = ["11", "12", "13", "14", "15", "16", "17", "21", "22", "23", "24", "25", "26", "27", "28", "29", "31", "32", "33", "35", "41", "42", "43", "50", "51", "52", "53"];
+const semZeros = s => String(s).replace(/^0+(?=\d)/, "");
+const soDig = s => String(s).replace(/\D/g, "");
+const cnpjFmt = d => `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+const cnpjValido = d => /^\d{14}$/.test(d) && !/^(\d)\1{13}$/.test(d) && soDig(cnpj(d.slice(0, 12))) === d;
+function chaveProblema(k) {
+  if (!/^\d{44}$/.test(k)) return "A chave de acesso deve ter 44 dígitos.";
+  if (dvChave(k.slice(0, 43)) !== +k[43]) return "Chave inválida: o dígito verificador não confere. Verifique os 44 dígitos.";
+  if (!UF_IBGE.includes(k.slice(0, 2))) return `Chave inválida: ${k.slice(0, 2)} não é código de UF da tabela do IBGE.`;
+  if (k.slice(20, 22) !== "55") return `Chave de modelo ${k.slice(20, 22)}: o canhoto é de NF-e, modelo 55.`;
+  if (!cnpjValido(k.slice(6, 20))) return "Chave inválida: o CNPJ do emitente embutido na chave tem dígito verificador errado.";
+  return null;
+}
+const chaveValida = k => !chaveProblema(k);
+/* devolve { ok, nf, serie, chave } normalizados ou { ok: false, campo, erro } com a regra que falhou */
+function validarCorrecao(c, f) {
+  const nf = String(f.nf || "").trim(), serie = String(f.serie || "").trim(), chave = String(f.chave || "").replace(/\s/g, "");
+  if (!/^\d{1,9}$/.test(nf)) return { ok: false, campo: "nf", erro: "NF deve conter só dígitos (até 9)." };
+  if (/^0+$/.test(nf)) return { ok: false, campo: "nf", erro: "NF não pode ser zero." };
+  if (!/^\d{1,3}$/.test(serie)) return { ok: false, campo: "serie", erro: "Série deve ter de 1 a 3 dígitos (ex.: 1)." };
+  const r = { ok: true, nf: semZeros(nf), serie: semZeros(serie), chave: chave || null };
+  if (!chave) return r;
+  const p = chaveProblema(chave); if (p) return { ok: false, campo: "chave", erro: p };
+  const kNF = semZeros(chave.slice(25, 34)), kSerie = semZeros(chave.slice(22, 25));
+  if (kNF !== r.nf || kSerie !== r.serie) return { ok: false, campo: "chave", erro: `A chave é da NF ${kNF}, série ${kSerie}, e não da NF ${r.nf}, série ${r.serie} informada.` };
+  if (c.ced && chave.slice(6, 20) !== soDig(CED[c.ced].cnpj)) return { ok: false, campo: "chave", erro: `A chave é de outro emitente (CNPJ ${cnpjFmt(chave.slice(6, 20))}); o cedente do caso é ${cedName(c.ced)} (${CED[c.ced].cnpj}).` };
+  return r;
+}
 /* Mesma regra da carga inicial (K7Q2-96): título que já tem canhoto encerra o caso como TITULO_JA_COM_CANHOTO */
 function fecharDuplicidade(c, t, dono) {
   const desde = dono.conf ? dono.conf.em : dono.rec, onde = dono.estado === "PENDENTE" ? dono.mot : dono.estado;
@@ -1105,18 +1133,18 @@ function fecharDuplicidade(c, t, dono) {
 function dlgCorrigir(c) {
   const sug = c.mot === "FOTO_ILEGIVEL" ? "771251" : c.mot === "SEM_RESPOSTA_DIGITACAO" ? "30092855" : c.mot === "NF_NAO_ENCONTRADA" ? (c.nfShow || "") : "";
   openModal(`Corrigir NF · ${c.id}`, `<div class="note neu">${IC.info}<span>O caso volta para <span class="code">IDENTIFICADO</span> com origem OPERADOR e segue para a busca do título e a confirmação do remetente.${sug ? ` Exemplo de demonstração: <b class="num">${sug}</b> existe no índice.` : ""}</span></div>
-    <div style="display:grid;grid-template-columns:1fr 110px;gap:10px"><div class="field"><label for="m-nf">Número da NF</label><input class="input num" id="m-nf" inputmode="numeric" value="${esc(c.nf || "")}" placeholder="Só dígitos"></div><div class="field"><label for="m-serie">Série</label><input class="input" id="m-serie" value="${esc(c.serie || (c.ced === "HORIZ" ? "3" : c.ced === "RIBEIRA" ? "2" : "1"))}"></div></div>
-    <div class="field"><label for="m-chave">Chave de acesso (opcional, 44 dígitos)</label><input class="input mono" id="m-chave" placeholder="Validada pelo dígito verificador"></div>
+    <div style="display:grid;grid-template-columns:1fr 110px;gap:10px"><div class="field"><label for="m-nf">Número da NF</label><input class="input num" id="m-nf" inputmode="numeric" value="${esc(c.nf || "")}" placeholder="Só dígitos"></div><div class="field"><label for="m-serie">Série</label><input class="input num" id="m-serie" inputmode="numeric" value="${esc(c.serie || (c.ced === "HORIZ" ? "3" : c.ced === "RIBEIRA" ? "2" : "1"))}"></div></div>
+    <div class="field"><label for="m-chave">Chave de acesso (opcional, 44 dígitos)</label><input class="input mono" id="m-chave" inputmode="numeric" placeholder="Precisa bater com NF, série e cedente"></div>
     <div class="field"><label for="m-just">Justificativa</label><textarea class="input" id="m-just" placeholder="Ex.: número lido na imagem ampliada"></textarea></div><div class="err-msg" id="m-err"></div>`,
     "Salvar correção", "primary", () => {
-      const nf = $("#m-nf").value.trim(), serie = $("#m-serie").value.trim(), ch = $("#m-chave").value.replace(/\s/g, "");
+      const v = validarCorrecao(c, { nf: $("#m-nf").value, serie: $("#m-serie").value, chave: $("#m-chave").value });
       $$("#modal .input").forEach(i => i.classList.remove("err"));
-      if (!/^\d{1,9}$/.test(nf)) { $("#m-nf").classList.add("err"); $("#m-err").textContent = "NF deve conter só dígitos (até 9)."; return false; }
-      if (ch && !chaveValida(ch)) { $("#m-chave").classList.add("err"); $("#m-err").textContent = "Chave inválida: verifique os 44 dígitos e o dígito verificador."; return false; }
+      if (!v.ok) { $("#m-" + v.campo).classList.add("err"); $("#m-err").textContent = v.erro; return false; }
+      const { nf, serie } = v, ch = v.chave;
       const old = c.nf || "?"; const oldMot = c.mot; ensureAssigned(c);
       addEv(c, "PENDENCIA_RESOLVIDA", "OPERADOR", `NF corrigida por ${ME}: de ${old} para ${nf}${$("#m-just").value.trim() ? " · " + $("#m-just").value.trim() : ""}`, null, ["PENDENTE", "IDENTIFICADO"]);
       Object.assign(c, { nf, serie, chave: ch || null, origem: "OPERADOR", tent: c.tent + 1 });
-      const hits = IDX.filter(t => t.nf === nf && (!c.ced || t.ced === c.ced));
+      const hits = IDX.filter(t => semZeros(t.nf) === nf && semZeros(t.serie) === serie && (!c.ced || t.ced === c.ced));
       const dono = hits.length === 1 ? donoDoTitulo(hits[0], c) : null;
       if (dono) {
         fecharDuplicidade(c, hits[0], dono);
