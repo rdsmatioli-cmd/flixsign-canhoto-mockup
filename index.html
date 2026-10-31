@@ -171,7 +171,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .card.grafico{container:grafico/inline-size}
 .chart-m{display:none;max-width:400px;margin:0 auto}.per-m{display:none}
-@container grafico (max-width:600px){.chart-d,.per-d{display:none}.chart-m{display:block}.per-m{display:inline}}
+@container grafico (max-width:791px){.chart-d,.per-d{display:none}.chart-m{display:block}.per-m{display:inline}}
 .dados{margin-top:8px;font-size:12.5px}.dados summary{cursor:pointer;color:var(--accent);font-weight:600;width:max-content}
 .dados table{width:100%;max-width:380px;border-collapse:collapse;margin-top:6px}.dados caption{text-align:left;color:var(--muted);font-size:12px;padding:2px 0 4px}
 .dados th,.dados td{padding:4px 8px;border-bottom:1px solid #eef1f5;text-align:left;font-weight:400}.dados thead th{color:var(--muted);font-weight:600;font-size:11.5px}.dados .r{text-align:right}
@@ -850,8 +850,10 @@ const DAYS = [["25/09",41,14],["26/09",9,2],["27/09",4,1],["28/09",52,18],["29/0
 function periodoDias(n) { const d = DAYS.slice(-n); const w = d.reduce((a, x) => a + x[1], 0), e = d.reduce((a, x) => a + x[2], 0); return { n, ini: d[0][0], fim: d[d.length - 1][0], w, e, total: w + e }; }
 /* Por cedente nos últimos 7 dias do gráfico: os recebidos somam periodoDias(7).total */
 const CED_7D = [["TARUMA", 99, "1 h 48 min"], ["CAMPO", 92, "2 h 05 min"], ["HORIZ", 74, "2 h 31 min"], ["RIBEIRA", 45, "1 h 57 min"], ["SERRA", 37, "3 h 12 min"]];
-/* Gráfico de barras: 14 dias (chart-d) ou, em cartão de até 600 px, só os 7 últimos com viewBox menor e rótulos
-   que renderizam com 11 px ou mais a 390 px (chart-m); a troca é por container query. Os números ficam na tabela "Ver dados". */
+/* Gráfico de barras: 14 dias (chart-d) só quando o SVG tem a largura do viewBox (760 px, cartão de 792 px ou mais) e os rótulos
+   saem no tamanho nominal; em cartão menor, só os 7 últimos com viewBox menor e rótulos que renderizam com 11 px ou mais a 390 px
+   (chart-m). A troca é por container query. Os números ficam na tabela "Ver dados".
+   O destaque (cores escuras) marca os dias do período escolhido; se ele cobre todas as barras, não separa nada e não é usado. */
 const GRAF_D = { cls: "chart-d", dias: DAYS, W: 760, H: 186, L: 30, B: 24, T: 12, fs: 9.5, fsEixo: 10, yDia: 9 };
 const GRAF_M = { cls: "chart-m", dias: DAYS.slice(-7), W: 340, H: 200, L: 30, B: 30, T: 18, fs: 12, fsEixo: 12, yDia: 10 };
 function barChart(nDestaque, o) {
@@ -861,7 +863,7 @@ function barChart(nDestaque, o) {
   for (let v = 0; v <= max; v += 20) { const y = H - B - (v / max) * (H - B - T); s += `<line x1="${L}" y1="${y}" x2="${W - 6}" y2="${y}" stroke="#eef1f5"/><text x="${L - 6}" y="${y + o.fsEixo * .35}" font-size="${o.fsEixo}" fill="#64758d" text-anchor="end">${v}</text>`; }
   dias.forEach((d, i) => {
     const x = L + i * bw + bw * .18, w = bw * .64, hW = (d[1] / max) * (H - B - T), hE = (d[2] / max) * (H - B - T);
-    const y1 = H - B - hW, y2 = y1 - hE, today = i >= dias.length - nDestaque;
+    const y1 = H - B - hW, y2 = y1 - hE, today = nDestaque < dias.length && i >= dias.length - nDestaque;
     s += `<rect x="${x}" y="${y1}" width="${w}" height="${hW}" fill="${today ? "#0f766e" : "#14b8a6"}" rx="2"><title>${d[0]}: WhatsApp ${d[1]}</title></rect>`;
     s += `<rect x="${x}" y="${y2}" width="${w}" height="${hE}" fill="${today ? "#3949ab" : "#7986cb"}" rx="2"><title>${d[0]}: E-mail ${d[2]}</title></rect>`;
     s += `<text x="${x + w / 2}" y="${y2 - 4}" font-size="${fs}" fill="#5f6c81" text-anchor="middle">${d[1] + d[2]}</text>`;
