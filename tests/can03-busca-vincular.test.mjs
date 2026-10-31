@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { carregar, texto } from "./carregar.mjs";
 
 /* abre o diálogo, digita a consulta e devolve o HTML da lista */
-function abrir(m, id) { m.run(`dlgVincular(byId("${id}"))`); return q => { m.els.get("#m-q").disparar("input", { target: { value: q } }); return m.els.get("#m-pick").innerHTML; }; }
+function abrir(m, id) { m.run(`dlgVincular(byId("${id}"))`); return q => { const e = m.els.get("#m-q"); e.value = q; e.disparar("input", { target: { value: q } }); return m.els.get("#m-pick").innerHTML; }; }
 const nfsDe = html => [...html.matchAll(/<b class="num">NF (\d+)<\/b>/g)].map(x => x[1]);
 
 test("busca acha sacados com 'r', sem diferenciar acento e caixa", () => {
@@ -34,7 +34,9 @@ test("sem resultado: mensagem diz que a busca não casou, sem afirmar que o índ
 
 test("mais de 8 resultados: avisa quantos ficaram de fora", () => {
   const m = carregar();
-  const html = abrir(m, "K7Q2-52")("ltda");
+  abrir(m, "K7Q2-52")("ltda");
+  const cb = m.els.get("#m-outros"); cb.checked = true; cb.disparar("change", { target: cb }); // inclui os outros cedentes (CAN-02)
+  const html = m.els.get("#m-pick").innerHTML;
   const total = m.run(`IDX.filter(t => /ltda/i.test(t.sac)).length`);
   assert.equal(nfsDe(html).length, 8);
   assert.match(texto(html), new RegExp(`mais ${total - 8} títulos?: refine a busca`, "i"));
@@ -44,9 +46,9 @@ test("digitar mantém o título escolhido, mesmo quando ele sai do resultado", (
   const m = carregar();
   const b = abrir(m, "K7Q2-52");
   b("4587");
-  const id = m.run(`IDX.find(t => t.nf === "458744").id`);
+  const id = m.run(`IDX.find(t => t.nf === "458712").id`); // título sem canhoto
   m.els.get("#m-pick").disparar("change", { target: { name: "m-t", value: id } });
-  assert.match(b("45874"), new RegExp(`value="${id}" checked`));
+  assert.match(b("45871"), new RegExp(`value="${id}" checked`));
   const fora = b("458731");
   assert.match(fora, new RegExp(`value="${id}" checked`));
   assert.ok(nfsDe(fora).includes("458731"));

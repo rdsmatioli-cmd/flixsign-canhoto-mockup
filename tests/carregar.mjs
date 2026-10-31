@@ -22,7 +22,12 @@ function elemento(sel) {
 
 export function carregar() {
   const els = new Map();
+  const definidos = new Set();
   const timers = [];
+  /* o modal troca o conteúdo a cada diálogo: os campos do anterior somem, como no DOM real */
+  const modal = elemento("#modal"); let modalHTML = "";
+  Object.defineProperty(modal, "innerHTML", { get: () => modalHTML, set(v) { modalHTML = v; for (const k of [...els.keys()]) if (/^#m-|^input\[name=/.test(k)) els.delete(k); } });
+  els.set("#modal", modal);
   const ouvintesDoc = {};
   const document = {
     activeElement: null, title: "", body: elemento("body"),
@@ -47,8 +52,8 @@ export function carregar() {
     /* avança o relógio do mockup em minutos */
     avancar: min => run(`__avancar(${min * 60000})`),
     /* define um campo do formulário do modal (valor, checked); para rádio marcado use o seletor com :checked */
-    campo(sel, props) { const e = elemento(sel); Object.assign(e, props); els.set(sel, e); return e; },
-    limparCampos() { for (const k of [...els.keys()]) if (/^#m-|^input\[name=/.test(k)) els.delete(k); },
+    campo(sel, props) { const e = elemento(sel); Object.assign(e, props); els.set(sel, e); definidos.add(sel); return e; },
+    limparCampos() { for (const k of definidos) els.delete(k); definidos.clear(); },
     /* confirma o modal aberto; devolve o retorno do callback (false = recusado) */
     confirmar() { const r = run("modalOk ? modalOk() : undefined"); if (r !== false) run("closeModal()"); return r; },
     /* simula clique num elemento com data-act (passa pela delegação do document) */

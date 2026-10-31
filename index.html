@@ -229,6 +229,8 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .pick label:last-child{border-bottom:none}
 .pick label:hover{background:var(--surface-2)}
 .pick input{accent-color:var(--accent)}
+.pick label.dis{cursor:not-allowed;background:var(--surface-2)}
+.pick .ja{color:var(--bad);font-weight:600}
 .toasts{position:fixed;right:20px;bottom:46px;display:flex;flex-direction:column;gap:8px;z-index:200}
 .toast{background:#0f1b2a;color:#fff;border-radius:9px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:min(380px,calc(100vw - 40px));display:flex;gap:10px;align-items:flex-start;animation:tin .2s ease}
 .toast b{color:#5eead4}
@@ -750,6 +752,9 @@ recv(c); E(c, 0, "POSSIVEL_REAPROVEITAMENTO", "SISTEMA", "Hash idêntico ao do c
 
 CASES.forEach(x => x.events.sort((a, b) => a.t - b.t));
 const byId = id => CASES.find(x => x.id === id);
+/* Um título, um canhoto: o dono é outro caso ligado ao título que não foi descartado, desfeito nem encerrado como duplicidade */
+const LIBERA_TITULO = ["DESCARTADO", "DESFEITO", "JA_REGISTRADO"];
+const donoDoTitulo = (t, exceto) => CASES.find(x => x !== exceto && x.titulo && x.titulo.id === t.id && !LIBERA_TITULO.includes(x.estado)) || null;
 const isFila = x => x.mot === "PRONTO_LANCAMENTO_MANUAL";
 const isOpenExc = x => !isFila(x) && !MOT[x.mot].dup && ["ABERTA", "EM_ANALISE", "AGUARDANDO_REMETENTE", "REPROCESSANDO"].includes(x.pst) && x.estado === "PENDENTE";
 /* ---- Caso K7Q2-89: OCR abaixo do limiar, NF digitada (usado na simulação do WhatsApp) ---- */
@@ -1089,6 +1094,14 @@ function dlgLancar(c) {
     });
 }
 function chaveValida(k) { if (!/^\d{44}$/.test(k)) return false; const b = k.slice(0, 43); let s = 0, w = 2; for (let i = b.length - 1; i >= 0; i--) { s += +b[i] * w; w = w === 9 ? 2 : w + 1; } const r = s % 11; return (r < 2 ? 0 : 11 - r) === +k[43]; }
+/* Mesma regra da carga inicial (K7Q2-96): título que já tem canhoto encerra o caso como TITULO_JA_COM_CANHOTO */
+function fecharDuplicidade(c, t, dono) {
+  const desde = dono.conf ? dono.conf.em : dono.rec, onde = dono.estado === "PENDENTE" ? dono.mot : dono.estado;
+  Object.assign(c, { titulo: t, ced: t.ced, mot: "DUPLICIDADE", estado: "JA_REGISTRADO", pst: "AUTO", dupCode: "TITULO_JA_COM_CANHOTO", sla: null, alert: null, encerradaEm: clock(),
+    detalhe: `Título já tem o caso ${dono.id} em ${onde} desde ${fDM(desde)}` });
+  addEv(c, "TITULO_JA_COM_CANHOTO", "SISTEMA", `Caso ${dono.id} em ${onde} para o mesmo título`, null, ["BUSCANDO_TITULO", "JA_REGISTRADO"]);
+  addMsg(c, "DUPLICIDADE", TPL.DUPLICIDADE({ p: c.id, nf: c.nf, dr: fDT(desde) }));
+}
 function dlgCorrigir(c) {
   const sug = c.mot === "FOTO_ILEGIVEL" ? "771251" : c.mot === "SEM_RESPOSTA_DIGITACAO" ? "30092855" : c.mot === "NF_NAO_ENCONTRADA" ? (c.nfShow || "") : "";
   openModal(`Corrigir NF · ${c.id}`, `<div class="note neu">${IC.info}<span>O caso volta para <span class="code">IDENTIFICADO</span> com origem OPERADOR e segue para a busca do título e a confirmação do remetente.${sug ? ` Exemplo de demonstração: <b class="num">${sug}</b> existe no índice.` : ""}</span></div>
@@ -1104,7 +1117,11 @@ function dlgCorrigir(c) {
       addEv(c, "PENDENCIA_RESOLVIDA", "OPERADOR", `NF corrigida por ${ME}: de ${old} para ${nf}${$("#m-just").value.trim() ? " · " + $("#m-just").value.trim() : ""}`, null, ["PENDENTE", "IDENTIFICADO"]);
       Object.assign(c, { nf, serie, chave: ch || null, origem: "OPERADOR", tent: c.tent + 1 });
       const hits = IDX.filter(t => t.nf === nf && (!c.ced || t.ced === c.ced));
-      if (hits.length === 1) {
+      const dono = hits.length === 1 ? donoDoTitulo(hits[0], c) : null;
+      if (dono) {
+        fecharDuplicidade(c, hits[0], dono);
+        toast(`O título ${hits[0].id} já tem o caso <b>${dono.id}</b>. <b>${c.id}</b> encerrado como duplicidade.`);
+      } else if (hits.length === 1) {
         c.titulo = hits[0]; c.ced = hits[0].ced; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA"; c.encerradaEm = clock();
         addEv(c, "TITULO_ENCONTRADO", "SISTEMA", `1 título · ID NetFactor ${c.titulo.id} · índice local`, null, ["BUSCANDO_TITULO", "AGUARDANDO_CONFIRMACAO"]);
         addEv(c, "CONFIRMACAO_SOLICITADA", "SISTEMA", "Resumo do título enviado ao remetente"); addMsg(c, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c)));
@@ -1126,39 +1143,68 @@ const VINC_MAX = 8;
 /* itens: até VINC_MAX títulos que casam (candidatos do caso primeiro); total: quantos casaram;
    fixo: o título escolhido (o.fixo) quando ele não está entre os itens, para não sumir ao redesenhar */
 function buscaTitulos(c, q, o) {
-  o = o || {}; const nq = normBusca(q); const cands = c.cands || [];
-  const achados = cands.concat(IDX.filter(t => !cands.includes(t))).filter(t => !nq || [t.nf, t.sac, brlN(t.val), t.id].some(v => normBusca(v).includes(nq)));
+  o = o || {}; const nq = normBusca(q); const cands = c.cands || []; const restrito = !!c.ced && !o.outros;
+  const achados = cands.concat(IDX.filter(t => !cands.includes(t))).filter(t => !restrito || t.ced === c.ced)
+    .filter(t => !nq || [t.nf, t.sac, brlN(t.val), t.id].some(v => normBusca(v).includes(nq)));
   const itens = achados.slice(0, VINC_MAX);
   const fixo = o.fixo && !itens.some(t => t.id === o.fixo) ? IDX.find(t => t.id === o.fixo) || null : null;
-  return { itens, total: achados.length, fixo };
+  return { itens, total: achados.length, fixo, restrito };
+}
+const remCeds = r => r && r.ceds.length ? r.ceds.map(cedName).join(", ") : "nenhum cedente";
+/* Vínculo manual: título sem outro caso com canhoto, do cedente do caso (outro cedente só com o.outros) e justificativa */
+function vincularCaso(c, t, just, o) {
+  o = o || {};
+  if (!t) return { ok: false, erro: "Selecione um título." };
+  const dono = donoDoTitulo(t, c);
+  if (dono) return { ok: false, erro: `O título ${t.id} já tem canhoto (caso ${dono.id}). Escolha outro título.` };
+  const outro = !!c.ced && t.ced !== c.ced;
+  if (outro && !o.outros) return { ok: false, erro: `O título ${t.id} é de outro cedente. Marque "Incluir títulos de outros cedentes" para confirmar.` };
+  if (!just) return { ok: false, campo: "just", erro: "A justificativa é obrigatória." };
+  const oldMot = c.mot, oldCed = c.ced; ensureAssigned(c);
+  if (outro) addEv(c, "VINCULO_OUTRO_CEDENTE", "OPERADOR", `Título ${t.id} é de ${cedName(t.ced)}; o caso era de ${cedName(oldCed)} e o remetente está autorizado para ${remCeds(c.rem)} · vinculado por ${ME}`);
+  Object.assign(c, { titulo: t, nf: t.nf, serie: t.serie, ced: t.ced, conf: { txt: "Vinculado pelo operador", em: clock() } });
+  addEv(c, "CONFIRMADO", "OPERADOR", `Título ${t.id} vinculado por ${ME} · justificativa: ${just}`, null, ["PENDENTE", "CONFIRMADO"]);
+  addEv(c, "PENDENCIA_RESOLVIDA", "SISTEMA", `${oldMot} resolvida por vínculo manual`);
+  addEv(c, "PENDENCIA_ABERTA", "SISTEMA", "Motivo PRONTO_LANCAMENTO_MANUAL · adaptador ManualAssistido", null, ["CONFIRMADO", "PENDENTE"]);
+  addMsg(c, "CONFIRMADO_EM_REGISTRO", TPL.CONFIRMADO_EM_REGISTRO({ p: c.id }));
+  Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), encerradaEm: null, alert: null }); c.sla = slaVence(c);
+  return { ok: true, outro };
 }
 function dlgVincular(c) {
-  let selId = c.cands && c.cands[0] ? c.cands[0].id : null;
-  const item = t => `<label><input type="radio" name="m-t" value="${t.id}"${t.id === selId ? " checked" : ""}><span><b class="num">NF ${t.nf}</b> · ${esc(t.sac)}${t.parcela ? ` · parcela ${t.parcela}` : ""}<br><span class="xs muted">${esc(cedName(t.ced))} · título ${t.id} · venc. ${fD(t.venc)}</span></span><span class="num">${brl(t.val)}</span></label>`;
+  let selId = null, outros = false; // nenhum título pré-selecionado
+  const negou = c.mot === "SEM_CONFIRMACAO" && c.titulo && c.events.some(e => e.tipo === "NEGADO") ? c.titulo.id : null;
+  const item = t => {
+    const dono = donoDoTitulo(t, c), outro = !!c.ced && t.ced !== c.ced;
+    const notas = [dono ? `<span class="ja">Já tem canhoto (caso ${dono.id})</span>` : "", outro ? badge("Outro cedente", "b-warn plain") : "", t.id === negou ? `<span class="ja">Remetente respondeu NÃO a este título</span>` : ""].filter(Boolean);
+    return `<label${dono ? ' class="dis"' : ""}><input type="radio" name="m-t" value="${t.id}"${t.id === selId && !dono ? " checked" : ""}${dono ? " disabled" : ""}><span><b class="num">NF ${t.nf}</b> · ${esc(t.sac)}${t.parcela ? ` · parcela ${t.parcela}` : ""}<br><span class="xs muted">${esc(cedName(t.ced))} · título ${t.id} · venc. ${fD(t.venc)}</span>${notas.length ? `<br><span class="xs">${notas.join(" ")}</span>` : ""}</span><span class="num">${brl(t.val)}</span></label>`;
+  };
   const pick = q => {
-    q = (q || "").trim(); const r = buscaTitulos(c, q, { fixo: selId }); const resto = r.total - r.itens.length;
-    return (r.fixo ? item(r.fixo) : "") + (r.itens.map(item).join("") || `<div class="empty" style="padding:14px">${q ? `Nenhum título encontrado para "${esc(q)}".` : "Nenhum título no índice."}</div>`)
+    q = (q || "").trim(); const r = buscaTitulos(c, q, { fixo: selId, outros }); const resto = r.total - r.itens.length; const de = r.restrito ? ` entre os de ${esc(cedName(c.ced))}` : "";
+    return (r.fixo ? item(r.fixo) : "") + (r.itens.map(item).join("") || `<div class="empty" style="padding:14px">${q ? `Nenhum título encontrado para "${esc(q)}"${de}.` : `Nenhum título no índice${de}.`}</div>`)
       + (resto > 0 ? `<div class="xs muted" style="padding:8px 10px">Mais ${resto} título${resto > 1 ? "s" : ""}: refine a busca.</div>` : "");
   };
+  const aviso = () => outros ? `<div class="note warn">${IC.warn}<span>Títulos de outro cedente aparecem marcados. O caso é de <b>${esc(cedName(c.ced))}</b> e o remetente está autorizado para ${esc(remCeds(c.rem))}. Vincular a outro cedente registra o evento <span class="code">VINCULO_OUTRO_CEDENTE</span>.</span></div>` : "";
   const q0 = c.mot === "NF_NAO_ENCONTRADA" ? (c.nf || "").slice(0, 4) : (c.nf || "");
   openModal(`Vincular manualmente · ${c.id}`, `<div class="note neu">${IC.info}<span>O operador escolhe o título e assume a confirmação. O caso vai para <span class="code">CONFIRMADO</span> e entra na fila de lançamento.</span></div>
     <div class="field"><label for="m-q">Buscar no índice (NF, sacado ou valor)</label><input class="input" id="m-q" value="${esc(q0)}"></div>
+    ${c.ced ? `<label class="check"><input type="checkbox" id="m-outros"> <span>Incluir títulos de outros cedentes</span></label>` : ""}<div id="m-aviso" aria-live="polite"></div>
     <div class="pick" id="m-pick">${pick(q0)}</div>
     <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err"></div>`,
     "Vincular e confirmar", "primary", () => {
       const sel = $("input[name=m-t]:checked"), just = $("#m-just").value.trim();
-      if (!sel) { $("#m-err").textContent = "Selecione um título."; return false; }
-      if (!just) { $("#m-just").classList.add("err"); $("#m-err").textContent = "A justificativa é obrigatória."; return false; }
-      const t = IDX.find(x => x.id === sel.value); const oldMot = c.mot; ensureAssigned(c);
-      Object.assign(c, { titulo: t, nf: t.nf, serie: t.serie, ced: t.ced, conf: { txt: "Vinculado pelo operador", em: clock() } });
-      addEv(c, "CONFIRMADO", "OPERADOR", `Título ${t.id} vinculado por ${ME} · justificativa: ${just}`, null, ["PENDENTE", "CONFIRMADO"]);
-      addEv(c, "PENDENCIA_RESOLVIDA", "SISTEMA", `${oldMot} resolvida por vínculo manual`);
-      addEv(c, "PENDENCIA_ABERTA", "SISTEMA", "Motivo PRONTO_LANCAMENTO_MANUAL · adaptador ManualAssistido", null, ["CONFIRMADO", "PENDENTE"]);
-      addMsg(c, "CONFIRMADO_EM_REGISTRO", TPL.CONFIRMADO_EM_REGISTRO({ p: c.id }));
-      Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), encerradaEm: null, alert: null }); c.sla = slaVence(c);
-      toast(`<b>${c.id}</b> vinculado ao título ${t.id} e movido para a Fila de lançamento.`); return true;
+      const t = sel ? IDX.find(x => x.id === sel.value) : null;
+      $("#m-just").classList.remove("err");
+      const r = vincularCaso(c, t, just, { outros: !!($("#m-outros") && $("#m-outros").checked) });
+      if (!r.ok) { if (r.campo === "just") $("#m-just").classList.add("err"); $("#m-err").textContent = r.erro; return false; }
+      toast(`<b>${c.id}</b> vinculado ao título ${t.id}${r.outro ? ` (${esc(cedName(t.ced))})` : ""} e movido para a Fila de lançamento.`); return true;
     });
   $("#m-pick").addEventListener("change", e => { if (e.target.name === "m-t") selId = e.target.value; });
+  const cbOutros = $("#m-outros");
+  if (cbOutros) cbOutros.addEventListener("change", () => {
+    outros = cbOutros.checked;
+    if (!outros && selId && (IDX.find(t => t.id === selId) || {}).ced !== c.ced) selId = null;
+    $("#m-aviso").innerHTML = aviso(); $("#m-pick").innerHTML = pick($("#m-q").value);
+  });
   $("#m-q").addEventListener("input", e => { $("#m-pick").innerHTML = pick(e.target.value); });
 }
 function dlgDescartar(c) {
