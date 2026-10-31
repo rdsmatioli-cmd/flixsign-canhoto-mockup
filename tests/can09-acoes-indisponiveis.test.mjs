@@ -1,6 +1,7 @@
 /* CAN-09: ação indisponível continua focável (aria-disabled), sem efeito no clique, e o motivo está em texto visível ligado por aria-describedby */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { carregar, texto } from "./carregar.mjs";
 
 const botao = (html, act) => html.match(new RegExp(`<button[^>]*data-act="${act}"[^>]*>`))[0];
@@ -62,4 +63,18 @@ test("Configurações: opções indisponíveis dizem o motivo em texto, não em 
   assert.match(texto(dis[0]), /Indisponível até a liberação da API pela OrderBy/);
   assert.match(texto(dis[1]), /Indisponível: depende das capacidades \(c\) e \(d\)/);
   assert.match(texto(dis[2]), /Indisponível neste ambiente/);
+});
+
+test("anel de foco dos botões é contorno sólido com contraste de 3:1 ou mais sobre os fundos da página", () => {
+  const CSS = readFileSync(new URL("../index.html", import.meta.url), "utf8").match(/<style>([\s\S]*?)<\/style>/)[1];
+  const regra = CSS.match(/\.btn:focus-visible\{([^}]*)\}/)[1];
+  assert.match(regra, /outline:2px solid var\(--accent\)/);
+  assert.doesNotMatch(regra, /outline:none/);
+  const cor = nome => CSS.match(new RegExp(`--${nome}:(#[0-9a-f]{6})`))[1];
+  const lum = h => { const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const contraste = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+  for (const fundo of ["surface", "surface-2", "bg"]) {
+    const c = contraste(cor("accent"), cor(fundo));
+    assert.ok(c >= 3, `anel sobre --${fundo}: ${c.toFixed(2)}:1`);
+  }
 });
