@@ -1238,7 +1238,7 @@ function dlgVincular(c) {
   openModal(`Vincular manualmente · ${c.id}`, `<div class="note neu">${IC.info}<span>O operador escolhe o título e assume a confirmação. O caso vai para <span class="code">CONFIRMADO</span> e entra na fila de lançamento.</span></div>
     <div class="field"><label for="m-q">Buscar no índice (NF, sacado ou valor)</label><input class="input" id="m-q" value="${esc(q0)}"></div>
     ${c.ced ? `<label class="check"><input type="checkbox" id="m-outros"> <span>Incluir títulos de outros cedentes</span></label>` : ""}<div id="m-aviso" aria-live="polite"></div>
-    <div class="pick" id="m-pick">${pick(q0)}</div>
+    <div class="pick" id="m-pick" tabindex="0" role="region" aria-label="Títulos encontrados">${pick(q0)}</div>
     <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err"></div>`,
     "Vincular e confirmar", "primary", () => {
       const sel = $("input[name=m-t]:checked"), just = $("#m-just").value.trim();

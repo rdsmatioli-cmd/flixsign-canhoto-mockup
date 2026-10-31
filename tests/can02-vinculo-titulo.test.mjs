@@ -95,3 +95,9 @@ test("Corrigir NF para título já na fila de lançamento também é duplicidade
   assert.equal(m.run(`byId("K7Q2-52").estado`), "JA_REGISTRADO");
   assert.match(m.run(`byId("K7Q2-52").detalhe`), /K7Q2-91 em PRONTO_LANCAMENTO_MANUAL/);
 });
+
+test("lista de títulos é região rotulada e focável (pode rolar só com títulos desabilitados)", () => {
+  const m = carregar();
+  m.run(`dlgVincular(byId("K7Q2-63"))`);
+  assert.match(m.modal(), /<div class="pick" id="m-pick" tabindex="0" role="region" aria-label="Títulos encontrados">/);
+});
