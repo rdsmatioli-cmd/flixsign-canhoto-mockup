@@ -30,6 +30,8 @@ a{color:var(--accent)}
 .muted{color:var(--muted)} .faint{color:var(--faint)} .small{font-size:12px} .xs{font-size:11px}
 .nowrap{white-space:nowrap}
 .ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;z-index:300;background:#fff;color:var(--accent);font-weight:600;padding:9px 14px;border-radius:8px;box-shadow:var(--shadow-lg);text-decoration:none}.skip:focus{top:12px}
+h1[tabindex="-1"]:focus{outline:none}h1[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 /* ---------- Layout ---------- */
 .app{display:grid;grid-template-columns:var(--sbw) 1fr;min-height:100vh}
 .sidebar{background:var(--sidebar);color:var(--sidebar-text);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:16px 10px;overflow-y:auto}
@@ -332,6 +334,7 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
 </head>
 <body>
 <div class="app">
+  <a class="skip" href="#view" data-act="skip">Pular para o conteúdo</a>
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">F</div>
@@ -855,7 +858,7 @@ function viewDashboard() {
   const per7 = UI.dash.per === "7d", p = periodoDias(per7 ? 7 : 1), p7 = periodoDias(7), hj = per7 ? " · hoje" : "";
   const excBy = ced => CASES.filter(x => isOpenExc(x) && x.ced === ced).length;
   return `
-  <div class="ph"><div><h1>Visão geral ${badge("Dados de exemplo", "b-warn plain")}</h1><p>Indicadores do tenant FIDC Modelo Alfa · ${per7 ? `casos recebidos de ${p.ini} a ${p.fim}/2026, demais cartões de hoje` : "hoje, 08/10/2026"}, atualizado às ${fHM(clock())} (horário de Brasília). A fila de lançamento é o caminho normal da Fase 1 e não entra na taxa de exceções.</p></div>
+  <div class="ph"><div><h1 tabindex="-1">Visão geral ${badge("Dados de exemplo", "b-warn plain")}</h1><p>Indicadores do tenant FIDC Modelo Alfa · ${per7 ? `casos recebidos de ${p.ini} a ${p.fim}/2026, demais cartões de hoje` : "hoje, 08/10/2026"}, atualizado às ${fHM(clock())} (horário de Brasília). A fila de lançamento é o caminho normal da Fase 1 e não entra na taxa de exceções.</p></div>
     <div class="actions"><select class="input" style="width:150px" id="dash-per" aria-label="Período" data-f="dash.per"><option value="hoje"${per7 ? "" : " selected"}>Hoje</option><option value="7d"${per7 ? " selected" : ""}>Últimos 7 dias</option><option value="30d" disabled>Últimos 30 dias (sem dados no exemplo)</option></select></div></div>
   <div class="grid kpis">
     <div class="card kpi accent"><div class="l">${per7 ? `Casos recebidos · ${p.ini} a ${p.fim}` : "Casos recebidos hoje"}</div><div class="v num">${p.total}</div><div class="d">WhatsApp ${p.w} · E-mail ${p.e}</div></div>
@@ -915,7 +918,7 @@ function viewFila() {
   const ls = lancamentosSessao();
   const opt = (v, l, cur) => `<option value="${v}"${v === cur ? " selected" : ""}>${esc(l)}</option>`;
   return `
-  <div class="ph"><div><h1 id="t-pg">Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
+  <div class="ph"><div><h1 id="t-pg" tabindex="-1">Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
   <div class="grid g-4" style="margin-bottom:16px">
     <div class="card kpi"><div class="l" style="min-height:0">Aguardando lançamento</div><div class="v num">${all.length}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">SLA vencido</div><div class="v num" style="color:${venc ? "var(--bad)" : "inherit"}">${venc}</div></div>
@@ -975,7 +978,7 @@ function viewPend() {
   const dupN = CASES.filter(x => MOT[x.mot].dup).length;
   const opt = (v, l, cur, dis) => `<option value="${v}"${v === cur ? " selected" : ""}${dis ? " disabled" : ""}>${esc(l)}</option>`;
   return `
-  <div class="ph"><div><h1 id="t-pg">Pendências</h1><p>Fila de exceções por motivo e SLA (catálogo da spec 11.1). Casos prontos para lançamento ficam na Fila de lançamento e não contam como exceção.</p></div></div>
+  <div class="ph"><div><h1 id="t-pg" tabindex="-1">Pendências</h1><p>Fila de exceções por motivo e SLA (catálogo da spec 11.1). Casos prontos para lançamento ficam na Fila de lançamento e não contam como exceção.</p></div></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
     <button class="btn sm${!p.mot ? " primary" : ""}" aria-pressed="${!p.mot}" data-act="chipMot" data-mot="">Todos os motivos · ${CASES.filter(isOpenExc).length} abertas</button>
     ${EXC_MOTS.filter(m => cnt(m)).map(m => `<button class="btn sm${p.mot === m ? " primary" : ""}" aria-pressed="${p.mot === m}" data-act="chipMot" data-mot="${m}">${esc(MOT[m].l)} · ${cnt(m)}</button>`).join("")}
@@ -1050,7 +1053,7 @@ function viewCaso(id) {
   <div class="card" style="margin-bottom:16px">
     <div style="padding:14px 16px 12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
       <button class="btn sm ghost" data-act="back">${IC.back}Voltar</button>
-      <h1 style="font-size:19px;margin:0;font-weight:700">Caso <span class="mono" style="font-size:18px">${c.id}</span></h1>
+      <h1 tabindex="-1" style="font-size:19px;margin:0;font-weight:700">Caso <span class="mono" style="font-size:18px">${c.id}</span></h1>
       ${estadoBadge(c)}<span class="small muted">${c.estado === "PENDENTE" ? "/ " + esc(m.l) : c.estado === "JA_REGISTRADO" ? "/ " + esc(c.dupCode) : ""}</span>
       <div class="det-meta" style="margin-left:auto"><span>SLA ${slaHTML(c)}</span><span>Pendência ${badge(st[0], st[1])}</span><span>Responsável <b>${c.resp ? esc(c.resp) : "—"}</b></span><span>${chanHTML(c.canal)}</span><span>Recebido <b class="num">${fDM(c.rec)}</b></span></div>
     </div>
@@ -1366,7 +1369,7 @@ function viewWA() {
   const { A, B } = waFlows(); const a = byId("K7Q2-91");
   const steps = (arr) => `<ol class="steps">${arr.map((s, i) => `<li><span class="n">${i + 1}</span><div><div class="st">${s[0]}</div><div class="ds">${s[1]}</div></div></li>`).join("")}</ol>`;
   return `
-  <div class="ph"><div><h1>Conversa WhatsApp</h1><p>Simulação do canal visto pelo remetente, com os modelos de mensagem da spec 6.6 e o template "Confirmado, em registro" da Fase 1. Botões SIM/NÃO quando o provedor permitir; texto livre sempre aceito.</p></div></div>
+  <div class="ph"><div><h1 tabindex="-1">Conversa WhatsApp</h1><p>Simulação do canal visto pelo remetente, com os modelos de mensagem da spec 6.6 e o template "Confirmado, em registro" da Fase 1. Botões SIM/NÃO quando o provedor permitir; texto livre sempre aceito.</p></div></div>
   <div class="wa-wrap">
     <div><div class="flow-h"><h2 id="t-flow-A">Fluxo feliz</h2>${badge("K7Q2-91", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="A">${IC.play}Reproduzir</button></div>${phone("A", A, "14:05")}</div>
     <div><div class="flow-h"><h2 id="t-flow-B">OCR falhou</h2>${badge("K7Q2-89", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="B">${IC.play}Reproduzir</button></div>${phone("B", B, "13:55")}</div>
@@ -1418,7 +1421,7 @@ function viewEmail() {
   const item = (x, open) => open ? `<div class="thread-item"><div class="mhdr"><div class="av fx">F</div><div><div style="font-weight:650">Flixsign Canhotos <span class="auto">Resposta automática</span></div><div class="small muted">para ${esc(mask(c.rem.id))} · ${esc(x.subj)}</div></div><div class="small muted num">${fDT(x.t)}</div></div><div class="mbody">${esc(x.body)}</div><div class="small faint mind">Template ${esc(x.tpl)} · resposta na mesma thread (In-Reply-To / References)</div></div>`
     : `<div class="collapsed" role="button" tabindex="0" data-act="mexp"><span class="avatar" style="width:24px;height:24px;font-size:10px;${x.auto ? "background:var(--accent-soft);color:var(--accent)" : "background:#ede9fe;color:#5b21b6"}">${x.auto ? "F" : esc(c.rem.nome[0])}</span><b style="color:var(--text-2)">${x.auto ? "Flixsign Canhotos" : esc(c.rem.nome)}</b><span class="ellipsis" style="flex:1">${esc(x.body.split("\n")[0])}</span><span class="num">${fDM(x.t)}</span></div>`;
   return `
-  <div class="ph"><div><h1>E-mail</h1><p>Caixa dedicada do canal (endereço ilustrativo). Cada imagem anexada gera um caso; a resposta automática segue na mesma thread, com SIM ou NÃO na primeira linha.</p></div></div>
+  <div class="ph"><div><h1 tabindex="-1">E-mail</h1><p>Caixa dedicada do canal (endereço ilustrativo). Cada imagem anexada gera um caso; a resposta automática segue na mesma thread, com SIM ou NÃO na primeira linha.</p></div></div>
   <div class="mail-wrap">
     <div class="card mlist"><div class="card-h" style="padding-bottom:10px;display:block"><h2>Caixa de entrada</h2><div class="xs muted ellipsis" style="margin-top:2px">canhotos+modeloalfa@flixsign.com.br</div></div>
       ${MAILS.map(m => { const cc = byId(m.id); return `<div class="mi${m.id === UI.mail ? " on" : ""}" role="button" tabindex="0" aria-pressed="${m.id === UI.mail}" data-act="mail" data-id="${m.id}"><div class="f"><span class="ellipsis">${esc(m.from)}</span><span class="muted num" style="font-weight:400">${fDM(cc.rec)}</span></div><div class="s ellipsis">${esc(m.subj)}</div><div class="p" style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px">${cc.id}</span>${estadoBadge(cc)}</div></div>`; }).join("")}
@@ -1497,17 +1500,31 @@ function viewConfig() {
     const rows = [["RECEBIMENTO", "Não se aplica"], ["PEDIDO_DIGITACAO", "Não se aplica"], ["NOVA_FOTO", "Não se aplica"], ["CONFIRMACAO", "Não se aplica"], ["NAO_ENCONTRADA", "Não se aplica"], ["CONFIRMADO_EM_REGISTRO", "Não se aplica"], ["SUCESSO", "Aprovado"], ["PENDENCIA", "Aprovado"], ["INDISPONIVEL", "Pendente"], ["NEGADO", "Não se aplica"], ["DUPLICIDADE", "Não se aplica"]];
     body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:210px"><col style="width:70px"><col style="width:150px"><col></colgroup><thead><tr><th>Tipo</th><th>Versão</th><th>Aprovação WhatsApp</th><th>Texto (com exemplo)</th></tr></thead><tbody>
     ${rows.map(([k, a]) => `<tr style="cursor:default"><td class="full" data-l="Tipo"><span class="code">${k}</span></td><td class="num" data-l="Versão">v1</td><td data-l="Aprovação WhatsApp">${badge(a, a === "Aprovado" ? "b-ok" : a === "Pendente" ? "b-warn" : "b-neu")}</td><td class="ellipsis small full clamp" data-l="Texto (com exemplo)" title="${esc(TPL[k](ex))}">${esc(TPL[k](ex).replace(/\n/g, " · "))}</td></tr>`).join("")}</tbody></table></div><div class="tbl-foot">Mensagens fora da janela de 24 h do WhatsApp usam template aprovado (ex.: aviso de sucesso após lançamento manual).</div></div>`; }
-  return `<div class="ph"><div><h1 id="t-pg">Configurações</h1><p>Administração do tenant ${TENANT.nome}: cadastros, fonte do índice de títulos, adaptador de registro e parâmetros.</p></div></div>
+  return `<div class="ph"><div><h1 id="t-pg" tabindex="-1">Configurações</h1><p>Administração do tenant ${TENANT.nome}: cadastros, fonte do índice de títulos, adaptador de registro e parâmetros.</p></div></div>
     <div class="tabs">${tabs.map(([k, l]) => `<button class="${k === t ? "on" : ""}" aria-pressed="${k === t}" data-act="cfgTab" data-k="${k}">${l}</button>`).join("")}</div>${body}`;
 }
 
 /* ================= Roteador e eventos ================= */
 const TITLES = { dashboard: "Visão geral", fila: "Fila de lançamento", pendencias: "Pendências", caso: "Detalhe do caso", whatsapp: "Conversa WhatsApp", email: "E-mail", config: "Configurações" };
 let lastRoute = "", fromList = "fila";
-/* Foco: descreve o elemento focado (id ou data-act + chaves) para devolvê-lo ao equivalente depois de trocar o conteúdo */
+/* Menu: aria-current="page" no link da tela atual; no detalhe do caso, "true" no link da lista de origem */
+const ariaAtual = (r, route) => route === "caso" ? (r === fromList ? "true" : null) : r === route ? "page" : null;
+/* Troca de tela: o foco vai para o h1 da nova tela; ao voltar do caso X para a lista, para o link do caso X */
+function focoDaRota(prev, route) {
+  const m = /^caso\/(.+)$/.exec(prev || "");
+  return m && (route === "fila" || route === "pendencias") ? `a[href="#caso/${CSS.escape(m[1])}"]` : null;
+}
+function focarTela(sel) {
+  const alvo = sel && $("#view " + sel);
+  if (alvo) { alvo.focus(); return; }
+  const h1 = $("#view h1"); if (h1) { h1.focus({ preventScroll: true }); return; }
+  const v = $("#view"); v.tabIndex = -1; v.focus({ preventScroll: true });
+}
+/* Foco: descreve o elemento focado (h1, id ou data-act + chaves) para devolvê-lo ao equivalente depois de trocar o conteúdo */
 function focoDe(el) {
   if (!el || el === $("#view") || !$("#view").contains(el)) return null;
   const d = el.dataset || {};
+  if (el.tagName === "H1") return { sel: "h1" };
   if (el.id) return { sel: "#" + CSS.escape(el.id), id: d.id };
   if (!d.act) return null;
   return { sel: `[data-act="${d.act}"]` + ["id", "k", "mot", "i"].filter(k => d[k] != null).map(k => `[data-${k}="${CSS.escape(d[k])}"]`).join(""), id: d.id, i: d.i };
@@ -1529,11 +1546,11 @@ function render() {
   const html = { dashboard: viewDashboard, fila: viewFila, pendencias: viewPend, caso: () => viewCaso(arg), whatsapp: viewWA, email: viewEmail, config: viewConfig }[route]();
   $("#view").innerHTML = html; counts();
   $$("#view [data-indet]").forEach(i => { i.indeterminate = true; });
-  $$("#nav a").forEach(a => a.classList.toggle("active", a.dataset.r === (route === "caso" ? fromList : route)));
+  $$("#nav a").forEach(a => { const v = ariaAtual(a.dataset.r, route); a.classList.toggle("active", !!v); if (v) a.setAttribute("aria-current", v); else a.removeAttribute("aria-current"); });
   $("#crumb-page").textContent = route === "caso" ? `Caso ${arg}` : TITLES[route];
   document.title = `${route === "caso" ? "Caso " + arg : TITLES[route]} · Flixsign Canhoto (mockup)`;
-  if (changed) { window.scrollTo(0, 0); lastRoute = h; }
-  if (!changed) focar(foco, caret);
+  if (changed) { window.scrollTo(0, 0); const prev = lastRoute; lastRoute = h; if (prev) focarTela(focoDaRota(prev, route)); }
+  else focar(foco, caret);
   marcaRolagem();
   CASES.forEach(c => c.events.forEach(e => { if (e.fresh) setTimeout(() => { e.fresh = false; }, 50); }));
   $$(".chat").forEach(ch => { ch.scrollTop = 0; });
@@ -1564,6 +1581,7 @@ document.addEventListener("click", e => {
       case "descartar": dlgDescartar(c); return;
       case "desfazer": dlgDesfazer(c); return;
       case "back": location.hash = "#" + fromList; return;
+      case "skip": e.preventDefault(); focarTela(null); return;
       case "zin": UI.zoom = Math.min(2.4, UI.zoom + .25); $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
       case "zout": UI.zoom = Math.max(.6, UI.zoom - .25); $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
       case "rot": UI.rot = (UI.rot + 90) % 360; $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
