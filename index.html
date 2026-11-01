@@ -30,6 +30,8 @@ a{color:var(--accent)}
 .muted{color:var(--muted)} .faint{color:var(--faint)} .small{font-size:12px} .xs{font-size:11px}
 .nowrap{white-space:nowrap}
 .ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;z-index:300;background:#fff;color:var(--accent);font-weight:600;padding:9px 14px;border-radius:8px;box-shadow:var(--shadow-lg);text-decoration:none}.skip:focus{top:12px}
+h1[tabindex="-1"]:focus{outline:none}h1[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 /* ---------- Layout ---------- */
 .app{display:grid;grid-template-columns:var(--sbw) 1fr;min-height:100vh}
 .sidebar{background:var(--sidebar);color:var(--sidebar-text);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:16px 10px;overflow-y:auto}
@@ -59,7 +61,8 @@ a{color:var(--accent)}
 .crumb .sep{color:var(--faint)}
 .phase{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid #bfe3de;border-radius:20px;padding:2px 9px;white-space:nowrap}
 .top-right{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none}
-.search{position:relative}
+.search{position:relative;flex:none}
+.btn.search-btn{display:none;width:34px;padding:0;flex:none}.search-btn svg{width:17px;height:17px}
 .search input{width:192px;height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:0 10px 0 32px;background:var(--surface-2);font-size:13px}
 .search svg{position:absolute;left:10px;top:9px;width:16px;height:16px;color:var(--faint)}
 .tenant{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
@@ -111,7 +114,7 @@ a{color:var(--accent)}
 /* ---------- Buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 13px;border-radius:8px;border:1px solid var(--border-strong);background:#fff;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s,box-shadow .12s}
 .btn:hover{background:var(--surface-2);border-color:#b8c3d1}
-.btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-ring)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .btn svg{width:15px;height:15px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.primary:hover{background:var(--accent-hover)}
@@ -122,6 +125,13 @@ a{color:var(--accent)}
 .btn.sm{height:28px;padding:0 10px;font-size:12px;border-radius:7px}
 .btn[disabled]{opacity:.45;cursor:not-allowed;background:#fff}
 .btn.primary[disabled]{background:var(--accent);color:#fff}
+/* aria-disabled: continua no Tab e no toque; mesmas cores do [disabled] sem opacity, para o anel de foco não sumir */
+.btn[aria-disabled="true"],.btn[aria-disabled="true"]:hover{cursor:not-allowed;background:#fff;color:#979ba2;border-color:#e9edf2}
+.btn.ghost[aria-disabled="true"]{background:transparent;border-color:transparent}
+.btn.primary[aria-disabled="true"],.btn.primary[aria-disabled="true"]:hover{background:#93c1be;border-color:#93c1be;color:#fff}
+.btn.danger[aria-disabled="true"]{color:#dd9c97;border-color:#f8e1df}
+.why{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:0 16px 12px;font-size:12px;color:var(--muted)}
+.why ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px 16px}.why b{color:var(--text-2);font-weight:600}
 /* ---------- Forms ---------- */
 .field{display:flex;flex-direction:column;gap:5px}
 .field label,.lbl{font-size:12px;font-weight:600;color:var(--text-2)}
@@ -130,6 +140,7 @@ textarea.input{height:auto;min-height:72px;padding:8px 10px;resize:vertical}
 .input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ring)}
 .input.err{border-color:var(--bad);box-shadow:0 0 0 3px rgba(180,35,24,.12)}
 .err-msg{color:var(--bad);font-size:12px;min-height:16px}
+fieldset.field{border:0;margin:0;padding:0;min-width:0}fieldset.field legend{padding:0;margin-bottom:5px}
 .check{display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer}
 .check input{margin-top:3px;accent-color:var(--accent)}
 .filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--border)}
@@ -147,7 +158,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .tbl tbody tr:last-child td{border-bottom:none}
 .tbl td.r,.tbl th.r{text-align:right}
 #tbl-fila .proto{display:block}
-@media (min-width:821px){#tbl-fila{min-width:1050px}#tbl-pend{min-width:1040px}#tbl-fila th:nth-last-child(-n+2),#tbl-fila td:not([colspan]):nth-last-child(-n+2),#tbl-pend th:last-child,#tbl-pend td:not([colspan]):last-child{position:sticky;right:0;z-index:1;background:var(--surface)}#tbl-fila th:nth-last-child(2),#tbl-fila td:not([colspan]):nth-last-child(2){right:166px}#tbl-fila th:nth-last-child(-n+2),#tbl-pend th:last-child{background:var(--surface-2)}#tbl-fila tbody tr:hover td:nth-last-child(-n+2),#tbl-pend tbody tr:hover td:last-child{background:#f6f9fb}#tbl-fila tbody tr.done td:nth-last-child(-n+2){background:#f5fbf7}.tbl-wrap.ovf #tbl-fila th:nth-last-child(2),.tbl-wrap.ovf #tbl-fila td:not([colspan]):nth-last-child(2),.tbl-wrap.ovf #tbl-pend th:last-child,.tbl-wrap.ovf #tbl-pend td:not([colspan]):last-child{box-shadow:inset 1px 0 0 var(--border),-8px 0 8px -8px rgba(16,24,40,.22)}}
+@media (min-width:821px){#tbl-fila{min-width:1250px}#tbl-pend{min-width:1040px}#tbl-fila th:nth-last-child(-n+2),#tbl-fila td:not([colspan]):nth-last-child(-n+2),#tbl-pend th:last-child,#tbl-pend td:not([colspan]):last-child{position:sticky;right:0;z-index:1;background:var(--surface)}#tbl-fila th:nth-last-child(2),#tbl-fila td:not([colspan]):nth-last-child(2){right:166px}#tbl-fila th:nth-last-child(-n+2),#tbl-pend th:last-child{background:var(--surface-2)}#tbl-fila tbody tr:hover td:nth-last-child(-n+2),#tbl-pend tbody tr:hover td:last-child{background:#f6f9fb}#tbl-fila tbody tr.done td:nth-last-child(-n+2){background:#f5fbf7}.tbl-wrap.ovf #tbl-fila th:nth-last-child(2),.tbl-wrap.ovf #tbl-fila td:not([colspan]):nth-last-child(2),.tbl-wrap.ovf #tbl-pend th:last-child,.tbl-wrap.ovf #tbl-pend td:not([colspan]):last-child{box-shadow:inset 1px 0 0 var(--border),-8px 0 8px -8px rgba(16,24,40,.22)}}
 .tbl td .badge{white-space:normal;line-height:1.2;padding-top:3px;padding-bottom:3px}
 #tbl-fila th:first-child{text-overflow:clip}.selall{display:inline-flex;align-items:center;gap:10px;cursor:pointer}.selall span{display:none}
 .tbl .proto{text-decoration:none;font-family:var(--mono);font-weight:600;color:var(--accent);font-size:12.5px}
@@ -158,6 +169,12 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 /* ---------- Charts ---------- */
 .legend{display:flex;gap:14px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.card.grafico{container:grafico/inline-size}
+.chart-m{display:none;max-width:400px;margin:0 auto}.per-m{display:none}
+@container grafico (max-width:791px){.chart-d,.per-d{display:none}.chart-m{display:block}.per-m{display:inline}}
+.dados{margin-top:8px;font-size:12.5px}.dados summary{cursor:pointer;color:var(--accent);font-weight:600;width:max-content}
+.dados table{width:100%;max-width:380px;border-collapse:collapse;margin-top:6px}.dados caption{text-align:left;color:var(--muted);font-size:12px;padding:2px 0 4px}
+.dados th,.dados td{padding:4px 8px;border-bottom:1px solid #eef1f5;text-align:left;font-weight:400}.dados thead th{color:var(--muted);font-weight:600;font-size:11.5px}.dados .r{text-align:right}
 .hbar{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) 34px;gap:10px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer;border-radius:6px}
 .hbar:hover .hb-track{background:#e6ebf1}
 .hb-track{height:10px;background:#eef1f5;border-radius:6px;overflow:hidden}
@@ -229,6 +246,9 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;ta
 .pick label:last-child{border-bottom:none}
 .pick label:hover{background:var(--surface-2)}
 .pick input{accent-color:var(--accent)}
+.pick label.dis{cursor:not-allowed;background:var(--surface-2)}
+.pick .ja{color:var(--bad);font-weight:600}
+.pick.err{border-color:var(--bad);box-shadow:0 0 0 3px rgba(180,35,24,.12)}.check input.err{outline:2px solid var(--bad);outline-offset:2px}
 .toasts{position:fixed;right:20px;bottom:46px;display:flex;flex-direction:column;gap:8px;z-index:200}
 .toast{background:#0f1b2a;color:#fff;border-radius:9px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:min(380px,calc(100vw - 40px));display:flex;gap:10px;align-items:flex-start;animation:tin .2s ease}
 .toast b{color:#5eead4}
@@ -308,6 +328,7 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
 .opt input{margin-top:3px;accent-color:var(--accent)}
 .opt .ot{font-weight:650;font-size:13.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .opt .od{font-size:12.5px;color:var(--muted);margin-top:3px}
+.opt .ind{font-size:12px;color:var(--warn);font-weight:600;margin-top:6px}
 .cfg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .switch{position:relative;display:inline-block;width:32px;height:18px;vertical-align:middle}
 .switch input{opacity:0;width:0;height:0}
@@ -318,17 +339,19 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
 .drop{border:1.5px dashed var(--border-strong);border-radius:9px;padding:12px;text-align:center;font-size:12.5px;color:var(--muted);background:var(--surface-2);cursor:pointer}
 .drop:hover{border-color:var(--accent);color:var(--accent)}
 /* ---------- Responsive ---------- */
-@media (max-width:1280px){.search{display:none}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.wa-wrap{grid-template-columns:330px 330px}.wa-side{grid-column:1/-1}.mail-wrap{grid-template-columns:240px minmax(0,1fr)}.mail-side{grid-column:1/-1}}
+@media (max-width:1280px){.user{padding-left:10px}.user .who{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.wa-wrap{grid-template-columns:330px 330px}.wa-side{grid-column:1/-1}.mail-wrap{grid-template-columns:240px minmax(0,1fr)}.mail-side{grid-column:1/-1}}
 @media (max-width:1280px){.det3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.det3>.hist{grid-column:1/-1}}
-@media (max-width:1100px){.det3{grid-template-columns:1fr!important}:root{--sbw:64px}.brand-name,.brand-mod,.nav .count,.nav-sec,.sb-foot{display:none}.nav a span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}.nav a{justify-content:center}.det-grid,.split,.cfg-grid{grid-template-columns:1fr}.search input{width:160px}}
-@media (max-width:820px){.crumb{container-type:normal}.phase,.tenant{display:none}.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis,.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-21,.g-3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){.det3{grid-template-columns:1fr!important}:root{--sbw:64px}.brand-name,.brand-mod,.nav .count,.nav-sec,.sb-foot{display:none}.nav a span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}.nav a{justify-content:center}.det-grid,.split,.cfg-grid{grid-template-columns:1fr}.topbar{padding:0 16px;gap:12px}}
+@media (max-width:820px){.crumb{container-type:normal}.phase,.tenant{display:none}.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.sidebar{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px}.brand{border:0;margin:0;padding:0 8px}.nav{display:flex}.topbar{flex-wrap:wrap;height:auto;padding:10px 14px}.search,.user{display:none}.btn.search-btn{display:inline-flex;margin-left:auto}.top-right{margin-left:0}.topbar.busca .search{display:block;order:5;flex:1 1 100%}.topbar.busca .search input{width:100%}.topbar.busca .search-btn{background:var(--neu-bg)}.content{padding:16px}.wa-wrap{grid-template-columns:1fr;justify-items:center}.mail-wrap{grid-template-columns:1fr}.kpis,.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-21,.g-3{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:820px){.tbl.stk,.tbl.stk tbody{display:block;width:100%}.tbl.stk colgroup,.tbl.stk thead{display:none}.tbl.stk tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-flow:row dense;gap:8px 14px;padding:12px 14px;border-bottom:1px solid #edf1f5}.tbl.stk tbody tr:last-child{border-bottom:none}.tbl.stk td{display:block;padding:0;border:0;min-width:0;text-align:left}.tbl.stk td[data-l]::before{content:attr(data-l);display:block;font-size:10.5px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}.tbl.stk td.full,.tbl.stk td[colspan]{grid-column:1/-1}.tbl.stk-fila tr{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr)}.tbl.stk-fila td.chk{grid-row:1/span 6;padding-top:1px}.tbl.stk-fila td.full{grid-column:2/-1}.tbl.stk-fila td[colspan]{grid-column:1/-1}.tbl.stk-ced tr{grid-template-columns:repeat(3,minmax(0,1fr))}.tbl.stk-kv tr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:9px 14px}.tbl.stk-kv td.r{margin-left:auto}.tbl.stk td.clamp{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.tbl.stk-fila thead{display:block}.tbl.stk-fila thead tr{display:block;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2)}.tbl.stk-fila thead th{display:none}.tbl.stk-fila thead th:first-child{display:block;padding:0;border:0;background:none;overflow:visible}.tbl.stk-fila .selall span{display:inline;font-size:12.5px;font-weight:600;color:var(--text-2);text-transform:none;letter-spacing:0}}
 @media (max-width:640px){.mhdr{grid-template-columns:38px minmax(0,1fr)}.mhdr>:last-child{grid-column:2}.mbody,.auths,.mind{margin-left:0}.attach{margin-left:0;max-width:100%}.collapsed{padding-left:0}.kv{grid-template-columns:120px minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media (max-width:480px){.hbar{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 34px}.ocr th{width:96px}.ocr td:last-child{width:86px!important}.conf .t{width:40px}}
 </style>
 </head>
 <body>
 <div class="app">
+  <a class="skip" href="#view" data-act="skip">Pular para o conteúdo</a>
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">F</div>
@@ -352,15 +375,16 @@ pre.payload{white-space:pre-wrap;word-break:break-all;margin:0;background:#0f1b2
     </div>
   </aside>
   <div class="main">
-    <header class="topbar">
+    <header class="topbar" id="topbar">
       <div class="crumb"><span class="pre"><b>Flixsign</b><span class="sep">/</span><b>Canhoto</b><span class="sep">/</span></span><span id="crumb-page">Visão geral</span><span class="phase">Fase 1 · modo assistido</span></div>
+      <button class="btn ghost search-btn" type="button" id="gsearch-btn" data-act="gsearch" aria-expanded="false" aria-controls="gsearch-box" aria-label="Buscar caso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+      <div class="search" id="gsearch-box" role="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gsearch" placeholder="Protocolo ou NF (Enter)" aria-label="Buscar caso por protocolo ou NF"></div>
       <div class="top-right">
-        <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gsearch" placeholder="Protocolo ou NF (Enter)" aria-label="Buscar caso por protocolo ou NF"></div>
         <label class="tenant" title="Tenant (cliente)">
           <select id="tenant" aria-label="Tenant"><option value="alfa">FIDC Modelo Alfa</option><option value="beta">Securitizadora Modelo Beta</option></select>
         </label>
         <span class="sample" title="Todos os números e nomes desta tela são fictícios">Dados de exemplo</span>
-        <div class="user"><div class="avatar">AR</div><div><div class="n">Ana Ribeiro</div><div class="r">Supervisora · Flixsign</div></div></div>
+        <div class="user" title="Ana Ribeiro · Supervisora · Flixsign"><div class="avatar">AR</div><div class="who"><div class="n">Ana Ribeiro</div><div class="r">Supervisora · Flixsign</div></div></div>
       </div>
     </header>
     <main class="content" id="view"></main>
@@ -409,11 +433,10 @@ function cnpj(base12) {
   return `${s.slice(0, 2)}.${s.slice(2, 5)}.${s.slice(5, 8)}/${s.slice(8, 12)}-${s.slice(12)}`;
 }
 /* Chave de acesso NF-e (44 dígitos) fictícia com DV módulo 11 */
+function dvChave(base43) { let s = 0, w = 2; for (let i = base43.length - 1; i >= 0; i--) { s += Number(base43[i]) * w; w = w === 9 ? 2 : w + 1; } const r = s % 11; return r < 2 ? 0 : 11 - r; }
 function chaveNFe(uf, aamm, cnpjFmt, serie, nf, cod) {
   const base = uf + aamm + cnpjFmt.replace(/\D/g, "") + "55" + String(serie).padStart(3, "0") + String(nf).padStart(9, "0") + "1" + cod;
-  let s = 0, w = 2; for (let i = base.length - 1; i >= 0; i--) { s += Number(base[i]) * w; w = w === 9 ? 2 : w + 1; }
-  const r = s % 11; const dv = r < 2 ? 0 : 11 - r;
-  return base + dv;
+  return base + dvChave(base);
 }
 const fmtChave = k => k.replace(/(\d{4})/g, "$1 ").trim();
 
@@ -556,16 +579,17 @@ const IC = {
 };
 const chanHTML = c => c === "WHATSAPP" ? `<span class="chan wa">${IC.wa}WhatsApp</span>` : `<span class="chan em">${IC.em}E-mail</span>`;
 const badge = (txt, cls, plain) => `<span class="badge ${cls}${plain ? " plain" : ""}">${esc(txt)}</span>`;
-/* ---------- Remetentes (RemetenteAutorizado) ---------- */
+/* ---------- Remetentes (RemetenteAutorizado) ----------
+   Fictícios: celular 9 0000-NNNN (assinante começando por 0 não existe no plano de numeração) e domínio .exemplo */
 const REM = {
-  marcos:  { id: "+55 11 98421-4127", nome: "Marcos Lima", aut: true, ceds: ["TARUMA"] },
-  juliana: { id: "logistica@plasticosribeiranova-exemplo.com.br", nome: "Juliana Prado", aut: true, ceds: ["RIBEIRA"] },
-  rogerio: { id: "+55 19 99130-5582", nome: "Rogério Nunes", aut: true, ceds: ["CAMPO"] },
-  carla:   { id: "+55 31 98877-2014", nome: "Carla Mendes", aut: true, ceds: ["HORIZ"] },
-  carlos:  { id: "+55 31 99640-7713", nome: "Carlos Freitas", aut: true, ceds: ["HORIZ"] },
-  serra:   { id: "expedicao@serraclara-exemplo.com.br", nome: "Expedição Serra Clara", aut: true, ceds: ["SERRA"] },
-  rota:    { id: "+55 11 97765-3390", nome: "Transportes Rota Leve", aut: true, ceds: ["TARUMA", "CAMPO"] },
-  desconh: { id: "+55 41 99702-0862", nome: "Paulo", aut: false, ceds: [] },
+  marcos:  { id: "+55 11 90000-0001", nome: "Marcos Lima", aut: true, ceds: ["TARUMA"] },
+  juliana: { id: "logistica@plasticosribeiranova.exemplo", nome: "Juliana Prado", aut: true, ceds: ["RIBEIRA"] },
+  rogerio: { id: "+55 19 90000-0002", nome: "Rogério Nunes", aut: true, ceds: ["CAMPO"] },
+  carla:   { id: "+55 31 90000-0003", nome: "Carla Mendes", aut: true, ceds: ["HORIZ"] },
+  carlos:  { id: "+55 31 90000-0004", nome: "Carlos Freitas", aut: true, ceds: ["HORIZ"] },
+  serra:   { id: "expedicao@serraclara.exemplo", nome: "Expedição Serra Clara", aut: true, ceds: ["SERRA"] },
+  rota:    { id: "+55 11 90000-0005", nome: "Transportes Rota Leve", aut: true, ceds: ["TARUMA", "CAMPO"] },
+  desconh: { id: "+55 41 90000-0006", nome: "Paulo", aut: false, ceds: [] },
 };
 function mask(id) {
   if (id.includes("@")) { const [u, d] = id.split("@"); return u.slice(0, 3) + "***@" + d; }
@@ -724,18 +748,18 @@ c = X({ id: "K7Q2-79", canal: "EMAIL", rec: D(7, 10, 12), rem: REM.serra, ced: "
 recv(c); ocrOk(c, 2); found(c, 3); M(c, 3, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c))); E(c, 123, "LEMBRETE_ENVIADO", "SISTEMA", "Lembrete após 2 h");
 E(c, 1443, "PENDENCIA_ABERTA", "SISTEMA", "Motivo SEM_CONFIRMACAO · timeout de 24 h", null, { est: ["AGUARDANDO_CONFIRMACAO", "PENDENTE"] }); M(c, 1443, "PENDENCIA", TPL.PENDENCIA({ p: c.id, mot: MOT.SEM_CONFIRMACAO.amig })); E(c, 1500, "CASO_ATRIBUIDO", "OPERADOR", "Atribuído a Bruno Teles · contato com o remetente por telefone");
 
-c = X({ id: "K7Q2-90", rec: D(8, 14, 20), rem: REM.marcos, ced: "TARUMA", nf: "458760", serie: "1", mot: "NETFACTOR_INDISPONIVEL", pst: "REPROCESSANDO", aberta: D(8, 14, 21), nextTry: D(8, 16, 45),
-  detalhe: "Timeout na consulta de títulos após 3 tentativas; reprocessamento a cada 15 min (próximo às 16:45)", ocr: { nf: .97, serie: .96, chave: null, cnpj: .92, data: .8, assin: .91 }, receb: "08/10/26", recebedor: "U. Farias", emissao: "06/10/2026", hidden: tt.i90 });
+c = X({ id: "K7Q2-90", rec: D(8, 14, 20), rem: REM.marcos, ced: "TARUMA", nf: "458760", serie: "1", mot: "NETFACTOR_INDISPONIVEL", pst: "REPROCESSANDO", aberta: D(8, 14, 21), nextTry: D(8, 16, 50),
+  detalhe: "Timeout na consulta de títulos após 3 tentativas; reprocessamento automático a cada 15 min", ocr: { nf: .97, serie: .96, chave: null, cnpj: .92, data: .8, assin: .91 }, receb: "08/10/26", recebedor: "U. Farias", emissao: "06/10/2026", hidden: tt.i90 });
 recv(c); ocrOk(c, 0); E(c, 1, "NETFACTOR_ERRO", "SISTEMA", "Timeout · tentativa 1 de 3"); E(c, 1, "NETFACTOR_ERRO", "SISTEMA", "Timeout · tentativa 2 de 3 (backoff)"); E(c, 1, "NETFACTOR_ERRO", "SISTEMA", "Timeout · tentativa 3 de 3 (backoff)");
 E(c, 1, "PENDENCIA_ABERTA", "SISTEMA", "Motivo NETFACTOR_INDISPONIVEL · reprocessamento automático", null, { est: ["BUSCANDO_TITULO", "PENDENTE"] }); M(c, 1, "INDISPONIVEL", TPL.INDISPONIVEL({ p: c.id }));
 E(c, 135, "PENDENCIA_REPROCESSADA", "SISTEMA", "Tentativa agendada · ainda indisponível");
 
 c = X({ id: "K7Q2-55", rec: D(7, 8, 15), rem: REM.rota, ced: "TARUMA", mot: "FALHA_INGESTAO", aberta: D(7, 8, 25), img: false, tent: 0,
   detalhe: "URL da mídia expirou no provedor após 3 tentativas de download", ocr: {} });
-E(c, 0, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 1 de 3)"); E(c, 4, "MIDIA_REJEITADA", "SISTEMA", "Falha no download (tentativa 3 de 3)");
+E(c, 0, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 1 de 3)"); E(c, 2, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 2 de 3)"); E(c, 4, "MIDIA_REJEITADA", "SISTEMA", "Falha no download da mídia (tentativa 3 de 3)");
 E(c, 10, "PENDENCIA_ABERTA", "SISTEMA", "Motivo FALHA_INGESTAO", null, { est: ["—", "PENDENTE"] });
 
-c = X({ id: "K7Q2-68", canal: "EMAIL", rec: D(7, 18, 33), rem: REM.serra, ced: "SERRA", mot: "FORMATO_NAO_SUPORTADO", pst: "RESOLVIDA", aberta: D(7, 18, 33), img: false, tent: 0, estado: "DESCARTADO",
+c = X({ id: "K7Q2-68", canal: "EMAIL", rec: D(7, 18, 33), rem: REM.serra, ced: "SERRA", mot: "FORMATO_NAO_SUPORTADO", pst: "RESOLVIDA", aberta: D(7, 18, 33), encerradaEm: D(7, 18, 34), img: false, tent: 0, estado: "DESCARTADO",
   mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", detalhe: "Anexo canhoto_nf.docx; remetente orientado automaticamente", ocr: {} });
 E(c, 0, "MIDIA_REJEITADA", "SISTEMA", "Formato não suportado (.docx)"); E(c, 0, "PENDENCIA_ABERTA", "SISTEMA", "Motivo FORMATO_NAO_SUPORTADO"); E(c, 1, "PENDENCIA_RESOLVIDA", "SISTEMA", "Orientação de formatos aceitos enviada na thread (JPEG, PNG, HEIC, PDF)");
 
@@ -750,6 +774,9 @@ recv(c); E(c, 0, "POSSIVEL_REAPROVEITAMENTO", "SISTEMA", "Hash idêntico ao do c
 
 CASES.forEach(x => x.events.sort((a, b) => a.t - b.t));
 const byId = id => CASES.find(x => x.id === id);
+/* Um título, um canhoto: o dono é outro caso ligado ao título que não foi descartado, desfeito nem encerrado como duplicidade */
+const LIBERA_TITULO = ["DESCARTADO", "DESFEITO", "JA_REGISTRADO"];
+const donoDoTitulo = (t, exceto) => CASES.find(x => x !== exceto && x.titulo && x.titulo.id === t.id && !LIBERA_TITULO.includes(x.estado)) || null;
 const isFila = x => x.mot === "PRONTO_LANCAMENTO_MANUAL";
 const isOpenExc = x => !isFila(x) && !MOT[x.mot].dup && ["ABERTA", "EM_ANALISE", "AGUARDANDO_REMETENTE", "REPROCESSANDO"].includes(x.pst) && x.estado === "PENDENTE";
 /* ---- Caso K7Q2-89: OCR abaixo do limiar, NF digitada (usado na simulação do WhatsApp) ---- */
@@ -768,21 +795,46 @@ const isOpenExc = x => !isFila(x) && !MOT[x.mot].dup && ["ABERTA", "EM_ANALISE",
 /* ================= Estado de UI ================= */
 const LOAD = Date.now();
 const clock = () => new Date(NOW.getTime() + (Date.now() - LOAD));
-const UI = { fila: { ced: "", canal: "", resp: "", sla: "", q: "", sel: new Set() }, pend: { mot: "", canal: "", st: "", sla: "", q: "" }, zoom: 1, rot: 0, cfgTab: "geral", wa: {}, seenMedia: new Set() };
+const UI = { dash: { per: "hoje" }, fila: { ced: "", canal: "", resp: "", sla: "", q: "", sel: new Set() }, pend: { mot: "", canal: "", st: "", sla: "", q: "" }, zoom: 1, rot: 0, cfgTab: "geral", wa: {}, seenMedia: new Set() };
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 function toast(html) { const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<span>${html}</span>`; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transition = "opacity .3s"; }, 3800); setTimeout(() => t.remove(), 4200); }
 function addEv(c, tipo, ator, d, q, est) { const e = { t: clock(), tipo, ator, d, q, est, fresh: true }; c.events.push(e); return e; }
 function addMsg(c, tpl, txt) { return addEv(c, "MENSAGEM_ENVIADA", "MSG", `Template ${tpl} · ${c.canal === "WHATSAPP" ? "WhatsApp" : "E-mail (mesma thread)"}`, txt); }
+const PST_FECHADA = ["RESOLVIDA", "ENCERRADA_SEM_REGISTRO", "AUTO"];
+const pendEncerrada = c => PST_FECHADA.includes(c.pst) || c.estado !== "PENDENTE";
+/* Idade da pendência: de aberta até o encerramento (encerradaEm) ou, se ainda aberta, até agora */
+function idadePend(c) {
+  if (!c.aberta) return "—";
+  if (pendEncerrada(c)) return c.encerradaEm ? dur(c.encerradaEm - c.aberta) : "—";
+  return dur(clock() - c.aberta);
+}
+/* Lançamentos feitos nesta sessão: só CONCLUIDO conta como lançado; o desfeito sai da conta e aparece à parte */
+const LANC_HOJE_BASE = 27;
+function lancamentosSessao() {
+  const l = CASES.filter(x => x.lancadoEm);
+  return { lancados: l.filter(x => x.estado === "CONCLUIDO").length, desfeitos: l.filter(x => x.estado === "DESFEITO").length };
+}
+const nDesfeitos = n => `${n} desfeito${n > 1 ? "s" : ""}`;
 function slaInfo(c) {
+  if (pendEncerrada(c)) return { t: "—", cls: "" };
   if (MOT[c.mot] && MOT[c.mot].sla === "imediato") return { t: "Imediato (automático)", cls: "b-neu" };
-  if (["RESOLVIDA", "ENCERRADA_SEM_REGISTRO", "AUTO"].includes(c.pst) || c.estado !== "PENDENTE" || !c.sla) return { t: "—", cls: "" };
+  if (!c.sla) return { t: "—", cls: "" };
   const diff = c.sla - clock();
   if (diff < 0) return { t: `Vencido há ${durS(diff)}`, cls: "b-bad" };
   if (diff < 3600000) return { t: `${durS(diff)} restantes`, cls: "b-warn" };
   return { t: `${durS(diff)} restantes`, cls: "b-ok" };
 }
 function durS(ms) { ms = Math.abs(ms); const m = Math.round(ms / 60000); if (m < 60) return `${m} min`; const h = Math.floor(m / 60), mm = m % 60; if (h < 10) return mm ? `${h} h ${mm} min` : `${h} h`; if (h < 24) return `${h} h`; const d = Math.floor(h / 24), hh = h % 24; return hh ? `${d} d ${hh} h` : `${d} d`; }
+/* Reprocessamento automático (NETFACTOR_INDISPONIVEL): uma tentativa a cada REPROC_MIN a partir de nextTry;
+   as tentativas que o relógio já passou entram no histórico e "próximo às" acompanha o relógio */
+const REPROC_MIN = 15;
+const emReprocesso = c => !!c.nextTry && isOpenExc(c) && c.pst === "REPROCESSANDO";
+function avancaReprocesso(c, agora) {
+  if (!emReprocesso(c)) return;
+  while (c.nextTry <= agora) { c.events.push({ t: c.nextTry, tipo: "PENDENCIA_REPROCESSADA", ator: "SISTEMA", d: "Tentativa agendada · ainda indisponível" }); c.nextTry = addMin(c.nextTry, REPROC_MIN); }
+}
+const detalheDe = c => emReprocesso(c) ? `${c.detalhe} (próximo às ${fHM(c.nextTry)})` : c.detalhe;
 const slaHTML = c => { const s = slaInfo(c); return s.cls ? badge(s.t, s.cls) : `<span class="muted">${esc(s.t)}</span>`; };
 const chanShort = c => c === "WHATSAPP" ? `<span class="chan wa" title="WhatsApp">${IC.wa}WA</span>` : `<span class="chan em" title="E-mail">${IC.em}E-mail</span>`;
 const cedName = k => k && CED[k] ? CED[k].razao : "—";
@@ -794,43 +846,59 @@ function counts() {
 }
 
 /* ================= Visão geral ================= */
+/* Casos recebidos por dia: [dia, WhatsApp, E-mail]; fonte do gráfico, do KPI de recebidos e do período "Por cedente" */
 const DAYS = [["25/09",41,14],["26/09",9,2],["27/09",4,1],["28/09",52,18],["29/09",47,16],["30/09",50,15],["01/10",45,17],["02/10",43,13],["03/10",11,3],["04/10",5,0],["05/10",55,19],["06/10",49,18],["07/10",51,16],["08/10",47,17]];
-function barChart() {
-  const W = 760, H = 186, L = 30, B = 24, T = 12, max = 80, bw = (W - L - 10) / DAYS.length;
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Casos recebidos por dia e canal">`;
-  for (let v = 0; v <= max; v += 20) { const y = H - B - (v / max) * (H - B - T); s += `<line x1="${L}" y1="${y}" x2="${W - 6}" y2="${y}" stroke="#eef1f5"/><text x="${L - 6}" y="${y + 3.5}" font-size="10" fill="#64758d" text-anchor="end">${v}</text>`; }
-  DAYS.forEach((d, i) => {
+function periodoDias(n) { const d = DAYS.slice(-n); const w = d.reduce((a, x) => a + x[1], 0), e = d.reduce((a, x) => a + x[2], 0); return { n, ini: d[0][0], fim: d[d.length - 1][0], w, e, total: w + e }; }
+/* Por cedente nos últimos 7 dias do gráfico: os recebidos somam periodoDias(7).total */
+const CED_7D = [["TARUMA", 99, "1 h 48 min"], ["CAMPO", 92, "2 h 05 min"], ["HORIZ", 74, "2 h 31 min"], ["RIBEIRA", 45, "1 h 57 min"], ["SERRA", 37, "3 h 12 min"]];
+/* Gráfico de barras: 14 dias (chart-d) só quando o SVG tem a largura do viewBox (760 px, cartão de 792 px ou mais) e os rótulos
+   saem no tamanho nominal; em cartão menor, só os 7 últimos com viewBox menor e rótulos que renderizam com 11 px ou mais a 390 px
+   (chart-m). A troca é por container query. Os números ficam na tabela "Ver dados".
+   O destaque (cores escuras) marca os dias do período escolhido; se ele cobre todas as barras, não separa nada e não é usado. */
+const GRAF_D = { cls: "chart-d", dias: DAYS, W: 760, H: 186, L: 30, B: 24, T: 12, fs: 9.5, fsEixo: 10, yDia: 9 };
+const GRAF_M = { cls: "chart-m", dias: DAYS.slice(-7), W: 340, H: 200, L: 30, B: 30, T: 18, fs: 12, fsEixo: 12, yDia: 10 };
+function barChart(nDestaque, o) {
+  o = o || GRAF_D; nDestaque = nDestaque || 1;
+  const { dias, W, H, L, B, T, fs } = o, max = 80, bw = (W - L - 10) / dias.length;
+  let s = `<svg class="${o.cls}" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Casos recebidos por dia e canal, de ${dias[0][0]} a ${dias[dias.length - 1][0]}; valores em Ver dados do gráfico">`;
+  for (let v = 0; v <= max; v += 20) { const y = H - B - (v / max) * (H - B - T); s += `<line x1="${L}" y1="${y}" x2="${W - 6}" y2="${y}" stroke="#eef1f5"/><text x="${L - 6}" y="${y + o.fsEixo * .35}" font-size="${o.fsEixo}" fill="#64758d" text-anchor="end">${v}</text>`; }
+  dias.forEach((d, i) => {
     const x = L + i * bw + bw * .18, w = bw * .64, hW = (d[1] / max) * (H - B - T), hE = (d[2] / max) * (H - B - T);
-    const y1 = H - B - hW, y2 = y1 - hE, today = i === DAYS.length - 1;
+    const y1 = H - B - hW, y2 = y1 - hE, today = nDestaque < dias.length && i >= dias.length - nDestaque;
     s += `<rect x="${x}" y="${y1}" width="${w}" height="${hW}" fill="${today ? "#0f766e" : "#14b8a6"}" rx="2"><title>${d[0]}: WhatsApp ${d[1]}</title></rect>`;
     s += `<rect x="${x}" y="${y2}" width="${w}" height="${hE}" fill="${today ? "#3949ab" : "#7986cb"}" rx="2"><title>${d[0]}: E-mail ${d[2]}</title></rect>`;
-    s += `<text x="${x + w / 2}" y="${y2 - 4}" font-size="9.5" fill="#5f6c81" text-anchor="middle">${d[1] + d[2]}</text>`;
-    s += `<text x="${x + w / 2}" y="${H - 9}" font-size="9.5" fill="${today ? "#172231" : "#64758d"}" font-weight="${today ? 700 : 400}" text-anchor="middle">${d[0]}</text>`;
+    s += `<text x="${x + w / 2}" y="${y2 - 4}" font-size="${fs}" fill="#5f6c81" text-anchor="middle">${d[1] + d[2]}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - o.yDia}" font-size="${fs}" fill="${today ? "#172231" : "#64758d"}" font-weight="${today ? 700 : 400}" text-anchor="middle">${d[0]}</text>`;
   });
   return s + "</svg>";
+}
+function dadosGrafico() {
+  return `<details class="dados" id="dados-graf"${UI.dash.dados ? " open" : ""}><summary id="dados-graf-s">Ver dados do gráfico</summary><table><caption>Casos recebidos por dia e canal, de ${DAYS[0][0]} a ${DAYS[DAYS.length - 1][0]}</caption>
+    <thead><tr><th scope="col">Dia</th><th scope="col" class="r">WhatsApp</th><th scope="col" class="r">E-mail</th><th scope="col" class="r">Total</th></tr></thead>
+    <tbody>${DAYS.map(d => `<tr><th scope="row">${d[0]}</th><td class="r num">${d[1]}</td><td class="r num">${d[2]}</td><td class="r num">${d[1] + d[2]}</td></tr>`).join("")}</tbody></table></details>`;
 }
 function viewDashboard() {
   const k = counts();
   const fila = CASES.filter(x => isFila(x) && x.estado === "PENDENTE");
   const vencidos = fila.filter(x => slaInfo(x).cls === "b-bad").length;
-  const lancSess = CASES.filter(x => x.lancadoEm).length;
+  const ls = lancamentosSessao();
   const byMot = {}; CASES.filter(isOpenExc).forEach(x => byMot[x.mot] = (byMot[x.mot] || 0) + 1);
   const mots = Object.entries(byMot).sort((a, b) => b[1] - a[1]); const mmax = Math.max(1, ...mots.map(m => m[1]));
-  const cedRows = [["TARUMA", 96, "1 h 48 min"], ["CAMPO", 88, "2 h 05 min"], ["HORIZ", 71, "2 h 31 min"], ["RIBEIRA", 42, "1 h 57 min"], ["SERRA", 36, "3 h 12 min"]];
+  const per7 = UI.dash.per === "7d", p = periodoDias(per7 ? 7 : 1), p7 = periodoDias(7), hj = per7 ? " · hoje" : "";
   const excBy = ced => CASES.filter(x => isOpenExc(x) && x.ced === ced).length;
   return `
-  <div class="ph"><div><h1>Visão geral ${badge("Dados de exemplo", "b-warn plain")}</h1><p>Indicadores do tenant FIDC Modelo Alfa · hoje, 08/10/2026, atualizado às ${fHM(clock())} (horário de Brasília). A fila de lançamento é o caminho normal da Fase 1 e não entra na taxa de exceções.</p></div>
-    <div class="actions"><select class="input" style="width:150px" aria-label="Período"><option>Hoje</option><option>Últimos 7 dias</option><option>Últimos 30 dias</option></select></div></div>
+  <div class="ph"><div><h1 tabindex="-1">Visão geral ${badge("Dados de exemplo", "b-warn plain")}</h1><p>Indicadores do tenant FIDC Modelo Alfa · ${per7 ? `casos recebidos de ${p.ini} a ${p.fim}/2026, demais cartões de hoje` : "hoje, 08/10/2026"}, atualizado às ${fHM(clock())} (horário de Brasília). A fila de lançamento é o caminho normal da Fase 1 e não entra na taxa de exceções.</p></div>
+    <div class="actions"><select class="input" style="width:150px" id="dash-per" aria-label="Período" data-f="dash.per"><option value="hoje"${per7 ? "" : " selected"}>Hoje</option><option value="7d"${per7 ? " selected" : ""}>Últimos 7 dias</option><option value="30d" disabled>Últimos 30 dias (sem dados no exemplo)</option></select></div></div>
   <div class="grid kpis">
-    <div class="card kpi accent"><div class="l">Casos recebidos hoje</div><div class="v num">64</div><div class="d">WhatsApp 47 · E-mail 17</div></div>
-    <div class="card kpi"><div class="l">Confirmados pelo remetente</div><div class="v num">39 <small>61%</small></div><div class="d"><b class="up">+4 p.p.</b> vs. média de 7 dias</div></div>
-    <div class="card kpi"><div class="l">Aguardando lançamento manual</div><div class="v num">${k.fila}</div><div class="d">${vencidos ? `<b class="down">${vencidos} com SLA vencido</b>` : "Nenhum com SLA vencido"}${lancSess ? ` · ${lancSess} lançado(s) agora` : ""}</div></div>
+    <div class="card kpi accent"><div class="l">${per7 ? `Casos recebidos · ${p.ini} a ${p.fim}` : "Casos recebidos hoje"}</div><div class="v num">${p.total}</div><div class="d">WhatsApp ${p.w} · E-mail ${p.e}</div></div>
+    <div class="card kpi"><div class="l">Confirmados pelo remetente${hj}</div><div class="v num">39 <small>61%</small></div><div class="d"><b class="up">+4 p.p.</b> vs. média de 7 dias</div></div>
+    <div class="card kpi"><div class="l">Aguardando lançamento manual</div><div class="v num">${k.fila}</div><div class="d">${vencidos ? `<b class="down">${vencidos} com SLA vencido</b>` : "Nenhum com SLA vencido"}${ls.lancados ? ` · ${ls.lancados} lançado(s) agora` : ""}${ls.desfeitos ? ` · ${nDesfeitos(ls.desfeitos)}` : ""}</div></div>
     <div class="card kpi"><div class="l">Pendências abertas (exceções)</div><div class="v num">${k.pend}</div><div class="d">${mots.length} motivos · ver gráfico abaixo</div></div>
-    <div class="card kpi"><div class="l">Tempo até pronto para lançamento (M1)</div><div class="v num">1 min 52 s</div><div class="d">p50 · p95 5 min 40 s</div></div>
-    <div class="card kpi"><div class="l">Tempo até lançamento (M2, métrica norte)</div><div class="v num">2 h 14 min</div><div class="d">p50 · p95 7 h 05 min</div></div>
+    <div class="card kpi"><div class="l">Tempo até pronto para lançamento (M1)${hj}</div><div class="v num">1 min 52 s</div><div class="d">p50 · p95 5 min 40 s</div></div>
+    <div class="card kpi"><div class="l">Tempo até lançamento (M2, métrica norte)${hj}</div><div class="v num">2 h 14 min</div><div class="d">p50 · p95 7 h 05 min</div></div>
   </div>
   <div class="grid g-21" style="margin-top:16px">
-    <div class="card"><div class="card-h"><h2>Casos recebidos por dia e canal</h2><span class="sub">últimos 14 dias</span><div class="r legend"><span><i style="background:#14b8a6"></i>WhatsApp</span><span><i style="background:#7986cb"></i>E-mail</span></div></div><div class="card-b" style="padding-top:6px">${barChart()}</div></div>
+    <div class="card grafico"><div class="card-h"><h2>Casos recebidos por dia e canal</h2><span class="sub"><span class="per-d">últimos 14 dias</span><span class="per-m">últimos 7 dias</span></span><div class="r legend"><span><i style="background:#14b8a6"></i>WhatsApp</span><span><i style="background:#7986cb"></i>E-mail</span></div></div><div class="card-b" style="padding-top:6px">${barChart(p.n)}${barChart(Math.min(p.n, 7), GRAF_M)}${dadosGrafico()}</div></div>
     <div class="card"><div class="card-h"><h2>Pendências abertas por motivo</h2><span class="sub">clique para filtrar</span></div><div class="card-b">
       ${mots.map(([m, n]) => `<div class="hbar" role="button" tabindex="0" data-act="goPend" data-mot="${m}" title="${m}"><span class="ellipsis">${esc(MOT[m].l)}</span><div class="hb-track"><div class="hb-fill" style="width:${(n / mmax) * 100}%;background:${MOT[m].sla === "4h" ? "#c2410c" : "#0f766e"}"></div></div><b class="num" style="text-align:right">${n}</b></div>`).join("") || `<div class="empty">Sem pendências abertas</div>`}
       <div class="legend" style="margin-top:8px"><span><i style="background:#0f766e"></i>Operacional (SLA 1 dia útil)</span><span><i style="background:#c2410c"></i>Técnica (SLA 4 h)</span></div>
@@ -838,7 +906,7 @@ function viewDashboard() {
   </div>
   <div class="grid g-3" style="margin-top:16px">
     <div class="card"><div class="card-h"><h2>Funil de hoje</h2></div><div class="card-b funnel">
-      ${[["Recebidos", 64], ["Identificados", 58], ["Título encontrado", 52], ["Confirmados", 39], ["Lançados", 27 + lancSess]].map(([l, n]) => `<div class="fn-row"><span class="small">${l}</span><div><div class="fn-bar" style="width:${Math.max(14, n / 64 * 100)}%">${n}</div></div><span class="small muted num">${Math.round(n / 64 * 100)}%</span></div>`).join("")}
+      ${[["Recebidos", 64], ["Identificados", 58], ["Título encontrado", 52], ["Confirmados", 39], ["Lançados", LANC_HOJE_BASE + ls.lancados]].map(([l, n]) => `<div class="fn-row"><span class="small">${l}</span><div><div class="fn-bar" style="width:${Math.max(14, n / 64 * 100)}%">${n}</div></div><span class="small muted num">${Math.round(n / 64 * 100)}%</span></div>`).join("")}
     </div></div>
     <div class="card"><div class="card-h"><h2>Qualidade</h2><span class="sub">Fase 1</span></div><div class="card-b"><dl class="kv" style="grid-template-columns:1fr auto">
       <dt>Identificação sem digitação (M3)</dt><dd class="num">84%</dd>
@@ -847,10 +915,10 @@ function viewDashboard() {
       <dt>Completude da trilha (M8)</dt><dd class="num">100%</dd>
       <dt>Fila acima do SLA (M10)</dt><dd class="num" style="color:${vencidos ? "var(--bad)" : "inherit"}">${vencidos}</dd>
     </dl></div></div>
-    <div class="card"><div class="card-h"><h2>Por cedente</h2><span class="sub">7 dias</span></div><div class="card-b" style="padding:8px 0 4px">
-      <table class="tbl stk stk-ced" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r">Exceções</th><th class="r">M2 p50</th></tr></thead><tbody>
-      ${cedRows.map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Cedente" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num" data-l="Recebidos">${r[1]}</td><td class="r num" data-l="Exceções">${excBy(r[0])}</td><td class="r num" data-l="M2 p50">${r[2]}</td></tr>`).join("")}
-      </tbody></table></div></div>
+    <div class="card"><div class="card-h"><h2>Por cedente</h2><span class="sub">7 dias · ${p7.ini} a ${p7.fim}</span></div><div class="card-b" style="padding:8px 0 4px">
+      <table class="tbl stk stk-ced" style="cursor:default"><thead><tr><th style="width:44%">Cedente</th><th class="r">Recebidos</th><th class="r" title="Exceções abertas agora">Exceções abertas agora</th><th class="r">M2 p50</th></tr></thead><tbody>
+      ${CED_7D.map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Cedente" title="${esc(CED[r[0]].razao)}">${esc(CED[r[0]].razao)}</td><td class="r num" data-l="Recebidos">${r[1]}</td><td class="r num" data-l="Exceções abertas agora">${excBy(r[0])}</td><td class="r num" data-l="M2 p50">${r[2]}</td></tr>`).join("")}
+      </tbody></table><div class="xs muted" style="padding:8px 16px 4px">Recebidos e M2 no período; exceções abertas agora.</div></div></div>
   </div>`;
 }
 
@@ -864,20 +932,27 @@ function filaRows() {
     .filter(x => !q || [x.id, x.nf, x.titulo && x.titulo.sac, cedName(x.ced), x.rem.id].join(" ").toLowerCase().includes(q))
     .sort((a, b) => a.rec - b.rec);
 }
+/* Seleção em lote: vale só para linhas visíveis e selecionáveis (PENDENTE); o que sai da lista sai da seleção */
+const selecionavel = x => x.estado === "PENDENTE";
+function podarSelecao(rows) { const vis = new Set(rows.filter(selecionavel).map(x => x.id)); UI.fila.sel.forEach(id => { if (!vis.has(id)) UI.fila.sel.delete(id); }); }
+function estadoSelTodos(rows) {
+  const sel = rows.filter(selecionavel), n = sel.filter(x => UI.fila.sel.has(x.id)).length;
+  return { total: sel.length, marcados: n, checked: sel.length > 0 && n === sel.length, indeterminate: n > 0 && n < sel.length };
+}
 function viewFila() {
   counts();
   const all = CASES.filter(x => isFila(x) && x.estado === "PENDENTE");
-  const rows = filaRows(); const f = UI.fila;
+  const rows = filaRows(); const f = UI.fila; podarSelecao(rows); const st = estadoSelTodos(rows);
   const venc = all.filter(x => slaInfo(x).cls === "b-bad").length, av = all.filter(x => slaInfo(x).cls === "b-warn").length;
-  const done = CASES.filter(x => x.lancadoEm).length;
+  const ls = lancamentosSessao();
   const opt = (v, l, cur) => `<option value="${v}"${v === cur ? " selected" : ""}>${esc(l)}</option>`;
   return `
-  <div class="ph"><div><h1 id="t-pg">Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
+  <div class="ph"><div><h1 id="t-pg" tabindex="-1">Fila de lançamento manual</h1><p>Casos confirmados pelo remetente, prontos para lançamento no NetFactor (motivo <span class="code">PRONTO_LANCAMENTO_MANUAL</span>, adaptador Manual assistido). Ordenados por idade. SLA: mesmo dia útil.</p></div></div>
   <div class="grid g-4" style="margin-bottom:16px">
     <div class="card kpi"><div class="l" style="min-height:0">Aguardando lançamento</div><div class="v num">${all.length}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">SLA vencido</div><div class="v num" style="color:${venc ? "var(--bad)" : "inherit"}">${venc}</div></div>
     <div class="card kpi"><div class="l" style="min-height:0">Vence em até 1 h</div><div class="v num" style="color:${av ? "var(--warn)" : "inherit"}">${av}</div></div>
-    <div class="card kpi"><div class="l" style="min-height:0">Lançados hoje</div><div class="v num">${27 + done}</div></div>
+    <div class="card kpi"><div class="l" style="min-height:0">Lançados hoje</div><div class="v num">${LANC_HOJE_BASE + ls.lancados}</div>${ls.desfeitos ? `<div class="d">${nDesfeitos(ls.desfeitos)}</div>` : ""}</div>
   </div>
   <div class="card">
     <div class="filters">
@@ -888,9 +963,9 @@ function viewFila() {
       <div class="field grow"><label for="ff-q">Busca</label><input class="input" id="ff-q" data-f="fila.q" value="${esc(f.q)}" placeholder="Protocolo, NF, sacado, cedente ou remetente"></div>
       <button class="btn ghost" data-act="clearFila">Limpar</button>
     </div>
-    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk stk-fila" id="tbl-fila">
+    <div class="tbl-wrap" id="rol-fila" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk stk-fila" id="tbl-fila">
       <colgroup><col style="width:34px"><col style="width:96px"><col style="width:84px"><col><col><col style="width:104px"><col style="width:98px"><col style="width:74px"><col style="width:92px"><col style="width:164px"><col style="width:166px"></colgroup>
-      <thead><tr><th><label class="selall"><input type="checkbox" data-act="selAll" aria-label="Selecionar todos"${rows.length && rows.every(r => f.sel.has(r.id)) ? " checked" : ""}><span>Selecionar todos</span></label></th><th>Protocolo</th><th>NF / série</th><th>Cedente</th><th>Sacado</th><th class="r">Valor</th><th>Vencimento</th><th>Canal</th><th>Recebido</th><th>SLA</th><th>Ação</th></tr></thead>
+      <thead><tr><th><label class="selall"><input type="checkbox" data-act="selAll" aria-label="Selecionar todos"${st.checked ? " checked" : ""}${st.indeterminate ? ' data-indet="1"' : ""}${st.total ? "" : " disabled"}><span>Selecionar todos</span></label></th><th>Protocolo</th><th>NF / série</th><th>Cedente</th><th>Sacado</th><th class="r">Valor</th><th>Vencimento</th><th>Canal</th><th>Recebido</th><th>SLA</th><th>Ação</th></tr></thead>
       <tbody>${rows.map(x => {
         const doneRow = x.estado !== "PENDENTE";
         const act = x.lancadoEm ? `<div>${badge(x.estado === "DESFEITO" ? "Desfeito" : "Lançado " + fHM(x.lancadoEm), x.estado === "DESFEITO" ? "b-bad" : "b-ok")}</div><div class="sub2">por ${esc(x.lancadoPor)}</div>` : x.estado === "DESCARTADO" ? badge("Descartado", "b-neu") : `<button class="btn primary sm" data-act="lancar" data-id="${x.id}">Marcar como lançado</button>`;
@@ -907,7 +982,7 @@ function viewFila() {
         <td class="full" data-l="SLA">${slaHTML(x)}</td>
         <td class="full" data-l="Ação">${act}</td></tr>`; }).join("") || `<tr><td colspan="11"><div class="empty">Nenhum caso com esses filtros.</div></td></tr>`}
       </tbody></table></div>
-    <div class="tbl-foot"><span>${f.sel.size} selecionado(s)</span><button class="btn sm" data-act="assumirLote"${f.sel.size ? "" : " disabled"}>Assumir selecionados</button><button class="btn sm" disabled title="Desejável, fora do MVP">Marcar como lançado (lote)</button><span style="margin-left:auto">Exibindo ${rows.length} caso(s) · clique na linha para abrir o detalhe</span></div>
+    <div class="tbl-foot"><span>${f.sel.size} selecionado(s)</span><button class="btn sm" data-act="assumirLote"${f.sel.size ? "" : " disabled"}>Assumir selecionados</button><button class="btn sm" aria-disabled="true" aria-describedby="why-lote">Marcar como lançado (lote)</button><span class="xs" id="why-lote">Lançamento em lote: desejável, fora do MVP</span><span style="margin-left:auto">Exibindo ${rows.length} caso(s) · clique na linha para abrir o detalhe</span></div>
   </div>`;
 }
 
@@ -932,7 +1007,7 @@ function viewPend() {
   const dupN = CASES.filter(x => MOT[x.mot].dup).length;
   const opt = (v, l, cur, dis) => `<option value="${v}"${v === cur ? " selected" : ""}${dis ? " disabled" : ""}>${esc(l)}</option>`;
   return `
-  <div class="ph"><div><h1 id="t-pg">Pendências</h1><p>Fila de exceções por motivo e SLA (catálogo da spec 11.1). Casos prontos para lançamento ficam na Fila de lançamento e não contam como exceção.</p></div></div>
+  <div class="ph"><div><h1 id="t-pg" tabindex="-1">Pendências</h1><p>Fila de exceções por motivo e SLA (catálogo da spec 11.1). Casos prontos para lançamento ficam na Fila de lançamento e não contam como exceção.</p></div></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
     <button class="btn sm${!p.mot ? " primary" : ""}" aria-pressed="${!p.mot}" data-act="chipMot" data-mot="">Todos os motivos · ${CASES.filter(isOpenExc).length} abertas</button>
     ${EXC_MOTS.filter(m => cnt(m)).map(m => `<button class="btn sm${p.mot === m ? " primary" : ""}" aria-pressed="${p.mot === m}" data-act="chipMot" data-mot="${m}">${esc(MOT[m].l)} · ${cnt(m)}</button>`).join("")}
@@ -949,15 +1024,15 @@ function viewPend() {
       <div class="field grow"><label for="pf-q">Busca</label><input class="input" id="pf-q" data-f="pend.q" value="${esc(p.q)}" placeholder="Protocolo, NF, cedente, remetente ou detalhe"></div>
       <button class="btn ghost" data-act="clearPend">Limpar</button>
     </div>
-    <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk" id="tbl-pend">
+    <div class="tbl-wrap" id="rol-pend" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk" id="tbl-pend">
       <colgroup><col style="width:92px"><col style="width:80px"><col style="width:74px"><col style="width:12%"><col style="width:80px"><col><col style="width:176px"><col style="width:72px"><col style="width:170px"></colgroup>
       <thead><tr><th>Protocolo</th><th>Recebido</th><th>Canal</th><th>Cedente</th><th>NF</th><th>Motivo e detalhe</th><th>Status · resp.</th><th>Idade</th><th>SLA</th></tr></thead>
-      <tbody>${rows.map(x => { const st = PSTAT[x.pst] || ["—", "b-neu"]; const age = x.aberta ? dur(clock() - x.aberta) : "—";
+      <tbody>${rows.map(x => { const st = PSTAT[x.pst] || ["—", "b-neu"]; const age = idadePend(x);
         return `<tr data-open="${x.id}">
         <td data-l="Protocolo"><a class="proto" href="#caso/${x.id}">${x.id}</a></td><td class="num small" data-l="Recebido">${fD(x.rec).slice(0,5)}<div class="sub2">${fHM(x.rec)}</div></td><td data-l="Canal">${chanShort(x.canal)}</td>
         <td class="ellipsis" data-l="Cedente" title="${esc(cedName(x.ced))}">${esc(cedName(x.ced))}</td>
         <td class="num" data-l="NF">${x.nf ? esc(x.nf) : '<span class="muted" title="Não identificado">?</span>'}</td>
-        <td class="full" data-l="Motivo e detalhe"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(x.detalhe)}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(x.detalhe)}</div></td>
+        <td class="full" data-l="Motivo e detalhe"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${motBadge(x)}${x.alert ? badge(x.alert, "b-bad plain") : ""}</div><div class="sub2 ellipsis" title="${esc(detalheDe(x))}">${esc(x.dupCode ? x.dupCode + " · " : "")}${esc(detalheDe(x))}</div></td>
         <td class="full" data-l="Status · resp.">${badge(st[0], st[1])}<div class="sub2 ellipsis">${x.resp ? esc(x.resp) : "Sem responsável"}</div></td><td class="num nowrap small" data-l="Idade">${age}</td><td class="full" data-l="SLA">${slaHTML(x)}</td></tr>`; }).join("") || `<tr><td colspan="9"><div class="empty">Nenhuma pendência com esses filtros.</div></td></tr>`}
       </tbody></table></div>
     <div class="tbl-foot"><span>Exibindo ${rows.length} caso(s)</span><span>· Duplicidades não abrem pendência: o caso é encerrado como <span class="code">JA_REGISTRADO</span> e aparece aqui só para conferência.</span></div>
@@ -968,18 +1043,25 @@ const ATOR = { SISTEMA: "Sistema", REMETENTE: "Remetente", OPERADOR: "Operador",
 const confColor = v => v >= .85 ? "#16a34a" : v >= .6 ? "#d97706" : "#dc2626";
 const confHTML = v => v == null ? `<span class="faint small">—</span>` : `<div class="conf"><div class="t"><div class="f" style="width:${v * 100}%;background:${confColor(v)}"></div></div><span class="n num" style="color:${v >= .85 ? "var(--ok)" : v >= .6 ? "var(--warn)" : "var(--bad)"}">${v.toFixed(2).replace(".", ",")}</span></div>`;
 function avail(c) {
-  const P = c.estado === "PENDENTE", open = P && !["RESOLVIDA", "ENCERRADA_SEM_REGISTRO", "AUTO"].includes(c.pst);
+  const P = c.estado === "PENDENTE", open = P && !PST_FECHADA.includes(c.pst);
   return {
-    assumir: [open && c.resp !== ME, c.resp === ME ? "Caso já atribuído a você" : "Disponível para pendências abertas"],
-    lancar: [P && c.mot === "PRONTO_LANCAMENTO_MANUAL", "Disponível para PRONTO_LANCAMENTO_MANUAL"],
-    corrigir: [P && ["FOTO_ILEGIVEL", "SEM_RESPOSTA_DIGITACAO", "NF_NAO_ENCONTRADA"].includes(c.mot), "Disponível para FOTO_ILEGIVEL, SEM_RESPOSTA_DIGITACAO e NF_NAO_ENCONTRADA"],
-    vincular: [P && ["TITULO_AMBIGUO", "NF_NAO_ENCONTRADA", "SEM_CONFIRMACAO"].includes(c.mot), "Disponível para TITULO_AMBIGUO, NF_NAO_ENCONTRADA e SEM_CONFIRMACAO"],
-    reprocessar: [open && (MOT[c.mot].auto || c.mot === "REMETENTE_NAO_AUTORIZADO") && c.mot !== "PRONTO_LANCAMENTO_MANUAL", "Disponível para pendências reprocessáveis"],
-    descartar: [open, "Disponível para qualquer pendência aberta"],
-    desfazer: [c.estado === "CONCLUIDO", "Disponível só para casos concluídos (perfil supervisor)"],
+    assumir: [open && c.resp !== ME, c.resp === ME ? "caso já atribuído a você" : "disponível só para pendências abertas"],
+    lancar: [P && c.mot === "PRONTO_LANCAMENTO_MANUAL", "disponível só para PRONTO_LANCAMENTO_MANUAL"],
+    corrigir: [P && ["FOTO_ILEGIVEL", "SEM_RESPOSTA_DIGITACAO", "NF_NAO_ENCONTRADA"].includes(c.mot), "disponível só para FOTO_ILEGIVEL, SEM_RESPOSTA_DIGITACAO e NF_NAO_ENCONTRADA"],
+    vincular: [P && ["TITULO_AMBIGUO", "NF_NAO_ENCONTRADA", "SEM_CONFIRMACAO"].includes(c.mot), "disponível só para TITULO_AMBIGUO, NF_NAO_ENCONTRADA e SEM_CONFIRMACAO"],
+    reprocessar: [open && (MOT[c.mot].auto || c.mot === "REMETENTE_NAO_AUTORIZADO") && c.mot !== "PRONTO_LANCAMENTO_MANUAL", "disponível só para pendências reprocessáveis"],
+    descartar: [open, "disponível só para pendências abertas"],
+    desfazer: [c.estado === "CONCLUIDO", "disponível só para casos concluídos (perfil supervisor)"],
   };
 }
-function actBtn(c, key, label, cls) { const [on, why] = avail(c)[key]; return `<button class="btn ${cls || ""}" data-act="${key}" data-id="${c.id}"${on ? "" : ` disabled title="${esc(why)}"`}>${label}</button>`; }
+/* Ação indisponível: aria-disabled (continua no Tab e no toque, o clique não faz nada) e motivo em texto visível,
+   ligado ao botão por aria-describedby; title não aparece no teclado nem no toque */
+const ACOES = { assumir: "Assumir caso", lancar: "Marcar como lançado", corrigir: "Corrigir NF", vincular: "Vincular manualmente", reprocessar: "Reprocessar", descartar: "Descartar", desfazer: "Desfazer" };
+function actBtn(c, key, label, cls) { const [on] = avail(c)[key]; return `<button class="btn ${cls || ""}" data-act="${key}" data-id="${c.id}"${on ? "" : ` aria-disabled="true" aria-describedby="why-${key}"`}>${label}</button>`; }
+function indisponiveisHTML(c) {
+  const a = avail(c), ks = Object.keys(ACOES).filter(k => !a[k][0]);
+  return ks.length ? `<div class="why"><span>Indisponíveis neste caso:</span><ul>${ks.map(k => `<li><b>${ACOES[k]}</b>: <span id="why-${k}">${esc(a[k][1])}</span></li>`).join("")}</ul></div>` : "";
+}
 function svgFor(c, extra) { return canhotoSVG(Object.assign({ emit: cedName(c.ced) === "—" ? "Emitente não identificado" : cedName(c.ced), nf: c.titulo ? c.titulo.nf : (c.nfShow || c.nf || "771251"), serie: c.serie || (c.titulo && c.titulo.serie) || "1", dest: c.titulo ? c.titulo.sac : "Destinatário", valor: c.titulo ? brlN(c.titulo.val) : "4.380,00", emissao: c.emissao, receb: c.receb, recebedor: c.recebedor, blur: c.blur, rot: c.rot }, extra || {})); }
 function viewCaso(id) {
   const c = byId(id); if (!c) return `<div class="card"><div class="empty">Caso ${esc(id)} não encontrado. <a href="#fila">Voltar</a></div></div>`;
@@ -998,8 +1080,8 @@ function viewCaso(id) {
   const evs = c.events.slice().sort((a, b) => a.t - b.t).filter(e => !UI.histF || (UI.histF === "msg" ? ["MENSAGEM_ENVIADA", "MENSAGEM_RECEBIDA"].includes(e.tipo) : !["MENSAGEM_ENVIADA", "MENSAGEM_RECEBIDA"].includes(e.tipo)));
   const tituloBlock = c.titulo ? `
       <dl class="kv" style="grid-template-columns:100px 1fr"><dt>ID NetFactor</dt><dd class="num">${esc(c.titulo.id)}${c.titulo.parcela ? ` · parcela ${c.titulo.parcela}` : ""}</dd><dt>Cedente</dt><dd>${esc(cedName(c.titulo.ced))}</dd><dt>Sacado</dt><dd>${esc(c.titulo.sac)}</dd><dt>Valor</dt><dd class="num"><b>${brl(c.titulo.val)}</b></dd><dt>Vencimento</dt><dd class="num">${fD(c.titulo.venc)}</dd><dt>Dados de</dt><dd class="small">Índice local (planilha), sincronizado ${fDM(c.titulo.sync)}</dd></dl>
-      <div class="viewer-tools" style="margin-top:12px"><button class="btn sm" disabled title="Link direto depende de URL estável por título no NetFactor [A DEFINIR]">${IC.ext}Abrir no NetFactor</button><button class="btn sm" data-act="copiar" data-id="${c.id}">${IC.copy}Copiar dados</button></div>
-      <div class="xs faint" style="margin-top:6px">Link direto depende de URL estável por título na interface do NetFactor [A DEFINIR].</div>`
+      <div class="viewer-tools" style="margin-top:12px"><button class="btn sm" aria-disabled="true" aria-describedby="why-nf">${IC.ext}Abrir no NetFactor</button><button class="btn sm" data-act="copiar" data-id="${c.id}">${IC.copy}Copiar dados</button></div>
+      <div class="xs faint" style="margin-top:6px" id="why-nf">Indisponível: o link direto depende de URL estável por título na interface do NetFactor [A DEFINIR].</div>`
     : c.cands && c.mot === "TITULO_AMBIGUO" ? `<div class="note warn" style="margin-bottom:10px">${IC.warn}<span>${c.cands.length} títulos candidatos para a NF ${esc(c.nf)}. Use <b>Vincular manualmente</b> para escolher.</span></div>
       ${c.cands.map(t => `<div style="font-size:12.5px;padding:7px 0;border-bottom:1px solid #eef1f5"><div style="display:flex;gap:8px"><b class="num">Título ${t.id}</b><span class="muted">parcela ${t.parcela || "—"}</span><span class="num" style="margin-left:auto">${brl(t.val)}</span></div><div class="xs muted" style="display:flex;gap:8px;margin-top:2px"><span class="ellipsis">${esc(t.sac)}</span><span class="num" style="margin-left:auto;white-space:nowrap">venc. ${fD(t.venc)}</span></div></div>`).join("")}`
     : `<div class="note neu">${IC.info}<span>Nenhum título vinculado. ${c.ced ? `Última sincronização do cedente: ${fDM(SYNC)} (planilha).` : "Cedente não inferido."}</span></div>`;
@@ -1007,15 +1089,16 @@ function viewCaso(id) {
   <div class="card" style="margin-bottom:16px">
     <div style="padding:14px 16px 12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
       <button class="btn sm ghost" data-act="back">${IC.back}Voltar</button>
-      <h1 style="font-size:19px;margin:0;font-weight:700">Caso <span class="mono" style="font-size:18px">${c.id}</span></h1>
+      <h1 tabindex="-1" style="font-size:19px;margin:0;font-weight:700">Caso <span class="mono" style="font-size:18px">${c.id}</span></h1>
       ${estadoBadge(c)}<span class="small muted">${c.estado === "PENDENTE" ? "/ " + esc(m.l) : c.estado === "JA_REGISTRADO" ? "/ " + esc(c.dupCode) : ""}</span>
       <div class="det-meta" style="margin-left:auto"><span>SLA ${slaHTML(c)}</span><span>Pendência ${badge(st[0], st[1])}</span><span>Responsável <b>${c.resp ? esc(c.resp) : "—"}</b></span><span>${chanHTML(c.canal)}</span><span>Recebido <b class="num">${fDM(c.rec)}</b></span></div>
     </div>
     <div class="actionbar">
-      ${actBtn(c, "assumir", "Assumir caso")}${actBtn(c, "lancar", `${IC.check}Marcar como lançado`, "primary")}${actBtn(c, "corrigir", "Corrigir NF")}${actBtn(c, "vincular", "Vincular manualmente")}${actBtn(c, "reprocessar", `${IC.rot}Reprocessar`)}${actBtn(c, "descartar", "Descartar", "danger")}${actBtn(c, "desfazer", "Desfazer", "ghost")}
-      <span class="hint">Ações habilitadas conforme estado e perfil · passe o mouse nas desabilitadas</span>
+      ${actBtn(c, "assumir", ACOES.assumir)}${actBtn(c, "lancar", `${IC.check}${ACOES.lancar}`, "primary")}${actBtn(c, "corrigir", ACOES.corrigir)}${actBtn(c, "vincular", ACOES.vincular)}${actBtn(c, "reprocessar", `${IC.rot}${ACOES.reprocessar}`)}${actBtn(c, "descartar", ACOES.descartar, "danger")}${actBtn(c, "desfazer", ACOES.desfazer, "ghost")}
+      <span class="hint">Ações habilitadas conforme estado e perfil</span>
     </div>
-    ${isExc || c.alert || m.dup ? `<div style="padding:0 16px 14px"><div class="note ${m.sla === "4h" || c.alert ? "warn" : "neu"}">${IC.warn}<span><b>${esc(m.dup ? "Duplicidade · " + c.dupCode : m.l + " · " + c.mot)}</b> — ${esc(c.detalhe)}${c.nextTry ? "" : ""}</span></div></div>` : ""}
+    ${indisponiveisHTML(c)}
+    ${isExc || c.alert || m.dup ? `<div style="padding:0 16px 14px"><div class="note ${m.sla === "4h" || c.alert ? "warn" : "neu"}">${IC.warn}<span><b>${esc(m.dup ? "Duplicidade · " + c.dupCode : m.l + " · " + c.mot)}</b> — ${esc(detalheDe(c))}</span></div></div>` : ""}
   </div>
   <div class="det3" style="display:grid;grid-template-columns:minmax(0,470px) minmax(0,1fr) minmax(0,360px);gap:16px;align-items:start">
     <div class="grid" style="gap:16px">
@@ -1039,122 +1122,246 @@ function viewCaso(id) {
     </div>
     <div class="card hist"><div class="card-h"><h2 id="t-hist">Histórico</h2><span class="sub">auditoria, somente inclusão</span></div>
       <div style="display:flex;gap:6px;padding:10px 16px 0">${[["", "Tudo"], ["ev", "Eventos"], ["msg", "Mensagens"]].map(([k, l]) => `<button class="btn sm${(UI.histF || "") === k ? " primary" : ""}" aria-pressed="${(UI.histF || "") === k}" data-act="histF" data-k="${k}">${l}</button>`).join("")}</div>
-      <div class="card-b" tabindex="0" role="region" aria-labelledby="t-hist" style="max-height:calc(100vh - 330px);min-height:320px;overflow:auto"><ul class="tl">${evs.map(e => `<li class="a-${e.ator}${e.fresh ? " new" : ""}" style="grid-template-columns:74px 18px 1fr"><span class="time">${fDM(e.t)}</span><span class="pt"><i></i></span><div><div class="ev-t"><span class="code">${e.tipo}</span><span class="xs muted">${ATOR[e.ator]}</span></div>${e.est ? `<div class="xs muted" style="margin-top:2px">${e.est[0]} → <b style="color:var(--text-2)">${e.est[1]}</b></div>` : ""}<div class="ev-d">${esc(e.d)}</div>${e.q ? `<div class="quote">${esc(e.q)}</div>` : ""}</div></li>`).join("")}</ul></div>
+      <div class="card-b" id="rol-hist" tabindex="0" role="region" aria-labelledby="t-hist" style="max-height:calc(100vh - 330px);min-height:320px;overflow:auto"><ul class="tl">${evs.map(e => `<li class="a-${e.ator}${e.fresh ? " new" : ""}" style="grid-template-columns:74px 18px 1fr"><span class="time">${fDM(e.t)}</span><span class="pt"><i></i></span><div><div class="ev-t"><span class="code">${e.tipo}</span><span class="xs muted">${ATOR[e.ator]}</span></div>${e.est ? `<div class="xs muted" style="margin-top:2px">${e.est[0]} → <b style="color:var(--text-2)">${e.est[1]}</b></div>` : ""}<div class="ev-d">${esc(e.d)}</div>${e.q ? `<div class="quote">${esc(e.q)}</div>` : ""}</div></li>`).join("")}</ul></div>
     </div>
   </div>`;
 }
 
 /* ================= Diálogos de ação (produto 7.3) ================= */
 let modalOk = null, modalFrom = null;
+/* Diálogo modal: o resto da página (.app) fica inerte e o Tab circula dentro dele (prendeTab);
+   o foco começa no primeiro controle do formulário (checkbox incluído) ou, sem controle, no título */
+const CONTROLES_MODAL = "#modal .modal-b input:not([disabled]):not([type=hidden]), #modal .modal-b select:not([disabled]), #modal .modal-b textarea:not([disabled])";
+function focoInicialModal() {
+  const cs = $$(CONTROLES_MODAL); let f = cs[0];
+  if (f && f.type === "radio") f = cs.find(x => x.name === f.name && x.checked) || f;
+  (f || $("#modal-t")).focus();
+}
 function openModal(title, body, okLabel, okCls, onOk) {
   modalFrom = focoDe(document.activeElement);
-  $("#modal").innerHTML = `<div class="modal-h"><h2 id="modal-t">${title}</h2><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
-  modalOk = onOk; $("#overlay").classList.add("on"); const f = $("#modal input:not([type=radio]):not([type=checkbox]), #modal textarea, #modal select"); if (f) setTimeout(() => f.focus(), 30);
+  $("#modal").innerHTML = `<div class="modal-h"><h2 id="modal-t" tabindex="-1">${title}</h2><button class="btn sm ghost x" data-act="mclose" aria-label="Fechar">Fechar</button></div><div class="modal-b">${body}</div><div class="modal-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn ${okCls || "primary"}" data-act="mok">${okLabel}</button></div>`;
+  modalOk = onOk; $(".app").inert = true; $("#overlay").classList.add("on"); setTimeout(focoInicialModal, 30);
 }
-function closeModal() { $("#overlay").classList.remove("on"); modalOk = null; const d = modalFrom; modalFrom = null; focar(d); }
+/* Campo marcado inválido volta ao normal quando o usuário mexe nele (rádio escolhido, caixa marcada, texto digitado);
+   a próxima confirmação valida de novo */
+function limpaInvalido(e) {
+  const el = e.target && e.target.closest && e.target.closest("#modal [aria-invalid]"); if (!el) return;
+  el.removeAttribute("aria-invalid"); el.removeAttribute("aria-describedby"); el.classList.remove("err"); $("#m-err").textContent = "";
+}
+$("#modal").addEventListener("input", limpaInvalido); $("#modal").addEventListener("change", limpaInvalido);
+function closeModal() { $("#overlay").classList.remove("on"); $(".app").inert = false; modalOk = null; const d = modalFrom; modalFrom = null; focar(d); }
+const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function prendeTab(e) {
+  if (e.key !== "Tab" || !$("#overlay").classList.contains("on")) return;
+  const fs = $$(FOCAVEIS, $("#modal")).filter(x => x.getClientRects().length); if (!fs.length) return;
+  const a = document.activeElement, prim = fs[0], ult = fs[fs.length - 1];
+  const sai = !$("#modal").contains(a) || (e.shiftKey ? a === prim || a === $("#modal-t") : a === ult);
+  if (sai) { e.preventDefault(); (e.shiftKey ? ult : prim).focus(); }
+}
+/* Erro de validação: texto em #m-err (role=alert), campo marcado inválido e descrito pelo erro, foco nele */
+function erroModal(sel, msg) {
+  $$("#modal [aria-invalid]").forEach(i => { i.removeAttribute("aria-invalid"); i.removeAttribute("aria-describedby"); i.classList.remove("err"); });
+  $("#m-err").textContent = msg;
+  const el = sel && $(sel);
+  if (el) { el.setAttribute("aria-invalid", "true"); el.setAttribute("aria-describedby", "m-err"); el.classList.add("err"); el.focus(); }
+  return false;
+}
 const pkgHTML = c => `<div class="pkg"><span>Protocolo</span><span class="mono">${c.id}</span><span>NF / série</span><span class="num">${esc(c.nf)} / ${esc(c.serie)}</span><span>Título</span><span class="num">${c.titulo ? c.titulo.id : "—"}</span><span>Cedente</span><span>${esc(cedName(c.ced))}</span><span>Sacado</span><span>${c.titulo ? esc(c.titulo.sac) : "—"}</span><span>Valor / venc.</span><span class="num">${c.titulo ? brl(c.titulo.val) + " · " + fD(c.titulo.venc) : "—"}</span><span>Remetente</span><span>${esc(mask(c.rem.id))} · ${chanHTML(c.canal)}</span><span>Confirmação</span><span>${c.conf ? `"${esc(c.conf.txt)}" em ${fDM(c.conf.em)}` : "—"}</span></div>`;
 function ensureAssigned(c) { if (c.resp !== ME) { c.resp = ME; addEv(c, "CASO_ATRIBUIDO", "OPERADOR", `Atribuído a ${ME}`); } }
 function dlgLancar(c) {
   openModal("Marcar como lançado", `${pkgHTML(c)}
     <div class="note neu">${IC.info}<span>Lance o canhoto no título do NetFactor (fora do produto) e confirme aqui. ${c.resp !== ME ? "<b>O caso será atribuído a você</b> (CASO_ATRIBUIDO)." : ""}</span></div>
-    <label class="check"><input type="checkbox" id="m-ok"> <span><b>Lancei este canhoto no NetFactor</b></span></label>
-    <div class="field"><span class="lbl">Imagem anexada no NetFactor?</span><div style="display:flex;gap:16px"><label class="check"><input type="radio" name="m-img" value="1" checked> Sim</label><label class="check"><input type="radio" name="m-img" value="0"> Não (só marquei o recebimento)</label></div></div>
-    <div class="field"><label for="m-obs">Observação (opcional)</label><textarea class="input" id="m-obs" placeholder="Ex.: anexado como tipo canhoto"></textarea></div><div class="err-msg" id="m-err"></div>`,
+    <label class="check"><input type="checkbox" id="m-ok" aria-required="true"> <span><b>Lancei este canhoto no NetFactor</b></span></label>
+    <fieldset class="field"><legend class="lbl">Imagem anexada no NetFactor?</legend><div style="display:flex;gap:6px 16px;flex-wrap:wrap"><label class="check"><input type="radio" name="m-img" value="1" checked> Sim</label><label class="check"><input type="radio" name="m-img" value="0"> Não (só marquei o recebimento)</label></div></fieldset>
+    <div class="field"><label for="m-obs">Observação (opcional)</label><textarea class="input" id="m-obs" placeholder="Ex.: anexado como tipo canhoto"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
     "Confirmar lançamento", "primary", () => {
-      if (!$("#m-ok").checked) { $("#m-err").textContent = "Confirme que o canhoto foi lançado no NetFactor."; return false; }
+      if (!$("#m-ok").checked) return erroModal("#m-ok", "Confirme que o canhoto foi lançado no NetFactor.");
       const img = $("input[name=m-img]:checked").value === "1", obs = $("#m-obs").value.trim();
       ensureAssigned(c); const now = clock();
       addEv(c, "LANCAMENTO_MANUAL_REGISTRADO", "OPERADOR", `Declarado por ${ME} · modo MANUAL_ASSISTIDO · imagem anexada no NetFactor: ${img ? "sim" : "não"}${obs ? " · " + obs : ""}`, null, ["PENDENTE", "REGISTRADO"]);
       addEv(c, "PENDENCIA_RESOLVIDA", "SISTEMA", "PRONTO_LANCAMENTO_MANUAL resolvida");
       addMsg(c, "SUCESSO", TPL.SUCESSO({ nf: c.nf, dh: fDT(now), sac: c.titulo.sac, p: c.id }));
       addEv(c, "NOTIFICACAO_ENVIADA", "SISTEMA", "Aviso de sucesso enviado uma única vez (notificado_sucesso = verdadeiro)", null, ["REGISTRADO", "CONCLUIDO"]);
-      Object.assign(c, { estado: "CONCLUIDO", pst: "RESOLVIDA", lancadoEm: now, lancadoPor: ME, imgNF: img }); UI.fila.sel.delete(c.id);
+      Object.assign(c, { estado: "CONCLUIDO", pst: "RESOLVIDA", lancadoEm: now, lancadoPor: ME, imgNF: img, encerradaEm: now }); UI.fila.sel.delete(c.id);
       toast(`<b>${c.id}</b> marcado como lançado. Remetente avisado.`); return true;
     });
 }
-function chaveValida(k) { if (!/^\d{44}$/.test(k)) return false; const b = k.slice(0, 43); let s = 0, w = 2; for (let i = b.length - 1; i >= 0; i--) { s += +b[i] * w; w = w === 9 ? 2 : w + 1; } const r = s % 11; return (r < 2 ? 0 : 11 - r) === +k[43]; }
+/* ---------- Correção de NF: série, NF sem zeros à esquerda e chave de acesso ----------
+   Chave: cUF(2) AAMM(4) CNPJ(14) modelo(2) série(3) nNF(9) tpEmis(1) cNF(8) DV(1) */
+const UF_IBGE = ["11", "12", "13", "14", "15", "16", "17", "21", "22", "23", "24", "25", "26", "27", "28", "29", "31", "32", "33", "35", "41", "42", "43", "50", "51", "52", "53"];
+const semZeros = s => String(s).replace(/^0+(?=\d)/, "");
+const soDig = s => String(s).replace(/\D/g, "");
+const cnpjFmt = d => `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+const cnpjValido = d => /^\d{14}$/.test(d) && !/^(\d)\1{13}$/.test(d) && soDig(cnpj(d.slice(0, 12))) === d;
+function chaveProblema(k) {
+  if (!/^\d{44}$/.test(k)) return "A chave de acesso deve ter 44 dígitos.";
+  if (dvChave(k.slice(0, 43)) !== +k[43]) return "Chave inválida: o dígito verificador não confere. Verifique os 44 dígitos.";
+  if (!UF_IBGE.includes(k.slice(0, 2))) return `Chave inválida: ${k.slice(0, 2)} não é código de UF da tabela do IBGE.`;
+  if (k.slice(20, 22) !== "55") return `Chave de modelo ${k.slice(20, 22)}: o canhoto é de NF-e, modelo 55.`;
+  if (!cnpjValido(k.slice(6, 20))) return "Chave inválida: o CNPJ do emitente embutido na chave tem dígito verificador errado.";
+  return null;
+}
+const chaveValida = k => !chaveProblema(k);
+/* devolve { ok, nf, serie, chave } normalizados ou { ok: false, campo, erro } com a regra que falhou */
+function validarCorrecao(c, f) {
+  const nf = String(f.nf || "").trim(), serie = String(f.serie || "").trim(), chave = String(f.chave || "").replace(/\s/g, "");
+  if (!/^\d{1,9}$/.test(nf)) return { ok: false, campo: "nf", erro: "NF deve conter só dígitos (até 9)." };
+  if (/^0+$/.test(nf)) return { ok: false, campo: "nf", erro: "NF não pode ser zero." };
+  if (!/^\d{1,3}$/.test(serie)) return { ok: false, campo: "serie", erro: "Série deve ter de 1 a 3 dígitos (ex.: 1)." };
+  const r = { ok: true, nf: semZeros(nf), serie: semZeros(serie), chave: chave || null };
+  if (!chave) return r;
+  const p = chaveProblema(chave); if (p) return { ok: false, campo: "chave", erro: p };
+  const kNF = semZeros(chave.slice(25, 34)), kSerie = semZeros(chave.slice(22, 25));
+  if (kNF !== r.nf || kSerie !== r.serie) return { ok: false, campo: "chave", erro: `A chave é da NF ${kNF}, série ${kSerie}, e não da NF ${r.nf}, série ${r.serie} informada.` };
+  if (c.ced && chave.slice(6, 20) !== soDig(CED[c.ced].cnpj)) return { ok: false, campo: "chave", erro: `A chave é de outro emitente (CNPJ ${cnpjFmt(chave.slice(6, 20))}); o cedente do caso é ${cedName(c.ced)} (${CED[c.ced].cnpj}).` };
+  return r;
+}
+/* Mesma regra da carga inicial (K7Q2-96): título que já tem canhoto encerra o caso como TITULO_JA_COM_CANHOTO */
+function fecharDuplicidade(c, t, dono) {
+  const desde = dono.conf ? dono.conf.em : dono.rec, onde = dono.estado === "PENDENTE" ? dono.mot : dono.estado;
+  Object.assign(c, { titulo: t, ced: t.ced, mot: "DUPLICIDADE", estado: "JA_REGISTRADO", pst: "AUTO", dupCode: "TITULO_JA_COM_CANHOTO", sla: null, alert: null, encerradaEm: clock(),
+    detalhe: `Título já tem o caso ${dono.id} em ${onde} desde ${fDM(desde)}` });
+  addEv(c, "TITULO_JA_COM_CANHOTO", "SISTEMA", `Caso ${dono.id} em ${onde} para o mesmo título`, null, ["BUSCANDO_TITULO", "JA_REGISTRADO"]);
+  addMsg(c, "DUPLICIDADE", TPL.DUPLICIDADE({ p: c.id, nf: c.nf, dr: fDT(desde) }));
+}
 function dlgCorrigir(c) {
   const sug = c.mot === "FOTO_ILEGIVEL" ? "771251" : c.mot === "SEM_RESPOSTA_DIGITACAO" ? "30092855" : c.mot === "NF_NAO_ENCONTRADA" ? (c.nfShow || "") : "";
   openModal(`Corrigir NF · ${c.id}`, `<div class="note neu">${IC.info}<span>O caso volta para <span class="code">IDENTIFICADO</span> com origem OPERADOR e segue para a busca do título e a confirmação do remetente.${sug ? ` Exemplo de demonstração: <b class="num">${sug}</b> existe no índice.` : ""}</span></div>
-    <div style="display:grid;grid-template-columns:1fr 110px;gap:10px"><div class="field"><label for="m-nf">Número da NF</label><input class="input num" id="m-nf" inputmode="numeric" value="${esc(c.nf || "")}" placeholder="Só dígitos"></div><div class="field"><label for="m-serie">Série</label><input class="input" id="m-serie" value="${esc(c.serie || (c.ced === "HORIZ" ? "3" : c.ced === "RIBEIRA" ? "2" : "1"))}"></div></div>
-    <div class="field"><label for="m-chave">Chave de acesso (opcional, 44 dígitos)</label><input class="input mono" id="m-chave" placeholder="Validada pelo dígito verificador"></div>
-    <div class="field"><label for="m-just">Justificativa</label><textarea class="input" id="m-just" placeholder="Ex.: número lido na imagem ampliada"></textarea></div><div class="err-msg" id="m-err"></div>`,
+    <div style="display:grid;grid-template-columns:1fr 110px;gap:10px"><div class="field"><label for="m-nf">Número da NF</label><input class="input num" id="m-nf" inputmode="numeric" value="${esc(c.nf || "")}" placeholder="Só dígitos"></div><div class="field"><label for="m-serie">Série</label><input class="input num" id="m-serie" inputmode="numeric" value="${esc(c.serie || (c.ced === "HORIZ" ? "3" : c.ced === "RIBEIRA" ? "2" : "1"))}"></div></div>
+    <div class="field"><label for="m-chave">Chave de acesso (opcional, 44 dígitos)</label><input class="input mono" id="m-chave" inputmode="numeric" placeholder="Precisa bater com NF, série e cedente"></div>
+    <div class="field"><label for="m-just">Justificativa</label><textarea class="input" id="m-just" placeholder="Ex.: número lido na imagem ampliada"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
     "Salvar correção", "primary", () => {
-      const nf = $("#m-nf").value.trim(), serie = $("#m-serie").value.trim(), ch = $("#m-chave").value.replace(/\s/g, "");
-      $$("#modal .input").forEach(i => i.classList.remove("err"));
-      if (!/^\d{1,9}$/.test(nf)) { $("#m-nf").classList.add("err"); $("#m-err").textContent = "NF deve conter só dígitos (até 9)."; return false; }
-      if (ch && !chaveValida(ch)) { $("#m-chave").classList.add("err"); $("#m-err").textContent = "Chave inválida: verifique os 44 dígitos e o dígito verificador."; return false; }
+      const v = validarCorrecao(c, { nf: $("#m-nf").value, serie: $("#m-serie").value, chave: $("#m-chave").value });
+      if (!v.ok) return erroModal("#m-" + v.campo, v.erro);
+      const { nf, serie } = v, ch = v.chave;
       const old = c.nf || "?"; const oldMot = c.mot; ensureAssigned(c);
       addEv(c, "PENDENCIA_RESOLVIDA", "OPERADOR", `NF corrigida por ${ME}: de ${old} para ${nf}${$("#m-just").value.trim() ? " · " + $("#m-just").value.trim() : ""}`, null, ["PENDENTE", "IDENTIFICADO"]);
       Object.assign(c, { nf, serie, chave: ch || null, origem: "OPERADOR", tent: c.tent + 1 });
-      const hits = IDX.filter(t => t.nf === nf && (!c.ced || t.ced === c.ced));
-      if (hits.length === 1) {
-        c.titulo = hits[0]; c.ced = hits[0].ced; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA";
+      const hits = IDX.filter(t => semZeros(t.nf) === nf && semZeros(t.serie) === serie && (!c.ced || t.ced === c.ced));
+      const dono = hits.length === 1 ? donoDoTitulo(hits[0], c) : null;
+      if (dono) {
+        fecharDuplicidade(c, hits[0], dono);
+        toast(`O título ${hits[0].id} já tem o caso <b>${dono.id}</b>. <b>${c.id}</b> encerrado como duplicidade.`);
+      } else if (hits.length === 1) {
+        c.titulo = hits[0]; c.ced = hits[0].ced; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA"; c.encerradaEm = clock();
         addEv(c, "TITULO_ENCONTRADO", "SISTEMA", `1 título · ID NetFactor ${c.titulo.id} · índice local`, null, ["BUSCANDO_TITULO", "AGUARDANDO_CONFIRMACAO"]);
         addEv(c, "CONFIRMACAO_SOLICITADA", "SISTEMA", "Resumo do título enviado ao remetente"); addMsg(c, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c)));
         toast(`Título encontrado. Confirmação enviada ao remetente do caso <b>${c.id}</b>.`);
       } else if (hits.length > 1) {
-        c.cands = hits; c.mot = "TITULO_AMBIGUO"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.sla = slaVence(c); c.detalhe = `${hits.length} títulos para a NF ${nf}`;
+        c.cands = hits; c.mot = "TITULO_AMBIGUO"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.encerradaEm = null; c.sla = slaVence(c); c.detalhe = `${hits.length} títulos para a NF ${nf}`;
         addEv(c, "TITULO_AMBIGUO", "SISTEMA", c.detalhe); addEv(c, "PENDENCIA_ABERTA", "SISTEMA", "Motivo TITULO_AMBIGUO", null, ["BUSCANDO_TITULO", "PENDENTE"]); toast("Mais de um título: escolha em Vincular manualmente.");
       } else {
-        c.mot = "NF_NAO_ENCONTRADA"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.sla = slaVence(c); c.detalhe = `NF ${nf} não consta no índice (planilha de ${fDM(SYNC)})`;
+        c.mot = "NF_NAO_ENCONTRADA"; c.pst = "EM_ANALISE"; c.aberta = clock(); c.encerradaEm = null; c.sla = slaVence(c); c.detalhe = `NF ${nf} não consta no índice (planilha de ${fDM(SYNC)})`;
         addEv(c, "TITULO_NAO_ENCONTRADO", "SISTEMA", "0 títulos no índice local"); addEv(c, "PENDENCIA_ABERTA", "SISTEMA", `Motivo NF_NAO_ENCONTRADA${oldMot !== "NF_NAO_ENCONTRADA" ? " (antes " + oldMot + ")" : ""}`, null, ["BUSCANDO_TITULO", "PENDENTE"]); toast(`NF ${nf} não encontrada no índice. Pendência mantida.`);
       }
       return true;
     });
 }
+/* Busca no índice do "Vincular": consulta e campos passam pela mesma normalização (minúsculas, sem acento,
+   sem espaços, "R$" só como prefixo, ponto de milhar só entre dígitos) */
+const normBusca = s => String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/^r\$\s*/, "").replace(/(\d)\.(?=\d)/g, "$1").replace(/\s+/g, "");
+const VINC_MAX = 8;
+/* itens: até VINC_MAX títulos que casam (candidatos do caso primeiro); total: quantos casaram;
+   fixo: o título escolhido (o.fixo) quando ele não está entre os itens, para não sumir ao redesenhar */
+function buscaTitulos(c, q, o) {
+  o = o || {}; const nq = normBusca(q); const cands = c.cands || []; const restrito = !!c.ced && !o.outros;
+  const achados = cands.concat(IDX.filter(t => !cands.includes(t))).filter(t => !restrito || t.ced === c.ced)
+    .filter(t => !nq || [t.nf, t.sac, brlN(t.val), t.id].some(v => normBusca(v).includes(nq)));
+  const itens = achados.slice(0, VINC_MAX);
+  const fixo = o.fixo && !itens.some(t => t.id === o.fixo) ? IDX.find(t => t.id === o.fixo) || null : null;
+  return { itens, total: achados.length, fixo, restrito };
+}
+const remCeds = r => r && r.ceds.length ? r.ceds.map(cedName).join(", ") : "nenhum cedente";
+/* Vínculo manual: título sem outro caso com canhoto, do cedente do caso (outro cedente só com o.outros) e justificativa */
+function vincularCaso(c, t, just, o) {
+  o = o || {};
+  if (!t) return { ok: false, campo: "pick", erro: "Selecione um título." };
+  const dono = donoDoTitulo(t, c);
+  if (dono) return { ok: false, campo: "pick", erro: `O título ${t.id} já tem canhoto (caso ${dono.id}). Escolha outro título.` };
+  const outro = !!c.ced && t.ced !== c.ced;
+  if (outro && !o.outros) return { ok: false, campo: "outros", erro: `O título ${t.id} é de outro cedente. Marque "Incluir títulos de outros cedentes" para confirmar.` };
+  if (!just) return { ok: false, campo: "just", erro: "A justificativa é obrigatória." };
+  const oldMot = c.mot, oldCed = c.ced; ensureAssigned(c);
+  if (outro) addEv(c, "VINCULO_OUTRO_CEDENTE", "OPERADOR", `Título ${t.id} é de ${cedName(t.ced)}; o caso era de ${cedName(oldCed)} e o remetente está autorizado para ${remCeds(c.rem)} · vinculado por ${ME}`);
+  Object.assign(c, { titulo: t, nf: t.nf, serie: t.serie, ced: t.ced, conf: { txt: "Vinculado pelo operador", em: clock() } });
+  addEv(c, "CONFIRMADO", "OPERADOR", `Título ${t.id} vinculado por ${ME} · justificativa: ${just}`, null, ["PENDENTE", "CONFIRMADO"]);
+  addEv(c, "PENDENCIA_RESOLVIDA", "SISTEMA", `${oldMot} resolvida por vínculo manual`);
+  addEv(c, "PENDENCIA_ABERTA", "SISTEMA", "Motivo PRONTO_LANCAMENTO_MANUAL · adaptador ManualAssistido", null, ["CONFIRMADO", "PENDENTE"]);
+  addMsg(c, "CONFIRMADO_EM_REGISTRO", TPL.CONFIRMADO_EM_REGISTRO({ p: c.id }));
+  Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), encerradaEm: null, alert: null }); c.sla = slaVence(c);
+  return { ok: true, outro };
+}
+/* Lista de títulos do Vincular: com rádio habilitado, o Tab entra pelo rádio e o grupo só recebe foco por script (erro);
+   sem nenhum (só títulos que já têm canhoto, ou nenhum resultado), o próprio grupo é focável para rolar pelo teclado */
+const tabPick = html => /<input type="radio" name="m-t" value="[^"]*"(?: checked)?>/.test(html) ? "-1" : "0";
 function dlgVincular(c) {
-  const list = q => { q = (q || "").toLowerCase().replace(/[r$\s.]/g, ""); const base = (c.cands || []).concat(IDX.filter(t => !(c.cands || []).includes(t)));
-    return base.filter(t => !q || [t.nf, t.sac.toLowerCase().replace(/\s/g, ""), brlN(t.val).replace(/\./g, ""), t.id].some(s => s.includes(q.replace(/,/g, ",")))).slice(0, 8); };
-  const pick = q => list(q).map((t, i) => `<label><input type="radio" name="m-t" value="${t.id}"${i === 0 && c.cands ? " checked" : ""}><span><b class="num">NF ${t.nf}</b> · ${esc(t.sac)}${t.parcela ? ` · parcela ${t.parcela}` : ""}<br><span class="xs muted">${esc(cedName(t.ced))} · título ${t.id} · venc. ${fD(t.venc)}</span></span><span class="num">${brl(t.val)}</span></label>`).join("") || `<div class="empty" style="padding:14px">Nenhum título no índice.</div>`;
+  let selId = null, outros = false; // nenhum título pré-selecionado
+  const negou = c.mot === "SEM_CONFIRMACAO" && c.titulo && c.events.some(e => e.tipo === "NEGADO") ? c.titulo.id : null;
+  const item = t => {
+    const dono = donoDoTitulo(t, c), outro = !!c.ced && t.ced !== c.ced;
+    const notas = [dono ? `<span class="ja">Já tem canhoto (caso ${dono.id})</span>` : "", outro ? badge("Outro cedente", "b-warn plain") : "", t.id === negou ? `<span class="ja">Remetente respondeu NÃO a este título</span>` : ""].filter(Boolean);
+    return `<label${dono ? ' class="dis"' : ""}><input type="radio" name="m-t" value="${t.id}"${t.id === selId && !dono ? " checked" : ""}${dono ? " disabled" : ""}><span><b class="num">NF ${t.nf}</b> · ${esc(t.sac)}${t.parcela ? ` · parcela ${t.parcela}` : ""}<br><span class="xs muted">${esc(cedName(t.ced))} · título ${t.id} · venc. ${fD(t.venc)}</span>${notas.length ? `<br><span class="xs">${notas.join(" ")}</span>` : ""}</span><span class="num">${brl(t.val)}</span></label>`;
+  };
+  const pick = q => {
+    q = (q || "").trim(); const r = buscaTitulos(c, q, { fixo: selId, outros }); const resto = r.total - r.itens.length; const de = r.restrito ? ` entre os de ${esc(cedName(c.ced))}` : "";
+    return (r.fixo ? item(r.fixo) : "") + (r.itens.map(item).join("") || `<div class="empty" style="padding:14px">${q ? `Nenhum título encontrado para "${esc(q)}"${de}.` : `Nenhum título no índice${de}.`}</div>`)
+      + (resto > 0 ? `<div class="xs muted" style="padding:8px 10px">Mais ${resto} título${resto > 1 ? "s" : ""}: refine a busca.</div>` : "");
+  };
+  const aviso = () => outros ? `<div class="note warn">${IC.warn}<span>Títulos de outro cedente aparecem marcados. O caso é de <b>${esc(cedName(c.ced))}</b> e o remetente está autorizado para ${esc(remCeds(c.rem))}. Vincular a outro cedente registra o evento <span class="code">VINCULO_OUTRO_CEDENTE</span>.</span></div>` : "";
   const q0 = c.mot === "NF_NAO_ENCONTRADA" ? (c.nf || "").slice(0, 4) : (c.nf || "");
+  const poePick = q => { const h = pick(q), p = $("#m-pick"); p.innerHTML = h; p.setAttribute("tabindex", tabPick(h)); };
   openModal(`Vincular manualmente · ${c.id}`, `<div class="note neu">${IC.info}<span>O operador escolhe o título e assume a confirmação. O caso vai para <span class="code">CONFIRMADO</span> e entra na fila de lançamento.</span></div>
     <div class="field"><label for="m-q">Buscar no índice (NF, sacado ou valor)</label><input class="input" id="m-q" value="${esc(q0)}"></div>
-    <div class="pick" id="m-pick">${pick(q0)}</div>
-    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err"></div>`,
+    ${c.ced ? `<label class="check"><input type="checkbox" id="m-outros"> <span>Incluir títulos de outros cedentes</span></label>` : ""}<div id="m-aviso" aria-live="polite"></div>
+    <div class="pick" id="m-pick" tabindex="${tabPick(pick(q0))}" role="radiogroup" aria-label="Títulos encontrados" aria-required="true">${pick(q0)}</div>
+    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" aria-required="true" placeholder="Ex.: confirmado por telefone com o remetente às 15:20"></textarea></div><div class="err-msg" id="m-err" role="alert"></div>`,
     "Vincular e confirmar", "primary", () => {
       const sel = $("input[name=m-t]:checked"), just = $("#m-just").value.trim();
-      if (!sel) { $("#m-err").textContent = "Selecione um título."; return false; }
-      if (!just) { $("#m-just").classList.add("err"); $("#m-err").textContent = "A justificativa é obrigatória."; return false; }
-      const t = IDX.find(x => x.id === sel.value); const oldMot = c.mot; ensureAssigned(c);
-      Object.assign(c, { titulo: t, nf: t.nf, serie: t.serie, ced: t.ced, conf: { txt: "Vinculado pelo operador", em: clock() } });
-      addEv(c, "CONFIRMADO", "OPERADOR", `Título ${t.id} vinculado por ${ME} · justificativa: ${just}`, null, ["PENDENTE", "CONFIRMADO"]);
-      addEv(c, "PENDENCIA_RESOLVIDA", "SISTEMA", `${oldMot} resolvida por vínculo manual`);
-      addEv(c, "PENDENCIA_ABERTA", "SISTEMA", "Motivo PRONTO_LANCAMENTO_MANUAL · adaptador ManualAssistido", null, ["CONFIRMADO", "PENDENTE"]);
-      addMsg(c, "CONFIRMADO_EM_REGISTRO", TPL.CONFIRMADO_EM_REGISTRO({ p: c.id }));
-      Object.assign(c, { mot: "PRONTO_LANCAMENTO_MANUAL", estado: "PENDENTE", pst: "EM_ANALISE", aberta: clock(), alert: null }); c.sla = slaVence(c);
-      toast(`<b>${c.id}</b> vinculado ao título ${t.id} e movido para a Fila de lançamento.`); return true;
+      const t = sel ? IDX.find(x => x.id === sel.value) : null;
+      const r = vincularCaso(c, t, just, { outros: !!($("#m-outros") && $("#m-outros").checked) });
+      if (!r.ok) return erroModal("#m-" + r.campo, r.erro);
+      toast(`<b>${c.id}</b> vinculado ao título ${t.id}${r.outro ? ` (${esc(cedName(t.ced))})` : ""} e movido para a Fila de lançamento.`); return true;
     });
-  $("#m-q").addEventListener("input", e => { $("#m-pick").innerHTML = pick(e.target.value); });
+  $("#m-pick").addEventListener("change", e => { if (e.target.name === "m-t") selId = e.target.value; });
+  const cbOutros = $("#m-outros");
+  if (cbOutros) cbOutros.addEventListener("change", () => {
+    outros = cbOutros.checked;
+    if (!outros && selId && (IDX.find(t => t.id === selId) || {}).ced !== c.ced) selId = null;
+    $("#m-aviso").innerHTML = aviso(); poePick($("#m-q").value);
+  });
+  $("#m-q").addEventListener("input", e => { poePick(e.target.value); });
 }
 function dlgDescartar(c) {
   openModal(`Descartar · ${c.id}`, `<div class="field"><label for="m-mot">Motivo padronizado</label><select class="input" id="m-mot"><option>Não é canhoto</option><option>Envio indevido</option><option>Já registrado no NetFactor</option><option>Outro</option></select></div>
-    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just"></textarea></div>
-    <label class="check"><input type="checkbox" id="m-av" checked> Avisar o remetente</label><div class="err-msg" id="m-err"></div>`,
+    <div class="field"><label for="m-just">Justificativa (obrigatória)</label><textarea class="input" id="m-just" aria-required="true"></textarea></div>
+    <label class="check"><input type="checkbox" id="m-av" checked> Avisar o remetente</label><div class="err-msg" id="m-err" role="alert"></div>`,
     "Descartar caso", "danger", () => {
-      const just = $("#m-just").value.trim(); if (!just) { $("#m-just").classList.add("err"); $("#m-err").textContent = "A justificativa é obrigatória."; return false; }
+      const just = $("#m-just").value.trim(); if (!just) return erroModal("#m-just", "A justificativa é obrigatória.");
       const wasF = isFila(c);
       addEv(c, "PENDENCIA_RESOLVIDA", "OPERADOR", `Descartado por ${ME} · ${$("#m-mot").value} · ${just}`, null, ["PENDENTE", "DESCARTADO"]);
       if ($("#m-av").checked) addEv(c, "NOTIFICACAO_ENVIADA", "SISTEMA", "Aviso de encerramento enviado ao remetente");
-      Object.assign(c, { estado: "DESCARTADO", pst: "ENCERRADA_SEM_REGISTRO", wasFila: wasF }); UI.fila.sel.delete(c.id);
+      Object.assign(c, { estado: "DESCARTADO", pst: "ENCERRADA_SEM_REGISTRO", wasFila: wasF, encerradaEm: clock() }); UI.fila.sel.delete(c.id);
       toast(`<b>${c.id}</b> descartado.`); return true;
     });
 }
 function dlgDesfazer(c) {
   openModal(`Desfazer registro · ${c.id}`, `<div class="note warn">${IC.warn}<span>Na Fase 1 a reversão no NetFactor é manual e declarada. Ação restrita ao perfil supervisor.</span></div>
-    <div class="field"><label for="m-just">Motivo (obrigatório)</label><textarea class="input" id="m-just" placeholder="Ex.: canhoto lançado no título errado"></textarea></div>
-    <label class="check"><input type="checkbox" id="m-ok"> Confirmo que reverti manualmente o registro no NetFactor</label><div class="err-msg" id="m-err"></div>`,
+    <div class="field"><label for="m-just">Motivo (obrigatório)</label><textarea class="input" id="m-just" aria-required="true" placeholder="Ex.: canhoto lançado no título errado"></textarea></div>
+    <label class="check"><input type="checkbox" id="m-ok" aria-required="true"> Confirmo que reverti manualmente o registro no NetFactor</label><div class="err-msg" id="m-err" role="alert"></div>`,
     "Desfazer registro", "danger", () => {
-      const just = $("#m-just").value.trim(); if (!just || !$("#m-ok").checked) { $("#m-err").textContent = "Informe o motivo e confirme a reversão manual."; return false; }
-      addEv(c, "REGISTRO_DESFEITO", "OPERADOR", `Desfeito por ${ME} · ${just}`, null, ["CONCLUIDO", "DESFEITO"]); c.estado = "DESFEITO";
+      const just = $("#m-just").value.trim(); if (!just || !$("#m-ok").checked) return erroModal(just ? "#m-ok" : "#m-just", "Informe o motivo e confirme a reversão manual.");
+      addEv(c, "REGISTRO_DESFEITO", "OPERADOR", `Desfeito por ${ME} · ${just}`, null, ["CONCLUIDO", "DESFEITO"]); c.estado = "DESFEITO"; c.desfeitoEm = clock(); c.encerradaEm = c.encerradaEm || c.desfeitoEm;
       toast(`Registro do caso <b>${c.id}</b> desfeito.`); return true;
     });
 }
 function doReprocessar(c) {
   addEv(c, "PENDENCIA_REPROCESSADA", "OPERADOR", `Reprocessamento solicitado por ${ME}`); const prev = c.pst; c.pst = "REPROCESSANDO"; toast(`Reprocessando <b>${c.id}</b>…`); render();
   setTimeout(() => {
-    if (c.mot === "NETFACTOR_INDISPONIVEL") {
-      c.titulo = c.hidden; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA";
+    const dono = c.mot === "NETFACTOR_INDISPONIVEL" ? donoDoTitulo(c.hidden, c) : null;
+    if (dono) {
+      fecharDuplicidade(c, c.hidden, dono); toast(`Consulta respondeu: o título ${c.hidden.id} já tem o caso <b>${dono.id}</b>. <b>${c.id}</b> encerrado como duplicidade.`);
+    } else if (c.mot === "NETFACTOR_INDISPONIVEL") {
+      c.titulo = c.hidden; c.estado = "AGUARDANDO_CONFIRMACAO"; c.pst = "RESOLVIDA"; c.encerradaEm = clock();
       addEv(c, "TITULO_ENCONTRADO", "SISTEMA", `1 título · ID NetFactor ${c.titulo.id} · consulta respondeu`, null, ["BUSCANDO_TITULO", "AGUARDANDO_CONFIRMACAO"]);
       addEv(c, "CONFIRMACAO_SOLICITADA", "SISTEMA", "Resumo do título enviado ao remetente"); addMsg(c, "CONFIRMACAO", TPL.CONFIRMACAO(vars(c)));
       toast(`Consulta respondeu. Confirmação enviada ao remetente de <b>${c.id}</b>.`);
@@ -1210,7 +1417,7 @@ function viewWA() {
   const { A, B } = waFlows(); const a = byId("K7Q2-91");
   const steps = (arr) => `<ol class="steps">${arr.map((s, i) => `<li><span class="n">${i + 1}</span><div><div class="st">${s[0]}</div><div class="ds">${s[1]}</div></div></li>`).join("")}</ol>`;
   return `
-  <div class="ph"><div><h1>Conversa WhatsApp</h1><p>Simulação do canal visto pelo remetente, com os modelos de mensagem da spec 6.6 e o template "Confirmado, em registro" da Fase 1. Botões SIM/NÃO quando o provedor permitir; texto livre sempre aceito.</p></div></div>
+  <div class="ph"><div><h1 tabindex="-1">Conversa WhatsApp</h1><p>Simulação do canal visto pelo remetente, com os modelos de mensagem da spec 6.6 e o template "Confirmado, em registro" da Fase 1. Botões SIM/NÃO quando o provedor permitir; texto livre sempre aceito.</p></div></div>
   <div class="wa-wrap">
     <div><div class="flow-h"><h2 id="t-flow-A">Fluxo feliz</h2>${badge("K7Q2-91", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="A">${IC.play}Reproduzir</button></div>${phone("A", A, "14:05")}</div>
     <div><div class="flow-h"><h2 id="t-flow-B">OCR falhou</h2>${badge("K7Q2-89", "b-acc plain")}<button class="btn sm" style="margin-left:auto" data-act="waPlay" data-f="B">${IC.play}Reproduzir</button></div>${phone("B", B, "13:55")}</div>
@@ -1226,9 +1433,13 @@ function viewWA() {
     </div>
   </div>`;
 }
+const movimentoReduzido = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 function waPlay(f) {
   const items = waFlows()[f]; const chat = $("#chat-" + f); if (!chat) return;
-  const token = (UI.wa[f] = (UI.wa[f] || 0) + 1); chat.innerHTML = ""; let i = 0;
+  const token = (UI.wa[f] = (UI.wa[f] || 0) + 1);
+  /* movimento reduzido: a conversa aparece inteira, sem "digitando" nem atrasos */
+  if (movimentoReduzido()) { chat.innerHTML = items.map(waItem).join(""); chat.scrollTop = chat.scrollHeight; return; }
+  chat.innerHTML = ""; let i = 0;
   const step = () => {
     if (UI.wa[f] !== token || !document.body.contains(chat)) return; if (i >= items.length) return;
     const m = items[i++];
@@ -1262,7 +1473,7 @@ function viewEmail() {
   const item = (x, open) => open ? `<div class="thread-item"><div class="mhdr"><div class="av fx">F</div><div><div style="font-weight:650">Flixsign Canhotos <span class="auto">Resposta automática</span></div><div class="small muted">para ${esc(mask(c.rem.id))} · ${esc(x.subj)}</div></div><div class="small muted num">${fDT(x.t)}</div></div><div class="mbody">${esc(x.body)}</div><div class="small faint mind">Template ${esc(x.tpl)} · resposta na mesma thread (In-Reply-To / References)</div></div>`
     : `<div class="collapsed" role="button" tabindex="0" data-act="mexp"><span class="avatar" style="width:24px;height:24px;font-size:10px;${x.auto ? "background:var(--accent-soft);color:var(--accent)" : "background:#ede9fe;color:#5b21b6"}">${x.auto ? "F" : esc(c.rem.nome[0])}</span><b style="color:var(--text-2)">${x.auto ? "Flixsign Canhotos" : esc(c.rem.nome)}</b><span class="ellipsis" style="flex:1">${esc(x.body.split("\n")[0])}</span><span class="num">${fDM(x.t)}</span></div>`;
   return `
-  <div class="ph"><div><h1>E-mail</h1><p>Caixa dedicada do canal (endereço ilustrativo). Cada imagem anexada gera um caso; a resposta automática segue na mesma thread, com SIM ou NÃO na primeira linha.</p></div></div>
+  <div class="ph"><div><h1 tabindex="-1">E-mail</h1><p>Caixa dedicada do canal (endereço ilustrativo). Cada imagem anexada gera um caso; a resposta automática segue na mesma thread, com SIM ou NÃO na primeira linha.</p></div></div>
   <div class="mail-wrap">
     <div class="card mlist"><div class="card-h" style="padding-bottom:10px;display:block"><h2>Caixa de entrada</h2><div class="xs muted ellipsis" style="margin-top:2px">canhotos+modeloalfa@flixsign.com.br</div></div>
       ${MAILS.map(m => { const cc = byId(m.id); return `<div class="mi${m.id === UI.mail ? " on" : ""}" role="button" tabindex="0" aria-pressed="${m.id === UI.mail}" data-act="mail" data-id="${m.id}"><div class="f"><span class="ellipsis">${esc(m.from)}</span><span class="muted num" style="font-weight:400">${fDM(cc.rec)}</span></div><div class="s ellipsis">${esc(m.subj)}</div><div class="p" style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px">${cc.id}</span>${estadoBadge(cc)}</div></div>`; }).join("")}
@@ -1305,12 +1516,12 @@ function viewConfig() {
       <div class="card"><div class="card-h"><h2>Fonte do índice de títulos</h2><span class="sub">ResolvedorTitulo · IndiceLocal</span></div><div class="card-b grid" style="gap:10px">
         <label class="opt on"><input type="radio" name="fonte" checked><div><div class="ot">Importação de planilha ${badge("Ativa", "b-ok")}</div><div class="od">Planilha exportada do NetFactor ou de outro sistema do cliente. Último lote: ${fDT(SYNC)} · 1.284 linhas lidas, 1.271 inseridas ou atualizadas, <a href="#config" data-act="toastErr">13 rejeitadas</a>.</div>
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><div class="drop" data-act="upload" style="flex:1;min-width:180px">Arraste a planilha (.xlsx ou .csv) ou clique para importar</div><button class="btn sm" data-act="modelo" type="button">${IC.dl}Modelo de colunas</button></div></div></label>
-        <label class="opt dis" title="Indisponível até a liberação da API pela OrderBy"><input type="radio" name="fonte" disabled><div><div class="ot">Sincronização NetFactor ${badge("Aguardando API OrderBy", "b-warn")}</div><div class="od">Listagem de títulos por cedente e período via credencial de serviço (h); busca direta por NF (a) ainda não disponível. Ativação por cedente quando houver credencial.</div></div></label>
+        <label class="opt dis"><input type="radio" name="fonte" disabled><div><div class="ot">Sincronização NetFactor ${badge("Aguardando API OrderBy", "b-warn")}</div><div class="od">Listagem de títulos por cedente e período via credencial de serviço (h); busca direta por NF (a) ainda não disponível. Ativação por cedente quando houver credencial.</div><div class="ind">Indisponível até a liberação da API pela OrderBy.</div></div></label>
       </div></div>
       <div class="card"><div class="card-h"><h2>Adaptador de registro</h2><span class="sub">RegistroCanhoto · por tenant</span></div><div class="card-b grid" style="gap:10px">
         <label class="opt on"><input type="radio" name="adapt" checked><div><div class="ot">Manual assistido ${badge("Ativo", "b-ok")}</div><div class="od">Gera o pacote de lançamento e abre <span class="code">PRONTO_LANCAMENTO_MANUAL</span>. O operador lança no NetFactor e marca como lançado.</div></div></label>
-        <label class="opt dis" title="Indisponível: depende das capacidades (c) e (d)"><input type="radio" name="adapt" disabled><div><div class="ot">API NetFactor ${badge("Indisponível", "b-bad")}</div><div class="od">Depende de (c) anexar imagem a título existente e (d) marcar canhoto recebido, com respostas claras (e) e acesso de serviço (h). Pendente de resposta da OrderBy.</div></div></label>
-        <label class="opt dis"><input type="radio" name="adapt" disabled><div><div class="ot">Simulado ${badge("Só homologação", "b-neu")}</div><div class="od">Simula sucesso, falha técnica, rejeição e registro parcial para testes de contrato.</div></div></label>
+        <label class="opt dis"><input type="radio" name="adapt" disabled><div><div class="ot">API NetFactor ${badge("Indisponível", "b-bad")}</div><div class="od">Depende de (c) anexar imagem a título existente e (d) marcar canhoto recebido, com respostas claras (e) e acesso de serviço (h). Pendente de resposta da OrderBy.</div><div class="ind">Indisponível: depende das capacidades (c) e (d).</div></div></label>
+        <label class="opt dis"><input type="radio" name="adapt" disabled><div><div class="ot">Simulado ${badge("Só homologação", "b-neu")}</div><div class="od">Simula sucesso, falha técnica, rejeição e registro parcial para testes de contrato.</div><div class="ind">Indisponível neste ambiente: só em homologação.</div></div></label>
         <div class="xs faint">Troca de adaptador: somente admin Flixsign. Alteração gera evento CONFIGURACAO_ALTERADA.</div>
       </div></div>
       <div class="card"><div class="card-h"><h2>Cliente (tenant)</h2></div><div class="card-b"><dl class="kv">
@@ -1323,9 +1534,9 @@ function viewConfig() {
       </dl><div class="note warn" style="margin-top:12px">${IC.warn}<span>Acesso de serviço sem usuário logado (h) a confirmar com a OrderBy. O segredo fica em cofre e nunca é exibido depois do cadastro.</span></div>
       <button class="btn sm" style="margin-top:10px" data-act="cred">Cadastrar credencial</button></div></div>
     </div>`;
-  if (t === "cedentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:170px"><col><col style="width:110px"><col style="width:150px"><col style="width:150px"><col style="width:100px"><col style="width:70px"></colgroup><thead><tr><th>CNPJ</th><th>Razão social</th><th>ID NetFactor</th><th>Fonte do índice</th><th>Última sincronização</th><th class="r">Remetentes</th><th>Ativo</th></tr></thead><tbody>
+  if (t === "cedentes") body = `<div class="card"><div class="tbl-wrap" id="rol-cfg-${t}" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:170px"><col><col style="width:110px"><col style="width:150px"><col style="width:150px"><col style="width:100px"><col style="width:70px"></colgroup><thead><tr><th>CNPJ</th><th>Razão social</th><th>ID NetFactor</th><th>Fonte do índice</th><th>Última sincronização</th><th class="r">Remetentes</th><th>Ativo</th></tr></thead><tbody>
     ${Object.values(CED).map(x => `<tr style="cursor:default"><td class="num" data-l="CNPJ">${x.cnpj}</td><td data-l="Razão social">${esc(x.razao)}</td><td class="mono" data-l="ID NetFactor">${x.idnf}</td><td data-l="Fonte do índice">${badge("Planilha", "b-acc plain")}</td><td class="num" data-l="Última sincronização">${fDT(SYNC)}</td><td class="r num" data-l="Remetentes">${x.rem}</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(x.razao)}"><span></span></label></td></tr>`).join("")}</tbody></table></div></div>`;
-  if (t === "remetentes") body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:30%"><col style="width:20%"><col><col style="width:130px"><col style="width:70px"></colgroup><thead><tr><th>Telefone ou e-mail</th><th>Nome</th><th>Cedentes vinculados</th><th>Vigência</th><th>Ativo</th></tr></thead><tbody>
+  if (t === "remetentes") body = `<div class="card"><div class="tbl-wrap" id="rol-cfg-${t}" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:30%"><col style="width:20%"><col><col style="width:130px"><col style="width:70px"></colgroup><thead><tr><th>Telefone ou e-mail</th><th>Nome</th><th>Cedentes vinculados</th><th>Vigência</th><th>Ativo</th></tr></thead><tbody>
     ${Object.values(REM).filter(r => r.aut).map(r => `<tr style="cursor:default"><td class="ellipsis full" data-l="Telefone ou e-mail">${esc(r.id)}</td><td data-l="Nome">${esc(r.nome)}</td><td class="ellipsis full" data-l="Cedentes vinculados">${r.ceds.map(cedName).join(", ")}</td><td class="num" data-l="Vigência">01/09/2026 —</td><td data-l="Ativo"><label class="switch"><input type="checkbox" checked aria-label="Ativo: ${esc(r.nome)}"><span></span></label></td></tr>`).join("")}</tbody></table></div>
     <div class="tbl-foot">Remetente desconhecido: política "seguir com revisão" (pendência REMETENTE_NAO_AUTORIZADO) · ver caso <a href="#caso/K7Q2-71" class="mono">K7Q2-71</a></div></div>`;
   if (t === "operadores") body = `<div class="card"><table class="tbl stk"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th></tr></thead><tbody>
@@ -1339,28 +1550,61 @@ function viewConfig() {
       ${Object.entries(MOT).filter(([k, v]) => !v.dup && !v.fase2).map(([k, v]) => `<tr style="cursor:default"><td><span class="code">${k}</span></td><td class="r">${{ "4h": "4 h", "1du": "1 dia útil", mesmo: "Mesmo dia útil", imediato: "Imediato (automático)" }[v.sla]}</td></tr>`).join("")}</tbody></table></div></div></div>`;
   if (t === "templates") { const ex = { p: "K7Q2-91", nf: "458731", sac: "Comercial Ponte Alta Ltda", val: 18430, venc: DN(11, 6), dh: "08/10/2026 17:05", mot: "imagem ilegível", dr: "08/10/2026 14:05" };
     const rows = [["RECEBIMENTO", "Não se aplica"], ["PEDIDO_DIGITACAO", "Não se aplica"], ["NOVA_FOTO", "Não se aplica"], ["CONFIRMACAO", "Não se aplica"], ["NAO_ENCONTRADA", "Não se aplica"], ["CONFIRMADO_EM_REGISTRO", "Não se aplica"], ["SUCESSO", "Aprovado"], ["PENDENCIA", "Aprovado"], ["INDISPONIVEL", "Pendente"], ["NEGADO", "Não se aplica"], ["DUPLICIDADE", "Não se aplica"]];
-    body = `<div class="card"><div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:210px"><col style="width:70px"><col style="width:150px"><col></colgroup><thead><tr><th>Tipo</th><th>Versão</th><th>Aprovação WhatsApp</th><th>Texto (com exemplo)</th></tr></thead><tbody>
+    body = `<div class="card"><div class="tbl-wrap" id="rol-cfg-${t}" tabindex="0" role="region" aria-labelledby="t-pg"><table class="tbl stk"><colgroup><col style="width:210px"><col style="width:70px"><col style="width:150px"><col></colgroup><thead><tr><th>Tipo</th><th>Versão</th><th>Aprovação WhatsApp</th><th>Texto (com exemplo)</th></tr></thead><tbody>
     ${rows.map(([k, a]) => `<tr style="cursor:default"><td class="full" data-l="Tipo"><span class="code">${k}</span></td><td class="num" data-l="Versão">v1</td><td data-l="Aprovação WhatsApp">${badge(a, a === "Aprovado" ? "b-ok" : a === "Pendente" ? "b-warn" : "b-neu")}</td><td class="ellipsis small full clamp" data-l="Texto (com exemplo)" title="${esc(TPL[k](ex))}">${esc(TPL[k](ex).replace(/\n/g, " · "))}</td></tr>`).join("")}</tbody></table></div><div class="tbl-foot">Mensagens fora da janela de 24 h do WhatsApp usam template aprovado (ex.: aviso de sucesso após lançamento manual).</div></div>`; }
-  return `<div class="ph"><div><h1 id="t-pg">Configurações</h1><p>Administração do tenant ${TENANT.nome}: cadastros, fonte do índice de títulos, adaptador de registro e parâmetros.</p></div></div>
+  return `<div class="ph"><div><h1 id="t-pg" tabindex="-1">Configurações</h1><p>Administração do tenant ${TENANT.nome}: cadastros, fonte do índice de títulos, adaptador de registro e parâmetros.</p></div></div>
     <div class="tabs">${tabs.map(([k, l]) => `<button class="${k === t ? "on" : ""}" aria-pressed="${k === t}" data-act="cfgTab" data-k="${k}">${l}</button>`).join("")}</div>${body}`;
 }
 
 /* ================= Roteador e eventos ================= */
 const TITLES = { dashboard: "Visão geral", fila: "Fila de lançamento", pendencias: "Pendências", caso: "Detalhe do caso", whatsapp: "Conversa WhatsApp", email: "E-mail", config: "Configurações" };
-let lastRoute = "", fromList = "fila";
-/* Foco: descreve o elemento focado (id ou data-act + chaves) para devolvê-lo ao equivalente depois de trocar o conteúdo */
+let lastRoute = "", fromList = "fila", origemCaso = null;
+/* Menu: aria-current="page" no link da tela atual; no detalhe do caso, "true" no link da lista de origem */
+const ariaAtual = (r, route) => route === "caso" ? (r === fromList ? "true" : null) : r === route ? "page" : null;
+/* Troca de tela: o foco vai para o h1 da nova tela; ao sair do caso X para a Fila ou as Pendências, para o link do caso X;
+   para outra tela (E-mail, WhatsApp), só se o caso foi aberto dela (origemCaso), como ao voltar pelo navegador */
+function focoDaRota(prev, route) {
+  const m = /^caso\/(.+)$/.exec(prev || ""); if (!m) return null;
+  const lista = route === "fila" || route === "pendencias", origem = !!origemCaso && origemCaso.id === m[1] && origemCaso.de === route;
+  return lista || origem ? `a[href="#caso/${CSS.escape(m[1])}"]` : null;
+}
+function focarTela(sel) {
+  const alvo = sel && $("#view " + sel);
+  if (alvo) { alvo.focus(); return; }
+  const h1 = $("#view h1"); if (h1) { h1.focus({ preventScroll: true }); return; }
+  const v = $("#view"); v.tabIndex = -1; v.focus({ preventScroll: true });
+}
+/* Foco: descreve o elemento focado (h1, id ou data-act + chaves) para devolvê-lo ao equivalente depois de trocar o conteúdo */
 function focoDe(el) {
   if (!el || el === $("#view") || !$("#view").contains(el)) return null;
   const d = el.dataset || {};
+  if (el.tagName === "H1") return { sel: "h1" };
   if (el.id) return { sel: "#" + CSS.escape(el.id), id: d.id };
   if (!d.act) return null;
   return { sel: `[data-act="${d.act}"]` + ["id", "k", "mot", "i"].filter(k => d[k] != null).map(k => `[data-${k}="${CSS.escape(d[k])}"]`).join(""), id: d.id, i: d.i };
 }
 function focar(d, caret) {
   if (!d) return;
-  const alvos = [d.sel, d.i != null && `[data-exp="${CSS.escape(d.i)}"]`, d.id && `[data-act][data-id="${CSS.escape(d.id)}"]:not([disabled])`, d.id && `a[href="#caso/${CSS.escape(d.id)}"]`].filter(Boolean);
+  const alvos = [d.sel, d.i != null && `[data-exp="${CSS.escape(d.i)}"]`, d.id && `[data-act][data-id="${CSS.escape(d.id)}"]:not([disabled]):not([aria-disabled="true"])`, d.id && `a[href="#caso/${CSS.escape(d.id)}"]`].filter(Boolean);
   for (const s of alvos) { const el = $("#view " + s); if (!el) continue; el.focus({ preventScroll: true }); if (document.activeElement !== el) continue;
-    if (caret != null && /^(ff|pf)-q$/.test(el.id)) { try { el.setSelectionRange(caret, caret); } catch (e) {} } return; }
+    if (caret != null && /^(ff|pf)-q$/.test(el.id)) { try { el.setSelectionRange(caret, caret); } catch (e) {} }
+    mostraFoco(el); return; }
+}
+/* Quanto rolar (dx, dy) para o retângulo r caber na área visível a {l, r, t, b}, com folga m para o anel de foco; 0 se já cabe */
+const ajusteVisivel = (r, a, m = 8) => ({
+  dx: r.left < a.l ? r.left - a.l - m : r.right > a.r ? r.right - a.r + m : 0,
+  dy: r.top < a.t ? r.top - a.t - m : r.bottom > a.b ? r.bottom - a.b + m : 0 });
+/* O foco devolvido com preventScroll numa área #rol-* cuja rolagem sobreviveu ao redesenho pode cair fora da parte visível
+   ou atrás das colunas fixas (SLA e Ação da Fila, Ação das Pendências): rola a área só o necessário para mostrá-lo */
+function mostraFoco(el) {
+  const w = el.closest && el.closest("[id^='rol-']"); if (!w || w === el) return;
+  const b = w.getBoundingClientRect(), a = { l: b.left + w.clientLeft, t: b.top + w.clientTop }; a.r = a.l + w.clientWidth; a.b = a.t + w.clientHeight;
+  const cel = el.closest("td, th"), fixa = c => getComputedStyle(c).position === "sticky";
+  if (cel && !fixa(cel)) for (const c of cel.parentElement.children) {
+    if (!fixa(c)) continue; const s = getComputedStyle(c), cr = c.getBoundingClientRect();
+    if (s.right !== "auto") a.r = Math.min(a.r, cr.left); else if (s.left !== "auto") a.l = Math.max(a.l, cr.right); }
+  const { dx, dy } = ajusteVisivel(el.getBoundingClientRect(), a);
+  if (dx) w.scrollLeft += dx; if (dy) w.scrollTop += dy;
 }
 /* Tabelas que rolam dentro do cartão ganham a sombra das colunas fixas */
 function marcaRolagem() { $$(".tbl-wrap").forEach(w => w.classList.toggle("ovf", w.scrollWidth > w.clientWidth + 1)); }
@@ -1368,14 +1612,20 @@ function render() {
   const h = (location.hash || "#dashboard").slice(1); const [r, arg] = h.split("/"); const route = TITLES[r] ? r : "dashboard";
   const changed = h !== lastRoute; if (changed && route === "caso") { UI.zoom = 1; UI.rot = 0; }
   if (changed && (route === "fila" || route === "pendencias")) fromList = route;
+  if (changed && route === "caso") origemCaso = { de: lastRoute.split("/")[0] || null, id: arg };
   const ae = document.activeElement, foco = focoDe(ae), caret = ae && ae.selectionStart;
+  const agora = clock(); CASES.forEach(c => avancaReprocesso(c, agora));
   const html = { dashboard: viewDashboard, fila: viewFila, pendencias: viewPend, caso: () => viewCaso(arg), whatsapp: viewWA, email: viewEmail, config: viewConfig }[route]();
+  /* rolagem das áreas #rol-* (tabelas largas, Histórico) sobrevive ao redesenho da mesma tela: marcar linha, filtro, ações, relógio */
+  const rol = changed ? [] : $$("#view [id^='rol-']").map(el => [el.id, el.scrollLeft, el.scrollTop]);
   $("#view").innerHTML = html; counts();
-  $$("#nav a").forEach(a => a.classList.toggle("active", a.dataset.r === (route === "caso" ? fromList : route)));
+  rol.forEach(([id, l, t]) => { const el = $("#" + id); if (el) { el.scrollLeft = l; el.scrollTop = t; } });
+  $$("#view [data-indet]").forEach(i => { i.indeterminate = true; });
+  $$("#nav a").forEach(a => { const v = ariaAtual(a.dataset.r, route); a.classList.toggle("active", !!v); if (v) a.setAttribute("aria-current", v); else a.removeAttribute("aria-current"); });
   $("#crumb-page").textContent = route === "caso" ? `Caso ${arg}` : TITLES[route];
   document.title = `${route === "caso" ? "Caso " + arg : TITLES[route]} · Flixsign Canhoto (mockup)`;
-  if (changed) { window.scrollTo(0, 0); lastRoute = h; }
-  if (!changed) focar(foco, caret);
+  if (changed) { fechaBuscaMovel(); window.scrollTo(0, 0); const prev = lastRoute; lastRoute = h; if (prev) focarTela(focoDaRota(prev, route)); }
+  else focar(foco, caret);
   marcaRolagem();
   CASES.forEach(c => c.events.forEach(e => { if (e.fresh) setTimeout(() => { e.fresh = false; }, 50); }));
   $$(".chat").forEach(ch => { ch.scrollTop = 0; });
@@ -1384,15 +1634,29 @@ function setF(path, v) { const [a, b] = path.split("."); UI[a][b] = v; }
 document.addEventListener("input", e => { const f = e.target.dataset && e.target.dataset.f; if (f && e.target.tagName === "INPUT") { setF(f, e.target.value); render(); } });
 document.addEventListener("change", e => { const f = e.target.dataset && e.target.dataset.f; if (f && e.target.tagName === "SELECT") { setF(f, e.target.value); render(); } });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#overlay").classList.contains("on")) closeModal(); });
+document.addEventListener("keydown", prendeTab);
+document.addEventListener("toggle", e => { if (e.target.id === "dados-graf") UI.dash.dados = e.target.open; }, true);
 document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[role="button"][tabindex]')) { e.preventDefault(); e.target.click(); } });
 $("#overlay").addEventListener("mousedown", e => { if (e.target.id === "overlay") closeModal(); });
-$("#gsearch").addEventListener("keydown", e => { if (e.key !== "Enter") return; const q = e.target.value.trim().toUpperCase(); if (!q) return;
-  const c = CASES.find(x => x.id === q) || CASES.find(x => x.nf === q) || CASES.find(x => x.id.endsWith(q)); if (c) { location.hash = "#caso/" + c.id; e.target.value = ""; } else toast(`Nenhum caso para "${esc(q)}".`); });
+/* Busca global: campo fixo na barra a partir de 821 px; no celular abre pelo botão (aria-expanded) numa linha própria */
+function buscaMovel(abrir) { $("#topbar").classList.toggle("busca", abrir); $("#gsearch-btn").setAttribute("aria-expanded", String(abrir)); if (abrir) $("#gsearch").focus(); }
+/* A busca aberta no celular fecha ao trocar de tela e ao passar para o layout de desktop, onde o botão some
+   (sem isso ele ficava escondido com aria-expanded=true); não move o foco. Ao passar para o celular com o foco
+   no campo, a busca abre para o campo continuar visível */
+function fechaBuscaMovel() { if ($("#topbar").classList.contains("busca")) buscaMovel(false); }
+const mqCelular = window.matchMedia && window.matchMedia("(max-width:820px)");
+if (mqCelular && mqCelular.addEventListener) mqCelular.addEventListener("change", e => { if (!e.matches) fechaBuscaMovel(); else if (document.activeElement === $("#gsearch") && !$("#topbar").classList.contains("busca")) buscaMovel(true); });
+$("#gsearch").addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("#topbar").classList.contains("busca")) { buscaMovel(false); $("#gsearch-btn").focus(); return; }
+  if (e.key !== "Enter") return; const q = e.target.value.trim().toUpperCase(); if (!q) return;
+  const c = CASES.find(x => x.id === q) || CASES.find(x => x.nf === q) || CASES.find(x => x.id.endsWith(q)); if (!c) { toast(`Nenhum caso para "${esc(q)}".`); return; }
+  e.target.value = ""; buscaMovel(false); const alvo = "#caso/" + c.id;
+  if (location.hash === alvo) focarTela(null); else location.hash = alvo; });
 $("#tenant").addEventListener("change", e => { toast(e.target.value === "beta" ? "Troca de tenant simulada. No produto, filas, imagens e métricas não atravessam tenants; este mockup mostra só o FIDC Modelo Alfa." : "Tenant FIDC Modelo Alfa."); e.target.value = "alfa"; });
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]");
   if (t) {
-    if (t.disabled) return;
+    if (t.disabled || t.getAttribute("aria-disabled") === "true") return;
     const act = t.dataset.act, c = t.dataset.id ? byId(t.dataset.id) : null;
     switch (act) {
       case "mclose": closeModal(); return;
@@ -1405,6 +1669,8 @@ document.addEventListener("click", e => {
       case "descartar": dlgDescartar(c); return;
       case "desfazer": dlgDesfazer(c); return;
       case "back": location.hash = "#" + fromList; return;
+      case "skip": e.preventDefault(); focarTela(null); return;
+      case "gsearch": buscaMovel(!$("#topbar").classList.contains("busca")); return;
       case "zin": UI.zoom = Math.min(2.4, UI.zoom + .25); $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
       case "zout": UI.zoom = Math.max(.6, UI.zoom - .25); $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
       case "rot": UI.rot = (UI.rot + 90) % 360; $("#stage").style.transform = `scale(${UI.zoom}) rotate(${UI.rot}deg)`; return;
@@ -1414,8 +1680,9 @@ document.addEventListener("click", e => {
         try { navigator.clipboard.writeText(txt).catch(() => {}); } catch (err) {} toast("Dados do pacote de lançamento copiados."); return; }
       case "histF": UI.histF = t.dataset.k; render(); return;
       case "sel": e.stopPropagation(); t.checked ? UI.fila.sel.add(t.dataset.id) : UI.fila.sel.delete(t.dataset.id); render(); return;
-      case "selAll": { const rows = filaRows().filter(x => x.estado === "PENDENTE"); if (t.checked) rows.forEach(x => UI.fila.sel.add(x.id)); else UI.fila.sel.clear(); render(); return; }
-      case "assumirLote": { let n = 0; UI.fila.sel.forEach(id => { const x = byId(id); if (x && x.resp !== ME) { ensureAssigned(x); n++; } }); UI.fila.sel.clear(); toast(`${n} caso(s) atribuído(s) a você.`); render(); return; }
+      case "selAll": { const vis = filaRows().filter(selecionavel); vis.forEach(x => t.checked ? UI.fila.sel.add(x.id) : UI.fila.sel.delete(x.id)); render(); return; }
+      case "assumirLote": { const vis = new Set(filaRows().filter(selecionavel).map(x => x.id)); let n = 0;
+        UI.fila.sel.forEach(id => { const x = byId(id); if (x && vis.has(id) && x.resp !== ME) { ensureAssigned(x); n++; } }); UI.fila.sel.clear(); toast(`${n} caso(s) atribuído(s) a você.`); render(); return; }
       case "clearFila": Object.assign(UI.fila, { ced: "", canal: "", resp: "", sla: "", q: "" }); render(); return;
       case "clearPend": Object.assign(UI.pend, { mot: "", canal: "", st: "", sla: "", q: "" }); render(); return;
       case "chipMot": UI.pend.mot = t.dataset.mot; render(); return;
